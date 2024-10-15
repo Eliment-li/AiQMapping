@@ -1,0 +1,20 @@
+ray[rllib] == 2.10.0
+torch
+torchvision
+torchaudio
+loguru
+gymnasium
+matplotlib
+pyyaml
+munch
+pyvis
+scikit-image
+seaborn
+shared-memory-dict
+tensorboard
+openpyxl
+gputil
+qiskit
+qiskit-aer
+
+# download swig
