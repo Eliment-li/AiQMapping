@@ -16,5 +16,6 @@ openpyxl
 gputil
 qiskit
 qiskit-aer
+chardet
 
 # download swig
