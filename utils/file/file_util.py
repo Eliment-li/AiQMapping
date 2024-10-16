@@ -3,7 +3,15 @@ import os
 import os
 import shutil
 import zipfile
+import chardet
 
+
+def get_encoding(path):
+    # 读取文件的前几行，检测编码
+    with open(path, 'rb') as f:
+        result = chardet.detect(f.read(1000))
+        encoding = result['encoding']
+        return encoding
 
 def read_all(path: str) -> str:
     root_dir = get_root_dir()
@@ -126,7 +134,7 @@ if __name__ == '__main__':
     # zip_path,zip_file_name = compress_folder(path1)
     # copy(zip_path,path2,zip_file_name)
 
-    # content = read_all('data/test_set/xeb/xeb3/XEB_3_qubits_8_cycles_circuit.txt')
+    # content = read_all('data/circuits/xeb/xeb3/XEB_3_qubits_8_cycles_circuit.txt')
     # print(content)
 
     #
