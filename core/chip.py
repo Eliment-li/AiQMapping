@@ -7,14 +7,16 @@ directory  = Path('data')
 qubits_error_path = directory / 'chip' / 'SingleQubit.csv'
 coupling_path = directory / 'chip' / '2QCZXEB.csv'
 
-def get_qubits_error_rate():
+def read_qubits_error_rate():
     data = read_df(relative_path=qubits_error_path)
-    row_data = data.iloc[2, 1:64]
+    row_data = data.iloc[2, 1:64].to_numpy()
+    row_data = [float(x) for x in row_data]
     return row_data
 
 def read_coupling_score():
     data = read_df(relative_path=coupling_path)
-    row_data = data.iloc[1, 1:90]
+    row_data = data.iloc[1, 1:90].to_numpy()
+    row_data = [float(x) for x in row_data]
     return row_data
 
 
@@ -39,7 +41,7 @@ def read_adj_list():
 
     return list
 
-QUBITS_ERROR_RATE = get_qubits_error_rate()
+QUBITS_ERROR_RATE = read_qubits_error_rate()
 COUPLING_SCORE = read_coupling_score()
 ADJ_LIST = read_adj_list()
 
@@ -98,8 +100,17 @@ def move_point(grid, direction,start_x,start_y):
     return (row, col)
 
 qmap = [
-    [0,1,2,3,4,5],
-    []
+    [0, 1, 2, 3, 4, 5],
+    [6, 7, 8, 9, 10, 11],
+    [12, 13, 14, 15, 16, 17],
+    [18, 19, 20, 21, 22, 23],
+    [24, 25, 26, 27, 28, 29],
+    [30, 31, 32, 33, 34, 35],
+    [36, 37, 38, 39, 40, 41],
+    [42, 43, 44, 45, 46, 47],
+    [48, 49, 50, 51, 52, 53],
+    [54, 55, 56, 57, 58, 59],
+    [60, 61, 62, 63, 64, 65],
 ]
 
-
+print(QUBITS_ERROR_RATE + COUPLING_SCORE)

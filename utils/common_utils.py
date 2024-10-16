@@ -1,7 +1,17 @@
 import math
+import random
 
+def generate_unique_coordinates(count,max_X,max_Y):
+    coordinates = set()
 
-def calculate_total_distance(positions):
+    while len(coordinates) < count:
+        x = random.randint(0, max_X - 1)
+        y = random.randint(0, max_Y - 1)
+        coordinates.add((x, y))
+
+    return [list(coord) for coord in coordinates]
+
+def compute_total_distance(positions):
     # 初始化距离之和
     total_distance = 0
 
@@ -22,6 +32,7 @@ def calculate_total_distance(positions):
     return total_distance
 
 
+
 # 示例调用
 positions = [
     [1, 0],
@@ -29,5 +40,5 @@ positions = [
     [3, 0]
 ]
 
-result = calculate_total_distance(positions)
+result = compute_total_distance(positions)
 print("所有点之间的距离之和为:", result)
