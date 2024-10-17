@@ -58,57 +58,51 @@ def meet_nn_constrain(nn:list[set()]):
     return flag
 
 
+def move_point(grid, direction,i,j):
+    direction = int(direction)
+    # 定义方向的坐标变换
+    directions = {
+        0: (-1, -1),#up left
+        1: (-1, 1), #up right
+        2: (1, -1), #down left
+        3: (1, 1) #down right
+    }
 
+    # 获取方向的坐标变化
+    if direction not in directions:
+        raise ValueError("无效的方向")
 
-def move_point(grid, direction,start_x,start_y):
-    """
-    移动坐标点并返回新的坐标。
+    di, dj = directions[direction]
 
-    :param grid: int, n*n 数组的大小
-    :param start: tuple, 初始点的坐标 (row, column)
-    :param direction: str, 移动的方向，'up', 'down', 'left', 'right' 之一
-    :return: tuple, 移动后的坐标 (row, column)
-    """
-    row_size = len(grid)
-    column_size = len(grid[0])
-    # 解构初始坐标
-    row, col = start_x, start_y
+    # 计算新的坐标
+    new_i, new_j = i + di, j + dj
 
-    # 根据方向调整坐标
-    if direction == 'up':
-        row -= 1
-    elif direction == 'down':
-        row += 1
-    elif direction == 'left':
-        col -= 1
-    elif direction == 'right':
-        col += 1
+    # 检查是否超出边界
+    if new_i < 0 or new_i >= len(grid) or new_j < 0 or new_j >= len(grid[0]):
+        # 超出边界，原地不动
+        out_of_bounds = True
+        new_i, new_j = i, j
     else:
-        raise ValueError("Invalid direction. Use 'up', 'down', 'left', or 'right'.")
+        out_of_bounds = False
+        # 检查目标坐标是否有效
+        if grid[new_i][new_j] == -1:
+            # 无效坐标，原地不动
+            new_i, new_j = i, j
 
-    # 检查边界条件
-    if row < 0:
-        row = 0
-    elif row >= row_size:
-        row = row_size - 1
+    # 返回新的坐标和标志位
+    return (new_i, new_j)
 
-    if col < 0:
-        col = 0
-    elif col >= column_size:
-        col = column_size - 1
-
-    return (row, col)
-
-qmap = [
-    [0, 1, 2, 3, 4, 5],
-    [6, 7, 8, 9, 10, 11],
-    [12, 13, 14, 15, 16, 17],
-    [18, 19, 20, 21, 22, 23],
-    [24, 25, 26, 27, 28, 29],
-    [30, 31, 32, 33, 34, 35],
-    [36, 37, 38, 39, 40, 41],
-    [42, 43, 44, 45, 46, 47],
-    [48, 49, 50, 51, 52, 53],
-    [54, 55, 56, 57, 58, 59],
-    [60, 61, 62, 63, 64, 65],
+grid = [
+[-1, 0, -1, 1, -1, 2, -1, 3, -1, 4, -1, 5],
+[6, -1, 7, -1, 8, -1, 9, -1, 10, -1, 11, -1],
+[-1, 12, -1, 13, -1, 14, -1, 15, -1, 16, -1, 17],
+[18, -1, 19, -1, 20, -1, 21, -1, 22, -1, 23, -1],
+[-1, 24, -1, 25, -1, 26, -1, 27, -1, 28, -1, 29],
+[30, -1, 31, -1, 32, -1, 33, -1, 34, -1, 35, -1],
+[-1, 36, -1, 37, -1, 38, -1, 39, -1, 40, -1, 41],
+[42, -1, 43, -1, 44, -1, 45, -1, 46, -1, 47, -1],
+[-1, 48, -1, 49, -1, 50, -1, 51, -1, 52, -1, 53],
+[54, -1, 55, -1, 56, -1, 57, -1, 58, -1, 59, -1],
+[-1, 60, -1, 61, -1, 62, -1, 63, -1, 64, -1, 65],
 ]
+

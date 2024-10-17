@@ -80,8 +80,18 @@ def show_trace(trace,grid=default_grid, labels=default_labels):
 
 
 if __name__ == '__main__':
-    trace=[
-        [1,2,3],
-        [4,5,6]
-    ]
-    show_trace(trace=trace)
+    # trace=[
+    #     [1,2,3],
+    #     [4,5,6]
+    # ]
+    # show_trace(trace=trace)
+
+    print(default_labels)
+
+    for key in default_labels:
+        print(key, default_labels[key])
+        default_grid[key[0],key[1]] = default_labels[key]
+    default_grid = np.array(default_grid, dtype=int)
+
+    for row in default_grid:
+        print(", ".join(map(str, row)))

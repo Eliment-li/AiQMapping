@@ -1,5 +1,7 @@
 import datetime
 import pathlib
+from copy import copy, deepcopy
+
 from gymnasium import register
 from ray.rllib.algorithms import Algorithm
 from ray.rllib.algorithms.ppo import PPOConfig
@@ -24,13 +26,16 @@ from ray.rllib.utils.metrics import (
 )
 from ray.tune.registry import get_trainable_cls
 
+from utils.visualize.trace import show_trace
+
+
 def evaluate_policy(checkpoint):
     if not isinstance(checkpoint, str):
         checkpoint = checkpoint.to_directory()
     algo = Algorithm.from_checkpoint(checkpoint)
     env = gym.make('Env_1')
     obs, info = env.reset()
-    num_episodes = 0
+
     episode_reward = 0.0
     #attention
     # num_transformers = config["model"]["attention_num_transformer_units"]
@@ -40,8 +45,11 @@ def evaluate_policy(checkpoint):
     #     np.zeros([memory_inference, attention_dim], np.float32)
     #     for _ in range(num_transformers)
     # ]
-
-    while num_episodes < 1:
+    # trace
+    trace = []
+    trace.append(deepcopy(info['occupy']))
+    done = False
+    while not done:
         # Compute an action (`a`).
         a = algo.compute_single_action(
             observation=obs,
@@ -49,7 +57,11 @@ def evaluate_policy(checkpoint):
             policy_id="default_policy",  # <- default value
         )
         # Send the computed action `a` to the env.
+
         obs, reward, done, truncated, info = env.step(a)
+        #trace
+        trace.append(deepcopy(info['occupy']))
+
         print('done = %r, reward = %r  info = %r \n' % (done, reward,info['occupy']))
         episode_reward += reward
 
@@ -62,10 +74,13 @@ def evaluate_policy(checkpoint):
                 checkpoint = checkpoint.path
 
             obs, info = env.reset()
-            num_episodes += 1
             episode_reward = 0.0
 
-        algo.stop()
+    algo.stop()
+    trace = np.array(trace)
+    #print(trace)
+    show_trace(trace.transpose())
+
 
 # todo move to config.yml
 env_config={
@@ -87,7 +102,7 @@ def train_policy():
         #     enable_env_runner_and_connector_v2=True,
         # )
         .resources(
-            num_cpus_for_main_process=4,
+            num_cpus_for_main_process=8,
         )
         # We are using a simple 1-CPU setup here for learning. However, as the new stack
         # supports arbitrary scaling on the learner axis, feel free to set
@@ -102,16 +117,20 @@ def train_policy():
         # in the near future. It does yield a small performance advantage as value function
         # predictions for PPO are no longer required to happen on the sampler side (but are
         # now fully located on the learner side, which might have GPUs available).
-        .training()
+        .training(
+            model={
+                "use_attention": False,
+            },
+            gamma=0.99,
+        )
     )
-    config['model']['use_attention'] = False
     #stop = {"training_iteration": 100, "episode_reward_mean": 300}
     # config['model']['fcnet_hiddens'] = [32, 32]
     # automated run with Tune and grid search and TensorBoard
     tuner = tune.Tuner(
         'PPO',
         param_space=config.to_dict(),
-        run_config=air.RunConfig(stop={"training_iteration": 10},
+        run_config=air.RunConfig(stop={"training_iteration": 20},
                                  checkpoint_config=air.CheckpointConfig(
                                      checkpoint_frequency=1,
                                      checkpoint_at_end=True,

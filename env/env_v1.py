@@ -1,6 +1,8 @@
 import math
 import datetime
 from copy import copy
+from logging import lastResort
+
 import gymnasium as gym
 import numpy as np
 from gymnasium import spaces, register
@@ -12,7 +14,7 @@ import warnings
 from typing import Optional
 import os
 
-from core.chip import QUBITS_ERROR_RATE, move_point, qmap, COUPLING_SCORE, ADJ_LIST, meet_nn_constrain
+from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, ADJ_LIST, meet_nn_constrain
 from utils.circuits_util import qubits_nn_constrain
 from utils.common_utils import compute_total_distance, generate_unique_coordinates
 
@@ -31,9 +33,9 @@ class CircuitEnv_v1(gym.Env):
         self.qubit_nums = 3
 
         #chip 变量
-        self.position =generate_unique_coordinates(3,11,6)
+        self.position =generate_unique_coordinates(3)
         self.nn = qubits_nn_constrain('XEB_3_qubits_8_cycles_circuit.txt')
-        self.grid = copy(qmap)
+        self.grid = copy(grid)
 
         # 被占据的qubit，用 Q序号为标识
         self.occupy = []
@@ -71,7 +73,7 @@ class CircuitEnv_v1(gym.Env):
         self.total_reward = 0
         self.step_cnt = 0
         #重新随机选取位置
-        self.position = generate_unique_coordinates(3, 11, 6)
+        self.position = generate_unique_coordinates(3)
         self.occupy = []
         for p in self.position:
             self.occupy.append(self.grid[p[0]][p[1]])
@@ -99,10 +101,9 @@ class CircuitEnv_v1(gym.Env):
                 #更新 occupy 数组
                 self.occupy[i] = self.grid[x][y]
                 # 计算 reward
-                reward = self.compute_reward(action)
             else:
                 reward = 0
-
+        reward = self.compute_reward(action)
         terminated = False
         truncated = False
 
@@ -123,7 +124,11 @@ class CircuitEnv_v1(gym.Env):
         reward = self.stop_thresh
         #计算距离
         distance = compute_total_distance(self.position)
-
+        if distance == 0:
+            print('===========')
+            print(self.position)
+            print(self.occupy)
+            print('===========')
         k1 = (self.default_distance - distance) / self.default_distance
         k2 = (self.last_distance - distance) / self.last_distance
         self.last_distance = distance
@@ -150,13 +155,7 @@ class CircuitEnv_v1(gym.Env):
 
     # 业务相关函数
     def move(self,direction,start_x,start_y):
-        map = {
-            int(0):'up',
-            int(1):'down',
-            int(2):'left',
-            int(3):'right',
-        }
-        x,y = move_point(self.grid,map[direction],start_x,start_y)
+        x,y = move_point(self.grid,direction,start_x,start_y)
         return (x,y)
 
 if __name__ == '__main__':
