@@ -1,25 +1,45 @@
 import datetime
-import random
-import time
-from pprint import pprint
-from ray import tune, air
-import gymnasium as gym
-import ray
+import pathlib
 from gymnasium import register
 from ray.rllib.algorithms import Algorithm
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.rllib.core.models.configs import ModelConfig
+from env.env_v1 import CircuitEnv_v1
 
 from config import ConfigSingleton
 
+import argparse
+import gymnasium as gym
+import numpy as np
+import os
+
+import ray
+from ray import air, tune
+from ray.air.constants import TRAINING_ITERATION
+from ray.rllib.algorithms.algorithm import Algorithm
+from ray.rllib.utils.metrics import (
+    ENV_RUNNER_RESULTS,
+    EPISODE_RETURN_MEAN,
+    NUM_ENV_STEPS_SAMPLED_LIFETIME,
+)
+from ray.tune.registry import get_trainable_cls
 
 def evaluate_policy(checkpoint):
-    algo = Algorithm.from_checkpoint(checkpoint.to_directory())
-    env = gym.make('CartPole-v1')
+    if not isinstance(checkpoint, str):
+        checkpoint = checkpoint.to_directory()
+    algo = Algorithm.from_checkpoint(checkpoint)
+    env = gym.make('Env_1')
     obs, info = env.reset()
     num_episodes = 0
     episode_reward = 0.0
-    #    while num_episodes < args.num_episodes_during_inference:
+    #attention
+    # num_transformers = config["model"]["attention_num_transformer_units"]
+    # memory_inference = config["model"]["attention_memory_inference"]
+    # attention_dim = config["model"]["attention_dim"]
+    # init_state = state = [
+    #     np.zeros([memory_inference, attention_dim], np.float32)
+    #     for _ in range(num_transformers)
+    # ]
 
     while num_episodes < 1:
         # Compute an action (`a`).
@@ -30,12 +50,12 @@ def evaluate_policy(checkpoint):
         )
         # Send the computed action `a` to the env.
         obs, reward, done, truncated, info = env.step(a)
-        print('done = %r, reward = %r \n' % (done, reward))
+        print('done = %r, reward = %r  info = %r \n' % (done, reward,info['occupy']))
         episode_reward += reward
 
         # Is the episode `done`? -> Reset.
         if done:
-            print('env done = %r, reward = %r \n obs = \n {%r} ' % (done, reward, obs))
+            print('env done = %r, reward = %r \n obs = \n {%r} ' % (done, reward, obs[-3:]))
             print(f"Episode done: Total reward = {episode_reward}")
 
             if not isinstance(checkpoint, str):
@@ -49,23 +69,24 @@ def evaluate_policy(checkpoint):
 
 # todo move to config.yml
 env_config={
-    'debug':False
+    'debug':False,
+    'name':'Env_1'
 }
 def train_policy():
     config = (
         PPOConfig()
-        .environment(env="CartPole-v1",env_config=env_config)
+        .environment(env=CircuitEnv_v1,env_config=env_config)
         # Switch both the new API stack flags to True (both False by default).
         # This enables the use of
         # a) RLModule (replaces ModelV2) and Learner (replaces Policy)
         # b) and automatically picks the correct EnvRunner (single-agent vs multi-agent)
         # and enables ConnectorV2 support.
-        .api_stack(
-            enable_rl_module_and_learner=True,
-            enable_env_runner_and_connector_v2=True,
-        )
+        # .api_stack(
+        #     enable_rl_module_and_learner=True,
+        #     enable_env_runner_and_connector_v2=True,
+        # )
         .resources(
-            num_cpus_for_main_process=1,
+            num_cpus_for_main_process=4,
         )
         # We are using a simple 1-CPU setup here for learning. However, as the new stack
         # supports arbitrary scaling on the learner axis, feel free to set
@@ -80,39 +101,47 @@ def train_policy():
         # in the near future. It does yield a small performance advantage as value function
         # predictions for PPO are no longer required to happen on the sampler side (but are
         # now fully located on the learner side, which might have GPUs available).
-        .training(model={"uses_new_env_runners": True})
+        .training()
     )
-    config['model']['use_attention'] = True
+    config['model']['use_attention'] = False
     #stop = {"training_iteration": 100, "episode_reward_mean": 300}
     # config['model']['fcnet_hiddens'] = [32, 32]
     # automated run with Tune and grid search and TensorBoard
     tuner = tune.Tuner(
         'PPO',
         param_space=config.to_dict(),
-        run_config=air.RunConfig(),
+        run_config=air.RunConfig(stop={"training_iteration": 2},
+                                 checkpoint_config=air.CheckpointConfig(
+                                     checkpoint_frequency=1,
+                                     checkpoint_at_end=True,
+                                 ))
     )
     results = tuner.fit()
-
+    checkpoint = results.get_best_result().checkpoint
     print("Training completed")
-    return results
+    return checkpoint
 
 def train():
-    results = train_policy()
-    checkpoint = results.get_best_result().checkpoint
-    evaluate_policy(checkpoint)
+    best_result = train_policy()
+    evaluate_policy(best_result)
 
 if __name__ == '__main__':
     register(
         id='Env_1',
         # entry_point='core.envs.circuit_env:CircuitEnv',
         entry_point='env.env_v1:CircuitEnv_v1',
-        max_episode_steps=20000,
+        max_episode_steps=2000,
     )
-    env = gym.make('Env_1')
-    obs, info = env.reset()
-    # args = ConfigSingleton().get_config()
-    # try:
-    #     ray.init(num_gpus=1, local_mode=args.local_mode)
-    #     train()
-    # except Exception as e:
-    #     pprint(e)
+    from ray.tune import register_env
+    def env_creator(env_config):
+        return gym.make('Env_1')  # return an instance of your custom environment
+
+    register_env("Env_1", env_creator)
+
+    args = ConfigSingleton().get_config()
+    try:
+        ray.init(num_gpus=0, local_mode=args.local_mode)
+        train()
+        ray.shutdown()
+    except Exception as e:
+        print(e)

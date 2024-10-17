@@ -28,17 +28,12 @@ def compute_total_distance(positions):
 
             # 将距离加到总和中
             total_distance += distance
-
     return total_distance
 
-
-
-# 示例调用
-positions = [
-    [1, 0],
-    [0, 2],
-    [3, 0]
-]
-
-result = compute_total_distance(positions)
-print("所有点之间的距离之和为:", result)
+# arr = generate_unique_coordinates(3,10,10)
+# arr[1][0] = 0
+# arr[1][1] = 0
+# arr[2][0]  = 1
+# arr[2][1] = 1
+#
+# print(arr)

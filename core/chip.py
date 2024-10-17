@@ -25,7 +25,7 @@ def read_adj_list():
     list = [[] for _ in range(66)]
     data = read_df(relative_path=coupling_path)
     column_names = data.columns.tolist()[1:-1]
-    print(column_names)
+    #print(column_names)
 
     for c in column_names:
         qa = int(c[1:3])
@@ -53,13 +53,12 @@ def meet_nn_constrain(nn:list[set()]):
                 # i,s 有依赖
                 if not ADJ_LIST[i].__contains__(s):
                     flag = False
-                    print(f'{i} - {s} 不满足连接关系')
+                    #print(f'{i} - {s} 不满足连接关系')
                     break
     return flag
 
 
 
-print(ADJ_LIST)
 
 def move_point(grid, direction,start_x,start_y):
     """
@@ -70,7 +69,8 @@ def move_point(grid, direction,start_x,start_y):
     :param direction: str, 移动的方向，'up', 'down', 'left', 'right' 之一
     :return: tuple, 移动后的坐标 (row, column)
     """
-    grid_size = len(grid)
+    row_size = len(grid)
+    column_size = len(grid[0])
     # 解构初始坐标
     row, col = start_x, start_y
 
@@ -89,13 +89,13 @@ def move_point(grid, direction,start_x,start_y):
     # 检查边界条件
     if row < 0:
         row = 0
-    elif row >= grid_size:
-        row = grid_size - 1
+    elif row >= row_size:
+        row = row_size - 1
 
     if col < 0:
         col = 0
-    elif col >= grid_size:
-        col = grid_size - 1
+    elif col >= column_size:
+        col = column_size - 1
 
     return (row, col)
 
@@ -112,5 +112,3 @@ qmap = [
     [54, 55, 56, 57, 58, 59],
     [60, 61, 62, 63, 64, 65],
 ]
-
-print(QUBITS_ERROR_RATE + COUPLING_SCORE)

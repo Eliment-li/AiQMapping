@@ -16,7 +16,7 @@ stop_timesteps: 1000
 #the reward for multi-agent is the total sum (not the mean) over the agents.
 stop_reward: 100
 no_tune: False
-local_mode: False
+local_mode: True
 framework: torch
 num_rollout_workers: 4
 checkpoint_frequency: 10
