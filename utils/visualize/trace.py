@@ -30,13 +30,13 @@ rows, cols = 11, 12
 default_grid = create_grid(rows, cols)
 default_labels = assign_labels(default_grid)
 
-# Define trajectories as lists of label numbers
-# trajectories = [
+# Define trace as lists of label numbers
+# trace = [
 #     [0, 1, 3, 5, 7],
 #     [2, 4, 6, 8, 10]
 # ]
 
-def visualize_grid(trajectories,grid=default_grid, labels=default_labels):
+def show_trace(trace,grid=default_grid, labels=default_labels):
     # Increase the size and resolution of the figure
     fig, ax = plt.subplots( dpi=250)
     cmap = cm.get_cmap('viridis', 256)
@@ -50,9 +50,9 @@ def visualize_grid(trajectories,grid=default_grid, labels=default_labels):
             if grid[i, j] != -1:
                 ax.text(j + 0.5, grid.shape[0] - i - 0.5, f'Q{labels[(i, j)]}', ha='center', va='center', fontsize=8, color='white')
 
-    # Plot the trajectories
-    colors = ['#0D92F4','#F95454','#72BF78']#cm.rainbow(np.linspace(0, 1, len(trajectories)))
-    for idx, trajectory in enumerate(trajectories):
+    # Plot the trace
+    colors = ['#0D92F4','#F95454','#72BF78']#cm.rainbow(np.linspace(0, 1, len(trace)))
+    for idx, trajectory in enumerate(trace):
         coords = [key for key, value in labels.items() if value in trajectory]
         for k in range(len(coords) - 1):
             start = coords[k]
@@ -80,8 +80,8 @@ def visualize_grid(trajectories,grid=default_grid, labels=default_labels):
 
 
 if __name__ == '__main__':
-    trajectories=[
+    trace=[
         [1,2,3],
         [4,5,6]
     ]
-    visualize_grid(trajectories=trajectories)
+    show_trace(trace=trace)

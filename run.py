@@ -76,6 +76,7 @@ def train_policy():
     config = (
         PPOConfig()
         .environment(env=CircuitEnv_v1,env_config=env_config)
+        .framework('torch')
         # Switch both the new API stack flags to True (both False by default).
         # This enables the use of
         # a) RLModule (replaces ModelV2) and Learner (replaces Policy)
@@ -93,8 +94,8 @@ def train_policy():
         # `num_learners` to the number of available GPUs for multi-GPU training (and
         # `num_gpus_per_learner=1`).
         .learners(
-            num_learners=0,  # <- in most cases, set this value to the number of GPUs
-            num_gpus_per_learner=0,  # <- set this to 1, if you have at least 1 GPU
+            num_learners=1,  # <- in most cases, set this value to the number of GPUs
+            num_gpus_per_learner=1,  # <- set this to 1, if you have at least 1 GPU
         )
         # When using RLlib's default models (RLModules) AND the new EnvRunners, you should
         # set this flag in your model config. Having to set this, will no longer be required
@@ -110,7 +111,7 @@ def train_policy():
     tuner = tune.Tuner(
         'PPO',
         param_space=config.to_dict(),
-        run_config=air.RunConfig(stop={"training_iteration": 2},
+        run_config=air.RunConfig(stop={"training_iteration": 10},
                                  checkpoint_config=air.CheckpointConfig(
                                      checkpoint_frequency=1,
                                      checkpoint_at_end=True,
@@ -140,7 +141,7 @@ if __name__ == '__main__':
 
     args = ConfigSingleton().get_config()
     try:
-        ray.init(num_gpus=0, local_mode=args.local_mode)
+        ray.init(num_gpus=1, local_mode=args.local_mode)
         train()
         ray.shutdown()
     except Exception as e:

@@ -26,7 +26,7 @@ def get_valid_positions(grid):
     return positions
 
 def plot_grid(grid, values, trajectories, text_color='black'):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(dpi=250)
     ax.set_xlim(-0.5, grid.shape[1] - 0.5)
     ax.set_ylim(-0.5, grid.shape[0] - 0.5)
     ax.set_aspect('equal')
@@ -46,18 +46,21 @@ def plot_grid(grid, values, trajectories, text_color='black'):
                 ax.text(j, i, f"Q{int(grid[i][j])}", ha='center', va='center', fontsize=8, color=text_color)
 
     # Plot trajectories with arrows
+    color = ['#0D92F4','#F95454','#72BF78']
+    color_idx = 0
     for trajectory in trajectories:
         for k in range(len(trajectory) - 1):
             start_pos = positions[f"Q{trajectory[k]}"]
             end_pos = positions[f"Q{trajectory[k+1]}"]
             arrow = FancyArrowPatch((start_pos[1], start_pos[0]), (end_pos[1], end_pos[0]),
-                                    arrowstyle='-|>', color='lightblue', mutation_scale=10)
+                                    arrowstyle='-|>', color=color[color_idx], mutation_scale=10)
             ax.add_patch(arrow)
+        color_idx += 1
         # Mark start and end points
         start_pos = positions[f"Q{trajectory[0]}"]
         end_pos = positions[f"Q{trajectory[-1]}"]
-        ax.text(start_pos[1], start_pos[0], "Start", ha='right', va='bottom', fontsize=8, color='green')
-        ax.text(end_pos[1], end_pos[0], "End", ha='left', va='top', fontsize=8, color='red')
+        ax.text(start_pos[1], start_pos[0], "Start", ha='right', va='bottom', fontsize=8, color='#3C3D37')
+        ax.text(end_pos[1], end_pos[0], "End", ha='left', va='top', fontsize=8, color='#3C3D37')
 
     plt.gca().invert_yaxis()
     plt.show()
