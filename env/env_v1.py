@@ -16,7 +16,7 @@ import os
 
 from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, ADJ_LIST, meet_nn_constrain
 from utils.circuits_util import qubits_nn_constrain
-from utils.common_utils import compute_total_distance, generate_unique_coordinates
+from utils.common_utils import compute_total_distance, generate_unique_coordinates, data_normalization, linear_scale
 
 os.environ["SHARED_MEMORY_USE_LOCK"] = '1'
 simulator = AerSimulator()
@@ -40,7 +40,9 @@ class CircuitEnv_v1(gym.Env):
         # 被占据的qubit，用 Q序号为标识
         self.occupy = []
         for p in self.position:
-            self.occupy.append(self.grid[p[0]][p[1]])
+            px = p[0]
+            py = p[1]
+            self.occupy.append(self.grid[px][py])
         self.occupy = np.float32(self.occupy)
 
         self.qubits = np.float32(QUBITS_ERROR_RATE)
@@ -48,14 +50,15 @@ class CircuitEnv_v1(gym.Env):
         obs_size = len(self.qubits) + len(self.coupling) + len(self.occupy)
 
         # todo 先试试 flatten, 后面尝试直接用 spaces.Box
-        self.observation_space = flatten_space(spaces.Box(-1,100,(1,obs_size),dtype=np.float32,))
-        self.obs = np.concatenate([self.qubits, self.coupling, self.occupy],dtype=np.float32)
+        self.observation_space = flatten_space(spaces.Box(0,1,(1,obs_size),dtype=np.float32,))
+        self.obs = np.concatenate([self.qubits, self.coupling, linear_scale(self.occupy)],dtype=np.float32)
+        print('self.obs = ',self.obs)
 
         self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
 
         #todo: action_space 开的大一点，只取前 n 位有用的，以适应不同线路
-        self.action_space = MultiDiscrete(np.array([5] * self.qubit_nums,dtype=int))
+        self.action_space = MultiDiscrete(np.array([5] * (self.qubit_nums+1),dtype=int))
 
         #stop conditions
         self.max_step = 1000
@@ -74,45 +77,47 @@ class CircuitEnv_v1(gym.Env):
         self.step_cnt = 0
         #重新随机选取位置
         self.position = generate_unique_coordinates(3)
-        self.occupy = []
-        for p in self.position:
-            self.occupy.append(self.grid[p[0]][p[1]])
-        self.occupy = np.float32(self.occupy)
-
         self.default_distance = compute_total_distance(self.position)
+        while  self.default_distance == 0:
+            print()
+            self.position = generate_unique_coordinates(3)
+            self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
 
-        self.obs = np.concatenate([self.qubits, self.coupling, self.occupy],dtype = np.float32)
+        self.occupy = []
+        for p in self.position:
+            px = p[0]
+            py = p[1]
+            self.occupy.append(self.grid[px][py])
+        self.occupy = np.float32(self.occupy)
+
+        self.obs = np.concatenate([self.qubits, self.coupling, linear_scale(self.occupy)],dtype = np.float32)
         info = self._info()
         return self.obs , info
 
     def step(self, action):
         reward = 0
-        #执行 action
-        for i, v in enumerate(action):
-            if v == 4:
-                continue
-            #只计算坐标，并未真正 move
-            x,y = self.move(v,self.position[i][0],self.position[i][1])
-            #检查坐标是否已经被占据
-            if self.grid[x][y] not  in self.occupy:
-                self.position[i][0], self.position[i][1] = x,y
-                #print(f'i={i} { self.position[i][0]}-{self.position[i][1]}={x},{y}')
-                #更新 occupy 数组
-                self.occupy[i] = self.grid[x][y]
-                # 计算 reward
-            else:
-                reward = 0
-        reward = self.compute_reward(action)
         terminated = False
         truncated = False
 
-        if  np.all(action == 4):
+        if action[-1] > 2:
             terminated = True
             reward = 0
+        else:
+            #执行 action
+            for i, v in enumerate(action[:-1]):
+                if v == 4:
+                    continue
+                #只计算坐标，并未真正 move
+                x,y = self.move(v,self.position[i][0],self.position[i][1])
+                if self.grid[x][y] not in self.occupy:
+                    #目标坐标无冲突
+                    self.position[i][0], self.position[i][1] = x,y
+                    self.occupy[i] = self.grid[x][y]
+            reward = self.compute_reward(action)
 
         if self.total_reward <= self.stop_thresh \
-                or reward == self.stop_thresh \
+                or reward <= self.stop_thresh \
                 or self.step_cnt==self.max_step :
             terminated = True
 
@@ -124,7 +129,7 @@ class CircuitEnv_v1(gym.Env):
         reward = self.stop_thresh
         #计算距离
         distance = compute_total_distance(self.position)
-        if distance == 0:
+        if distance == 0 or self.default_distance == 0:
             print('===========')
             print(self.position)
             print(self.occupy)
@@ -159,6 +164,13 @@ class CircuitEnv_v1(gym.Env):
         return (x,y)
 
 if __name__ == '__main__':
-    print(MultiDiscrete(np.array([5] * 3, dtype=int)).sample())
+    register(
+        id='Env_1',
+        # entry_point='core.envs.circuit_env:CircuitEnv',
+        entry_point='env.env_v1:CircuitEnv_v1',
+        max_episode_steps=2000,
+    )
+    env = gym.make('Env_1')
+    print(env.reset())
 
 

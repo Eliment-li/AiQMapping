@@ -108,10 +108,12 @@ def train_policy():
         # supports arbitrary scaling on the learner axis, feel free to set
         # `num_learners` to the number of available GPUs for multi-GPU training (and
         # `num_gpus_per_learner=1`).
+
         .learners(
             num_learners=1,  # <- in most cases, set this value to the number of GPUs
             num_gpus_per_learner=1,  # <- set this to 1, if you have at least 1 GPU
         )
+
         # When using RLlib's default models (RLModules) AND the new EnvRunners, you should
         # set this flag in your model config. Having to set this, will no longer be required
         # in the near future. It does yield a small performance advantage as value function
@@ -130,7 +132,7 @@ def train_policy():
     tuner = tune.Tuner(
         'PPO',
         param_space=config.to_dict(),
-        run_config=air.RunConfig(stop={"training_iteration": 20},
+        run_config=air.RunConfig(stop={"training_iteration": 10},
                                  checkpoint_config=air.CheckpointConfig(
                                      checkpoint_frequency=1,
                                      checkpoint_at_end=True,

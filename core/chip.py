@@ -1,5 +1,6 @@
 import numpy as np
 
+from utils.common_utils import data_normalization
 from utils.file.csv_util import read_df
 from pathlib import Path
 #path
@@ -41,9 +42,10 @@ def read_adj_list():
 
     return list
 
-QUBITS_ERROR_RATE = read_qubits_error_rate()
-COUPLING_SCORE = read_coupling_score()
+QUBITS_ERROR_RATE = data_normalization(read_qubits_error_rate())
+COUPLING_SCORE = data_normalization(read_coupling_score())
 ADJ_LIST = read_adj_list()
+
 
 def meet_nn_constrain(nn:list[set()]):
     flag = True
