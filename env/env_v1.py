@@ -1,6 +1,6 @@
 import math
 import datetime
-from copy import copy
+from copy import copy,deepcopy
 from logging import lastResort
 
 import gymnasium as gym
@@ -42,23 +42,24 @@ class CircuitEnv_v1(gym.Env):
         for p in self.position:
             px = p[0]
             py = p[1]
-            self.occupy.append(self.grid[px][py])
+            self.occupy.append(deepcopy(self.grid[px][py]))
         self.occupy = np.float32(self.occupy)
 
         self.qubits = np.float32(QUBITS_ERROR_RATE)
         self.coupling= np.float32(COUPLING_SCORE)
-        obs_size = len(self.qubits) + len(self.coupling) + len(self.occupy)
 
+        #obs_size = len(self.qubits) + len(self.coupling) + len(self.occupy)
+        obs_size = len(self.position)*2
         # todo 先试试 flatten, 后面尝试直接用 spaces.Box
         self.observation_space = flatten_space(spaces.Box(0,1,(1,obs_size),dtype=np.float32,))
-        self.obs = np.concatenate([self.qubits, self.coupling, linear_scale(self.occupy)],dtype=np.float32)
-        print('self.obs = ',self.obs)
+        self.obs = linear_scale(np.array(self.position,dtype=np.float32).flatten())
+        #self.obs = np.concatenate([self.qubits, self.coupling, linear_scale(self.occupy)],dtype=np.float32)
 
         self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
 
         #todo: action_space 开的大一点，只取前 n 位有用的，以适应不同线路
-        self.action_space = MultiDiscrete(np.array([5] * (self.qubit_nums+1),dtype=int))
+        self.action_space = MultiDiscrete(np.array([5] * (self.qubit_nums)+[2],dtype=int))
 
         #stop conditions
         self.max_step = 1000
@@ -78,20 +79,16 @@ class CircuitEnv_v1(gym.Env):
         #重新随机选取位置
         self.position = generate_unique_coordinates(3)
         self.default_distance = compute_total_distance(self.position)
-        while  self.default_distance == 0:
-            print()
-            self.position = generate_unique_coordinates(3)
-            self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
 
         self.occupy = []
         for p in self.position:
             px = p[0]
             py = p[1]
-            self.occupy.append(self.grid[px][py])
+            self.occupy.append(deepcopy(self.grid[px][py]))
         self.occupy = np.float32(self.occupy)
-
-        self.obs = np.concatenate([self.qubits, self.coupling, linear_scale(self.occupy)],dtype = np.float32)
+        self.obs = linear_scale(np.array(self.position,dtype=np.float32).flatten())
+        #self.obs = np.concatenate([self.qubits, self.coupling, linear_scale(self.occupy)],dtype = np.float32)
         info = self._info()
         return self.obs , info
 
@@ -100,7 +97,7 @@ class CircuitEnv_v1(gym.Env):
         terminated = False
         truncated = False
 
-        if action[-1] > 2:
+        if action[-1] == 1:
             terminated = True
             reward = 0
         else:

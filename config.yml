@@ -1,20 +1,21 @@
 
 env_version: 8
+run: PPO
 
 #rllib ppo start
-###Iters is the number of batches the model will train on and the number of times your model weights will be updated (not counting minibatches).
-stop_iters: 2
 
 iters_arr:
   - 2
-# relative path of  store in benchmark folder
-circuits:
-  - real_amp/realamprandom_indep_qiskit_6.qasm
-##One call to env.step() is one timestep.
+  -
+###Iters is the number of batches the model will train on and the number of times your model weights will be updated (not counting minibatches).
+stop_iters: 2
+
+#One call to env.step() is one timestep.
 stop_timesteps: 1000
 
 #the reward for multi-agent is the total sum (not the mean) over the agents.
 stop_reward: 100
+
 no_tune: False
 local_mode: True
 framework: torch
@@ -32,4 +33,17 @@ checkpoint: None
 check_point_zip_path: None
 
 debug: False
+
+explore_during_inference: False
+
+#attention:
+use_attention: False
+prev-n-actions: 0
+prev-n-rewards: 0
+
+attention_num_transformer_units: 1
+attention_dim: 32,
+attention_memory_inference: 10,
+attention_memory_training: 10,
 #rllib ppo end
+

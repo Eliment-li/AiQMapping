@@ -2,96 +2,112 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.patches as patches
 import matplotlib.cm as cm
+from sympy import pprint
 
+from core.chip import QUBITS_ERROR_RATE
+
+
+# Example usage
+rows, cols = 11, 12
+def get_values(rows, cols):
+    vs = np.zeros((rows, cols))
+    vi = 0
+    for i in range(rows):
+        for j in range(cols):
+            if (i % 2 == 0 and j % 2 == 0) or (i % 2 == 1 and j % 2 == 1):
+                vs[i, j] = -1
+            else:
+                vs[i, j] = QUBITS_ERROR_RATE[vi]
+                vi += 1
+    return vs
 
 
 def create_grid(rows, cols):
     grid = np.zeros((rows, cols))
+    num = 0
+
     for i in range(rows):
         for j in range(cols):
             if (i % 2 == 0 and j % 2 == 0) or (i % 2 == 1 and j % 2 == 1):
                 grid[i, j] = -1
             else:
-                grid[i, j] = np.random.rand()
+                grid[i, j] = num
+                num += 1
     return grid
 
-def assign_labels(grid):
-    labels = {}
-    counter = 0
-    for i in range(grid.shape[0]):
-        for j in range(grid.shape[1]):
-            if grid[i, j] != -1:
-                labels[(i, j)] = counter
-                counter += 1
-    return labels
+colors = ['#0D92F4','#F95454','#72BF78']
 
-# Example usage
-rows, cols = 11, 12
-default_grid = create_grid(rows, cols)
-default_labels = assign_labels(default_grid)
+grid = create_grid(rows, cols)
+values = get_values(11,12)
+def show_trace( paths, grid =grid , values=values):
+    rows, cols = grid.shape
+    fig, ax = plt.subplots(figsize=(cols, rows), dpi=150)
 
-# Define trace as lists of label numbers
-# trace = [
-#     [0, 1, 3, 5, 7],
-#     [2, 4, 6, 8, 10]
-# ]
-
-def show_trace(trace,grid=default_grid, labels=default_labels):
-    # Increase the size and resolution of the figure
-    fig, ax = plt.subplots( dpi=250)
+    # Normalize values for color mapping
     cmap = cm.get_cmap('viridis', 256)
 
-    # Plot each cell
-    for i in range(grid.shape[0]):
-        for j in range(grid.shape[1]):
-            color = 'white' if grid[i, j] == -1 else cmap(grid[i, j])
-            rect = patches.Rectangle((j, grid.shape[0] - i - 1), 1, 1, linewidth=0, edgecolor='none', facecolor=color)
+    for i in range(rows):
+        for j in range(cols):
+            value = grid[i, j]
+            if value == -1:
+                color = ('white')
+            else:
+                color = cmap(values[i][j])
+
+            rect = patches.Rectangle((j, rows - i - 1), 1, 1, linewidth=0, edgecolor='none', facecolor=color)
             ax.add_patch(rect)
-            if grid[i, j] != -1:
-                ax.text(j + 0.5, grid.shape[0] - i - 0.5, f'Q{labels[(i, j)]}', ha='center', va='center', fontsize=8, color='white')
 
-    # Plot the trace
-    colors = ['#0D92F4','#F95454','#72BF78']#cm.rainbow(np.linspace(0, 1, len(trace)))
-    for idx, trajectory in enumerate(trace):
-        coords = [key for key, value in labels.items() if value in trajectory]
-        for k in range(len(coords) - 1):
-            start = coords[k]
-            end = coords[k + 1]
-            # Calculate directional offsets
-            dx = end[1] - start[1]
-            dy = start[0] - end[0]
-            norm = np.sqrt(dx**2 + dy**2)
-            # Shorten the arrow by 0.2 units at both ends
-            offset = 0.2 / norm
-            start_x = start[1] + 0.5 + dx * offset
-            start_y = grid.shape[0] - start[0] - 0.5 + dy * offset
-            end_x = end[1] + 0.5 - dx * offset
-            end_y = grid.shape[0] - end[0] - 0.5 - dy * offset
-            ax.arrow(start_x, start_y, end_x - start_x, end_y - start_y,
-                     head_width=0.2, head_length=0.2, fc=colors[idx], ec=colors[idx])
+            if value != -1:
+                ax.text(j + 0.5, rows - i - 0.5, f'Q{int(value)}', color='white', ha='center',fontsize = 18, va='center')
 
-    # Set limits and remove axes
-    ax.set_xlim(0, grid.shape[1])
-    ax.set_ylim(0, grid.shape[0])
+    # Plot paths
+    idx = -1
+    for path in paths:
+        idx = idx+1
+        color = colors[idx]
+        path_coords = []
+        for p in path:
+            coords = np.argwhere(grid == p)
+            if coords.size > 0:
+                x, y = coords[0]
+                path_coords.append((y + 0.5, rows - x - 0.5))
+
+        if path_coords:
+            path_coords = np.array(path_coords)
+            #plt.plot(path_coords[:, 0], path_coords[:, 1], marker='', color=color, linewidth=4)
+
+            # Add arrows
+            for k in range(len(path_coords) - 1):
+                arrow = patches.FancyArrowPatch(
+                    path_coords[k], path_coords[k + 1],
+                    arrowstyle='->', color=color, mutation_scale=40,connectionstyle = 'arc3,rad=-0.2',
+                    lw = 4,
+                )
+                ax.add_patch(arrow)
+
+    ax.set_xlim(0, cols)
+    ax.set_ylim(0, rows)
+    ax.set_xticks([])
+    ax.set_yticks([])
     ax.set_aspect('equal')
-    ax.axis('off')
+    plt.axis('off')
     plt.show()
 
 
 
+
 if __name__ == '__main__':
-    # trace=[
-    #     [1,2,3],
-    #     [4,5,6]
-    # ]
-    # show_trace(trace=trace)
+    trace=[[1,2,3,1,5],
+ [44, 37, 37, 31],
+ [49, 43,48, 54]]
+    show_trace(paths=trace)
 
-    print(default_labels)
-
-    for key in default_labels:
-        print(key, default_labels[key])
-        default_grid[key[0],key[1]] = default_labels[key]
-    default_grid = np.array(default_grid, dtype=int)
-
-    for row in default_grid:
-        print(", ".join(map(str, row)))
+    # print(default_labels)
+    #
+    # for key in default_labels:
+    #     print(key, default_labels[key])
+    #     default_grid[key[0],key[1]] = default_labels[key]
+    # default_grid = np.array(default_grid, dtype=int)
+    #
+    # for row in default_grid:
+    #     print(", ".join(map(str, row)))

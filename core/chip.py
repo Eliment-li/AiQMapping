@@ -1,4 +1,5 @@
 import numpy as np
+from sympy import pprint
 
 from utils.common_utils import data_normalization
 from utils.file.csv_util import read_df
@@ -10,7 +11,7 @@ coupling_path = directory / 'chip' / '2QCZXEB.csv'
 
 def read_qubits_error_rate():
     data = read_df(relative_path=qubits_error_path)
-    row_data = data.iloc[2, 1:64].to_numpy()
+    row_data = data.iloc[3, 1:67].to_numpy()
     row_data = [float(x) for x in row_data]
     return row_data
 
