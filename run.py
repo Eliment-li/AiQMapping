@@ -3,6 +3,7 @@ import pathlib
 import time
 from copy import copy, deepcopy
 
+import psutil
 from gymnasium import register
 from ray.rllib.algorithms import Algorithm
 from ray.rllib.algorithms.ppo import PPOConfig
@@ -44,17 +45,22 @@ env_config={
     'name':'Env_1'
 }
 def train_policy():
-
+    cpus  = psutil.cpu_count(logical=False)
     config = (
         get_trainable_cls(args.run)
         .get_default_config()
         .environment(env=CircuitEnv_v2,env_config=env_config)
         .framework('torch')
-        # .resources(
-        #     num_cpus_for_main_process=8,
-        # )
+        .rollouts(num_rollout_workers=int(cpus*0.9)
+                  , num_envs_per_worker=2
+                  # ,remote_worker_envs=True
+                  )
+        .resources(num_gpus=1)
         .training(
             model={
+                # Change individual keys in that dict by overriding them, e.g.
+                "fcnet_hiddens": [1024, 1024, 1024,512,256,128,64,32],
+                "fcnet_activation": "relu",
                 "use_attention": False,
                # "use_attention": args.use_attention,
                 # "attention_num_transformer_units": args.attention_num_transformer_units,
