@@ -160,7 +160,7 @@ def train_policy():
     tuner = tune.Tuner(
         args.run,
         param_space=config.to_dict(),
-        run_config=air.RunConfig(stop={"training_iteration": 20},
+        run_config=air.RunConfig(stop={"training_iteration": args.stop_iters},
                                  checkpoint_config=air.CheckpointConfig(
                                      checkpoint_frequency=1,
                                      checkpoint_at_end=True,
