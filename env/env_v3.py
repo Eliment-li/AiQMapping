@@ -23,11 +23,11 @@ from utils.visualize.trace import show_trace
 os.environ["SHARED_MEMORY_USE_LOCK"] = '1'
 simulator = AerSimulator()
 '''
-v2 将 done 条件改为所有动作同时为[4,4,4,4] 减少前期终止的概率 提升训练效率
+v3 每次只移动一个对象
 记录 trace 以可视化
 '''
 warnings.filterwarnings("ignore")
-class CircuitEnv_v2(gym.Env):
+class CircuitEnv_v3(gym.Env):
     def __init__(self, config: Optional[dict] = None):
         self.debug = False #config.get('debug')
         self.trace = []
@@ -62,8 +62,8 @@ class CircuitEnv_v2(gym.Env):
         self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
 
-        #todo: action_space 开的大一点，只取前 n 位有用的，以适应不同线路
-        self.action_space = MultiDiscrete(np.array([5] * (self.qubit_nums),dtype=int))
+        #self.action_space = MultiDiscrete(np.array([5] * (self.qubit_nums),dtype=int))
+        self.action_space = MultiDiscrete(np.array([self.qubit_nums,5],dtype=int))
 
         #stop conditions
         self.max_step = 1000
@@ -105,20 +105,19 @@ class CircuitEnv_v2(gym.Env):
         terminated = False
         truncated = False
 
-        if np.all(action == 4):
+        q = action[0]
+        v = action[1]
+        if v == 4:
             terminated = True
             reward = 0
         else:
             #执行 action
-            for i, v in enumerate(action[:-1]):
-                if v == 4:
-                    continue
                 #只计算坐标，并未真正 move
-                x,y = self.move(v,self.position[i][0],self.position[i][1])
-                if self.grid[x][y] not in self.occupy:
-                    #目标坐标无冲突
-                    self.position[i][0], self.position[i][1] = x,y
-                    self.occupy[i] = self.grid[x][y]
+            x,y = self.move(v,self.position[q][0],self.position[q][1])
+            if self.grid[x][y] not in self.occupy:
+                #目标坐标无冲突
+                self.position[q][0], self.position[q][1] = x,y
+                self.occupy[q] = self.grid[x][y]
             reward = self.compute_reward(action)
 
         if self.total_reward <= self.stop_thresh \
@@ -157,11 +156,11 @@ class CircuitEnv_v2(gym.Env):
         print('render')
 
     def close(self):
-
         self._close_env()
 
     def _close_env(self):
-        logger.info('_close_env')
+        pass
+        #logger.info('_close_env')
 
     # 业务相关函数
     def move(self,direction,start_x,start_y):
