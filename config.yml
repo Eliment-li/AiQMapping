@@ -20,7 +20,7 @@ no_tune: False
 local_mode: True
 framework: torch
 num_rollout_workers: 4
-checkpoint_frequency: 10
+checkpoint_frequency: 5
 checkpoint_at_end: True
 rllib_lr: 1e-3
 qasm: None

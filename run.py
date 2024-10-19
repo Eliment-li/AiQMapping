@@ -162,8 +162,8 @@ def train_policy():
         param_space=config.to_dict(),
         run_config=air.RunConfig(stop={"training_iteration": args.stop_iters},
                                  checkpoint_config=air.CheckpointConfig(
-                                     checkpoint_frequency=1,
-                                     checkpoint_at_end=True,
+                                     checkpoint_frequency=args.checkpoint_frequency,
+                                     checkpoint_at_end=args.checkpoint_at_end,
                                  ))
     )
     results = tuner.fit()
