@@ -15,5 +15,13 @@ def check_env(env_id,entry_point):
     observation, reward, terminated, truncated, info = env.step(env.action_space.sample())
     print(obs, reward, terminated, truncated, info)
 
+def register_custom_env(version):
+    register(
+        id='Env_'+str(version),
+        # entry_point='core.envs.circuit_env:CircuitEnv',
+        entry_point='env.env_v'+str(version)+':CircuitEnv_v'+str(version),
+        max_episode_steps=999999,
+    )
+
 
 check_env('Env_1','env.env_v1:CircuitEnv_v1')
