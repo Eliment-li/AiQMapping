@@ -21,7 +21,7 @@ from utils.common_utils import compute_total_distance, generate_unique_coordinat
 os.environ["SHARED_MEMORY_USE_LOCK"] = '1'
 simulator = AerSimulator()
 '''
-v1
+v1 训练后总是很早就 stop, 可能因为 action space 设置的有问题
 '''
 warnings.filterwarnings("ignore")
 class CircuitEnv_v1(gym.Env):
@@ -126,14 +126,9 @@ class CircuitEnv_v1(gym.Env):
         reward = self.stop_thresh
         #计算距离
         distance = compute_total_distance(self.position)
-        if distance == 0 or self.default_distance == 0:
-            print('===========')
-            print(self.position)
-            print(self.occupy)
-            print('===========')
         k1 = (self.default_distance - distance) / self.default_distance
         k2 = (self.last_distance - distance) / self.last_distance
-        self.last_distance = distance
+
         if k2 > 0:
             reward = (math.pow((1 + k2), 2) - 1) * (1 + k1)
         elif k2 < 0:
@@ -141,9 +136,10 @@ class CircuitEnv_v1(gym.Env):
         else:
             reward = 0
 
+        self.last_distance = distance
         #计算是否满足连接性
         if meet_nn_constrain(self.nn):
-            reward *= 2
+            reward *= 10
         return reward
 
     def render(self):

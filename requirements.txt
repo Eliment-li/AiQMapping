@@ -17,5 +17,6 @@ gputil
 qiskit
 qiskit-aer
 chardet
+cqlib
 
 # download swig
