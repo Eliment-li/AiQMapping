@@ -38,7 +38,7 @@ class CircuitEnv_v5(gym.Env):
 
         #chip 变量
         self.position =generate_unique_coordinates(self.qubit_nums)
-        self.nn = qubits_nn_constrain('XEB_'+str(self.qubits)+'_qubits_8_cycles_circuit.txt')
+        self.nn = qubits_nn_constrain('XEB_'+str(self.qubit_nums)+'_qubits_8_cycles_circuit.txt')
         self.grid = copy(grid)
 
         # 被占据的qubit，用 Q序号为标识
