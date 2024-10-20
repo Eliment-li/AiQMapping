@@ -64,7 +64,7 @@ class CircuitEnv_v4(gym.Env):
         self.last_distance = self.default_distance
 
         #stop conditions
-        self.max_step = 10000
+        self.max_step = -1
         self.stop_thresh = -100
         self.total_reward = 0
         self.step_cnt = 0
@@ -104,12 +104,12 @@ class CircuitEnv_v4(gym.Env):
 
         q1 = action[0]
         q2 = action[1]
+        #终止条件
         if q1 == 3:
             terminated = True
             reward = 0
         else:
             #执行 远距离移动 q1->q2
-
             x,y = POSITION_MAP[int(q2)][0],POSITION_MAP[int(q2)][1]
             if not np.any(np.all(self.position == np.array([x,y]), axis=1)):
                 #目标坐标无冲突
@@ -118,6 +118,8 @@ class CircuitEnv_v4(gym.Env):
                 self.occupy[q1] = q2
 
             reward = self.compute_reward(action)
+        if reward == 0:
+            reward = -0.01
 
         if self.total_reward <= self.stop_thresh \
                 or reward <= self.stop_thresh \

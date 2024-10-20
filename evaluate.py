@@ -66,6 +66,7 @@ def evaluate_policy(checkpoint):
         trace.append(deepcopy(info['occupy']))
 
         print('done = %r, action = %r, reward = %r,  info = %r \n' % (done,a, reward,info['occupy']))
+        episode_reward *=0.99
         episode_reward += reward
 
         # Is the episode `done`? -> Reset.

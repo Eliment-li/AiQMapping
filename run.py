@@ -61,9 +61,9 @@ def train_policy():
         .training(
             model={
                 # Change individual keys in that dict by overriding them, e.g.
-                "fcnet_hiddens": [256,64,128,64,32],
+                "fcnet_hiddens":args.fcnet_hiddens ,
                 #"fcnet_hiddens": [32,64,128,64,32],
-                "fcnet_activation": "relu",
+                "fcnet_activation":args.fcnet_activation,
                 "use_attention": False,
                # "use_attention": args.use_attention,
                 # "attention_num_transformer_units": args.attention_num_transformer_units,

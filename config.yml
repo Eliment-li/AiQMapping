@@ -1,5 +1,5 @@
 
-env_version: 4
+env_version: 5
 run: PPO
 
 #rllib ppo start
@@ -17,14 +17,16 @@ stop_timesteps: 100000
 stop_reward: 100
 
 no_tune: False
-local_mode: True
+local_mode: False
 framework: torch
-num_rollout_workers: 4
-checkpoint_frequency: 5
+checkpoint_frequency: 2
 checkpoint_at_end: True
-rllib_lr: 1e-3
+lr: 1e-4
 qasm: None
 log_file_id: 0
+gamma: 0.99
+fcnet_hiddens: [1024,2048,2048,1024,512,256]
+fcnet_activation: Swish
 
 #resume: False
 checkpoint: None
