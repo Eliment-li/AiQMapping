@@ -58,7 +58,7 @@ class CircuitEnv_v5(gym.Env):
         self.observation_space = MultiDiscrete(high)
 
         self.obs = np.array(self.occupy).astype(int)
-        self.action_space = MultiDiscrete([self.qubit_nums+1, 65])
+        self.action_space = MultiDiscrete([(self.qubit_nums+1), 65])
 
         self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
@@ -105,7 +105,7 @@ class CircuitEnv_v5(gym.Env):
         q1 = action[0]
         q2 = action[1]
         #终止条件
-        if q1 == 3:
+        if q1 == 5:
             terminated = True
             reward = 0
         else:
