@@ -20,8 +20,7 @@ def register_custom_env(version):
         id='Env_'+str(version),
         # entry_point='core.envs.circuit_env:CircuitEnv',
         entry_point='env.env_v'+str(version)+':CircuitEnv_v'+str(version),
-        max_episode_steps=999999,
+        #max_episode_steps=999999,
     )
 
 
-check_env('Env_1','env.env_v1:CircuitEnv_v1')

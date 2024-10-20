@@ -15,10 +15,10 @@ from env.env_v1 import CircuitEnv_v1
 from env.env_v2 import CircuitEnv_v2
 from env.env_v3 import CircuitEnv_v3
 from env.env_v4 import CircuitEnv_v4
+from env.env_v5 import CircuitEnv_v5
 
 from config import ConfigSingleton
 import numpy as np
-
 
 import ray
 from ray import air, tune
@@ -44,14 +44,14 @@ stop = {
 # todo move to config.yml
 env_config={
     'debug':False,
-    'name':'Env_1'
+    #'name':'Env_1'
 }
 def train_policy():
     cpus  = psutil.cpu_count(logical=False)
     config = (
         get_trainable_cls(args.run)
         .get_default_config()
-        .environment(env=CircuitEnv_v4,env_config=env_config)
+        .environment(env=CircuitEnv_v5,env_config=env_config)
         .framework('torch')
         .rollouts(num_rollout_workers=int(cpus*0.9)
                   , num_envs_per_worker=2
@@ -61,7 +61,8 @@ def train_policy():
         .training(
             model={
                 # Change individual keys in that dict by overriding them, e.g.
-                "fcnet_hiddens": [1024, 1024, 1024,512,256,128,64,32],
+                "fcnet_hiddens": [256,64,128,64,32],
+                #"fcnet_hiddens": [32,64,128,64,32],
                 "fcnet_activation": "relu",
                 "use_attention": False,
                # "use_attention": args.use_attention,
@@ -72,7 +73,7 @@ def train_policy():
                 # "attention_memory_inference": args.attention_memory_inference,
                 # "attention_memory_training": args.attention_memory_training,
             },
-            gamma=0.999,
+            gamma=0.99,
         )
     )
     #stop = {"training_iteration": 100, "episode_reward_mean": 300}
