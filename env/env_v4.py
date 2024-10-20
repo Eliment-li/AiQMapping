@@ -6,7 +6,7 @@ from pprint import pprint
 
 import gymnasium as gym
 import numpy as np
-from gymnasium import spaces, register
+from gymnasium import  register
 from gymnasium.spaces import MultiBinary, MultiDiscrete,Discrete
 from gymnasium.spaces.utils import flatten_space
 from qiskit_aer import AerSimulator
@@ -15,7 +15,7 @@ import warnings
 from typing import Optional
 import os
 
-from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, ADJ_LIST, meet_nn_constrain
+from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, ADJ_LIST, meet_nn_constrain, POSITION_MAP
 from utils.circuits_util import qubits_nn_constrain
 from utils.common_utils import compute_total_distance, generate_unique_coordinates, data_normalization, linear_scale
 from utils.visualize.trace import show_trace
@@ -23,11 +23,11 @@ from utils.visualize.trace import show_trace
 os.environ["SHARED_MEMORY_USE_LOCK"] = '1'
 simulator = AerSimulator()
 '''
-v3 每次只移动一个对象
-记录 trace 以可视化
+v3 每次移动一个对象 通过Switch的方式进行移动 不再限制移动距离
+obs 改为 MultiDiscrete
 '''
 warnings.filterwarnings("ignore")
-class CircuitEnv_v3(gym.Env):
+class CircuitEnv_v4(gym.Env):
     def __init__(self, config: Optional[dict] = None):
         self.debug = False #config.get('debug')
         self.trace = []
@@ -47,27 +47,25 @@ class CircuitEnv_v3(gym.Env):
             px = p[0]
             py = p[1]
             self.occupy.append(deepcopy(self.grid[px][py]))
-        self.occupy = np.float32(self.occupy)
 
         self.qubits = np.float32(QUBITS_ERROR_RATE)
         self.coupling= np.float32(COUPLING_SCORE)
 
-        #obs_size = len(self.qubits) + len(self.coupling) + len(self.occupy)
-        obs_size = len(self.position)*2
+        obs_size = self.qubit_nums+1*2
         # todo 先试试 flatten, 后面尝试直接用 spaces.Box
-        self.observation_space = flatten_space(spaces.Box(0,1,(1,obs_size),dtype=np.float32,))
-        self.obs = linear_scale(np.array(self.position,dtype=np.float32).flatten())
-        #self.obs = np.concatenate([self.qubits, self.coupling, linear_scale(self.occupy)],dtype=np.float32)
+        low = np.array([0, 0, 0, 0, 0, 0])
+        high = np.array([66, 66, 66])
+        self.observation_space = MultiDiscrete(high)
+
+        self.obs = np.array(self.occupy).astype(int)
+        self.action_space = MultiDiscrete([4, 65])
 
         self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
 
-        #self.action_space = MultiDiscrete(np.array([5] * (self.qubit_nums),dtype=int))
-        self.action_space = MultiDiscrete(np.array([self.qubit_nums,5],dtype=int))
-
         #stop conditions
-        self.max_step = 1000
-        self.stop_thresh = -5
+        self.max_step = 10000
+        self.stop_thresh = -100
         self.total_reward = 0
         self.step_cnt = 0
 
@@ -81,6 +79,7 @@ class CircuitEnv_v3(gym.Env):
         self.total_reward = 0
         self.step_cnt = 0
         #重新随机选取位置
+        # todo  直接从 position map 中选就行
         self.position = generate_unique_coordinates(3)
         self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
@@ -90,8 +89,7 @@ class CircuitEnv_v3(gym.Env):
             px = p[0]
             py = p[1]
             self.occupy.append(deepcopy(self.grid[px][py]))
-        self.occupy = np.float32(self.occupy)
-        #self.obs = np.concatenate([self.qubits, self.coupling, linear_scale(self.occupy)],dtype = np.float32)
+
         info = self._info()
 
         # trace = np.array(self.trace)
@@ -104,19 +102,21 @@ class CircuitEnv_v3(gym.Env):
         terminated = False
         truncated = False
 
-        q = action[0]
-        v = action[1]
-        if v == 4:
+        q1 = action[0]
+        q2 = action[1]
+        if q1 == 3:
             terminated = True
             reward = 0
         else:
-            #执行 action
-                #只计算坐标，并未真正 move
-            x,y = self.move(v,self.position[q][0],self.position[q][1])
-            if self.grid[x][y] not in self.occupy:
+            #执行 远距离移动 q1->q2
+
+            x,y = POSITION_MAP[int(q2)][0],POSITION_MAP[int(q2)][1]
+            if not np.any(np.all(self.position == np.array([x,y]), axis=1)):
                 #目标坐标无冲突
-                self.position[q][0], self.position[q][1] = x,y
-                self.occupy[q] = self.grid[x][y]
+                self.position[q1][0], self.position[q1][1] = x,y
+                #self.occupy[q1] = self.grid[x][y]
+                self.occupy[q1] = q2
+
             reward = self.compute_reward(action)
 
         if self.total_reward <= self.stop_thresh \
@@ -130,8 +130,9 @@ class CircuitEnv_v3(gym.Env):
         return self.get_obs(), reward, terminated,truncated, self._info()
 
     def get_obs(self):
-        self.obs = linear_scale(np.array(self.position,dtype=np.float32).flatten())
+        self.obs = np.array(self.occupy).astype(int)
         return deepcopy(self.obs)
+
 
     def compute_reward(self,act):
 
@@ -140,6 +141,7 @@ class CircuitEnv_v3(gym.Env):
         distance = compute_total_distance(self.position)
         k1 = (self.default_distance - distance) / self.default_distance
         k2 = (self.last_distance - distance) / self.last_distance
+        self.last_distance = distance
 
         if k2 > 0:
             reward = (math.pow((1 + k2), 2) - 1) * (1 + k1)
@@ -148,7 +150,6 @@ class CircuitEnv_v3(gym.Env):
         else:
             reward = 0
 
-        self.last_distance = distance
         #计算是否满足连接性
         if meet_nn_constrain(self.nn):
             reward *= 10
@@ -171,4 +172,6 @@ class CircuitEnv_v3(gym.Env):
 
 
 if __name__ == '__main__':
-    print(spaces.Box(0, 1, (1, 3), dtype=np.float32, ).sample())
+    low = np.array([0, 0,0,0,0,0])
+    high = np.array([11, 12, 11, 12, 11, 12, 65, 65, 65])
+    print(MultiDiscrete(np.array([[6] * 9])).sample())

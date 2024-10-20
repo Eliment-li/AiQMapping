@@ -57,7 +57,6 @@ class CircuitEnv_v2(gym.Env):
         # todo 先试试 flatten, 后面尝试直接用 spaces.Box
         self.observation_space = flatten_space(spaces.Box(0,1,(1,obs_size),dtype=np.float32,))
         self.obs = linear_scale(np.array(self.position,dtype=np.float32).flatten())
-        #self.obs = np.concatenate([self.qubits, self.coupling, linear_scale(self.occupy)],dtype=np.float32)
 
         self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
@@ -91,14 +90,13 @@ class CircuitEnv_v2(gym.Env):
             py = p[1]
             self.occupy.append(deepcopy(self.grid[px][py]))
         self.occupy = np.float32(self.occupy)
-        self.obs = linear_scale(np.array(self.position,dtype=np.float32).flatten())
         #self.obs = np.concatenate([self.qubits, self.coupling, linear_scale(self.occupy)],dtype = np.float32)
         info = self._info()
 
         # trace = np.array(self.trace)
         # show_trace(trace.transpose())
         self.trace = []
-        return self.obs , info
+        return self.get_obs() , info
 
     def step(self, action):
         reward = 0
@@ -129,9 +127,12 @@ class CircuitEnv_v2(gym.Env):
         if self.debug:
             print('done = %r, reward = %r  info = %r \n' % (terminated, reward,self.occupy))
         self.trace.append(deepcopy(self.occupy))
-        return self.obs, reward, terminated,truncated, self._info()
+        return self.get_obs(), reward, terminated,truncated, self._info()
 
-
+    def get_obs(self):
+        self.occupy = np.float32(self.occupy)
+        self.obs = linear_scale(np.array(self.position, dtype=np.float32).flatten())
+        return deepcopy(self.obs)
     def compute_reward(self,act):
 
         reward = self.stop_thresh
