@@ -54,7 +54,7 @@ def data_normalization(data):
 
     return normalized_data
 
-
+# todo ,接口指定arr_min和 arr_max
 def linear_scale(arr):
     """
     将数组中的值线性缩放到 [0, 1]。

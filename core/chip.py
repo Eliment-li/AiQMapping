@@ -109,3 +109,14 @@ grid = [
 [-1, 60, -1, 61, -1, 62, -1, 63, -1, 64, -1, 65],
 ]
 
+
+def init_position_map():
+    map = {}
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            if not grid[i][j] == -1:
+                map[int(grid[i][j])] = [i, j]
+    return  map
+
+
+POSITION_MAP=init_position_map()
