@@ -38,7 +38,7 @@ args = ConfigSingleton().get_config()
 
 stop = {
     TRAINING_ITERATION: args.stop_iters,
-    NUM_ENV_STEPS_SAMPLED_LIFETIME: args.stop_timesteps,
+    #NUM_ENV_STEPS_SAMPLED_LIFETIME: args.stop_timesteps,
 }
 
 # todo move to config.yml
@@ -51,7 +51,7 @@ def train_policy():
     config = (
         get_trainable_cls(args.run)
         .get_default_config()
-        .environment(env=CircuitEnv_v5,env_config=env_config)
+        .environment(env=CircuitEnv_v2,env_config=env_config)
         .framework('torch')
         .rollouts(num_rollout_workers=int(cpus*0.9)
                   , num_envs_per_worker=2

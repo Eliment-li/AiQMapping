@@ -119,6 +119,11 @@ class CircuitEnv_v3(gym.Env):
                 self.occupy[q] = self.grid[x][y]
             reward = self.compute_reward(action)
 
+        #计算是否满足连接性
+        if meet_nn_constrain(self.nn):
+            reward *= 10
+            terminated = True
+
         if self.total_reward <= self.stop_thresh \
                 or reward <= self.stop_thresh \
                 or self.step_cnt==self.max_step :
@@ -149,9 +154,7 @@ class CircuitEnv_v3(gym.Env):
             reward = 0
 
         self.last_distance = distance
-        #计算是否满足连接性
-        if meet_nn_constrain(self.nn):
-            reward *= 10
+
         return reward
 
     def render(self):

@@ -33,12 +33,12 @@ class CircuitEnv_v5(gym.Env):
         self.trace = []
         self.rs = []
         # circuit 变量
-        self.circuit = 'XEB_3_qubits_8_cycles_circuit.txt'
-        self.qubit_nums = 3
+        self.qubit_nums = 5
+        self.circuit = 'XEB_'+str(self.qubit_nums)+'_qubits_8_cycles_circuit.txt'
 
         #chip 变量
-        self.position =generate_unique_coordinates(3)
-        self.nn = qubits_nn_constrain('XEB_3_qubits_8_cycles_circuit.txt')
+        self.position =generate_unique_coordinates(self.qubit_nums)
+        self.nn = qubits_nn_constrain('XEB_'+str(self.qubits)+'_qubits_8_cycles_circuit.txt')
         self.grid = copy(grid)
 
         # 被占据的qubit，用 Q序号为标识
@@ -52,13 +52,13 @@ class CircuitEnv_v5(gym.Env):
         self.coupling= np.float32(COUPLING_SCORE)
 
         obs_size = self.qubit_nums+1*2
-        # todo 先试试 flatten, 后面尝试直接用 spaces.Box
+        #先试试 flatten, 后面尝试直接用 spaces.Box
         low = np.array([0, 0, 0, 0, 0, 0])
-        high = np.array([66, 66, 66])
+        high = np.array([66] * self.qubit_nums)
         self.observation_space = MultiDiscrete(high)
 
         self.obs = np.array(self.occupy).astype(int)
-        self.action_space = MultiDiscrete([4, 65])
+        self.action_space = MultiDiscrete([self.qubit_nums+1, 65])
 
         self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
@@ -80,7 +80,7 @@ class CircuitEnv_v5(gym.Env):
         self.step_cnt = 0
         #重新随机选取位置
         # todo  直接从 position map 中选就行
-        self.position = generate_unique_coordinates(3)
+        self.position = generate_unique_coordinates(self.qubit_nums)
         self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
 
@@ -135,6 +135,7 @@ class CircuitEnv_v5(gym.Env):
 
         if self.debug:
             print('done = %r, reward = %r  info = %r \n' % (terminated, reward,self.occupy))
+
         self.trace.append(deepcopy(self.occupy))
         return self.get_obs(), reward, terminated,truncated, self._info()
 
