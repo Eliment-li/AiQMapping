@@ -13,7 +13,7 @@ def evaluate_policy(checkpoint):
     if not isinstance(checkpoint, str):
         checkpoint = checkpoint.to_directory()
     algo = Algorithm.from_checkpoint(checkpoint)
-    env = gym.make('Env_1')
+    env = gym.make('Env_'+str(args.env_version))
     obs, info = env.reset()
 
     episode_reward = 0.0
