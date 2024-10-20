@@ -56,4 +56,4 @@ def reassign_qxx_labels(code):
 
     return new_code
 
-qubits_nn_constrain('XEB_3_qubits_8_cycles_circuit.txt')
+qubits_nn_constrain('XEB_5_qubits_8_cycles_circuit.txt')
