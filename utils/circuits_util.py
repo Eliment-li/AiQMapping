@@ -10,7 +10,7 @@ directory  = Path('data')
 '''
 def qubits_nn_constrain(name):
     nn = [set() for _ in range(66)]
-    path = directory / 'circuits' / 'xeb' / 'xeb3' / name
+    path = directory / 'circuits' / 'xeb' / 'xeb5' / name
     str = read_all(path)
     str =  reassign_qxx_labels(str)
     # 使用正则表达式匹配CZ指令
