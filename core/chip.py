@@ -1,7 +1,7 @@
 import numpy as np
 from sympy import pprint
 
-from utils.common_utils import data_normalization
+from utils.common_utils import data_normalization, compute_total_distance
 from utils.file.csv_util import read_df
 from pathlib import Path
 #path
@@ -120,3 +120,15 @@ def init_position_map():
 
 
 POSITION_MAP=init_position_map()
+
+positions = [
+    POSITION_MAP[21],
+    POSITION_MAP[26],
+    POSITION_MAP[33],
+    POSITION_MAP[38],
+    POSITION_MAP[32],
+]
+
+
+distance = compute_total_distance(positions)
+print(distance)

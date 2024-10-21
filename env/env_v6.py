@@ -23,11 +23,10 @@ from utils.visualize.trace import show_trace
 os.environ["SHARED_MEMORY_USE_LOCK"] = '1'
 simulator = AerSimulator()
 '''
-v5 在v4的基础上优化 reward function
-如果满足连接调节，则结束训练
+v6 更新 reward function
 '''
 warnings.filterwarnings("ignore")
-class CircuitEnv_v5(gym.Env):
+class CircuitEnv_v6(gym.Env):
     def __init__(self, config: Optional[dict] = None):
         self.debug = False #config.get('debug')
         self.trace = []
@@ -152,11 +151,12 @@ class CircuitEnv_v5(gym.Env):
         k1 = (self.default_distance - distance) / self.default_distance
         k2 = (self.last_distance - distance) / self.last_distance
         self.last_distance = distance
-
+        if k1==0:
+            k1=0.5
         if k2 > 0:
-            reward = (math.pow((1 + k2), 2) - 1) * (1 + k1)
+            reward = (math.pow((1 + k2), 2) - 1) * math.fabs(k1)
         elif k2 < 0:
-            reward = -1.1 * (math.pow((1 - k2), 2) - 1) * (1 - k1)
+            reward = -1 * (math.pow((1 - k2), 2) - 1) * math.fabs( k1)
         else:
             reward = 0
 

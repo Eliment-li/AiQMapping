@@ -4,7 +4,9 @@ import math
 
 
 def test_reward_function():
-    distance = [3,10,9,8,7,6,5,4,3]
+    #distance = [100,26.11,19.06,23.06,19.06]
+    #distance = [24.36,26.11,19.06,23.06,19.06]
+    distance = [2,1,2,1]
     default = distance[0]
     last = default
     total = 0
@@ -12,11 +14,12 @@ def test_reward_function():
 
         k1 = (default - v) / default
         k2 = (last - v) / last
-
+        if k1==0:
+            k1=0.5
         if k2 > 0:
-            reward = (math.pow((1 + k2), 2) - 1) * (1 + k1)
+            reward = (math.pow((1 + k2), 2) - 1) * math.fabs(k1)
         elif k2 < 0:
-            reward = -1 * (math.pow((1 - k2), 2) - 1) * (1 - k1)
+            reward = -1 * (math.pow((1 - k2), 2) - 1) * math.fabs( k1)
         else:
             reward = 0
 

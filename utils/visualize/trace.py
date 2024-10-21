@@ -35,7 +35,7 @@ def create_grid(rows, cols):
                 num += 1
     return grid
 
-colors = ['#0D92F4','#F95454','#72BF78']
+colors = ['#0D92F4','#F95454','#72BF78','#FF7E07','#BE3BCE']
 
 grid = create_grid(rows, cols)
 values = get_values(11,12)
@@ -99,7 +99,10 @@ def show_trace( paths, grid =grid , values=values):
 if __name__ == '__main__':
     trace=[[1,2,3,1,5],
  [44, 37, 37, 31],
- [49, 43,48, 54]]
+ [49, 43,48, 54],
+[41, 23,38, 44]]
+
+
     show_trace(paths=trace)
 
     # print(default_labels)

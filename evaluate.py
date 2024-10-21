@@ -79,11 +79,6 @@ def evaluate_policy(checkpoint):
             # prev_a = init_prev_a
             # prev_r = init_prev_r
 
-            if not isinstance(checkpoint, str):
-                checkpoint = checkpoint.path
-
-            obs, info = env.reset()
-            episode_reward = 0.0
         # attention
         # else:
         #     # Append the just received state-out (most recent timestep) to the

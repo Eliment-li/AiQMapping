@@ -16,6 +16,7 @@ from env.env_v2 import CircuitEnv_v2
 from env.env_v3 import CircuitEnv_v3
 from env.env_v4 import CircuitEnv_v4
 from env.env_v5 import CircuitEnv_v5
+from env.env_v6 import CircuitEnv_v6
 
 from config import ConfigSingleton
 import numpy as np
@@ -51,13 +52,13 @@ def train_policy():
     config = (
         get_trainable_cls(args.run)
         .get_default_config()
-        .environment(env=CircuitEnv_v5,env_config=env_config)
+        .environment(env=CircuitEnv_v6,env_config=env_config)
         .framework('torch')
         .rollouts(num_rollout_workers=int(cpus*0.9)
                   , num_envs_per_worker=2
                   # ,remote_worker_envs=True
                   )
-        .resources(num_gpus=1)
+        .resources(num_gpus=args.num_gpus)
         .training(
             model={
                 # Change individual keys in that dict by overriding them, e.g.
@@ -109,7 +110,7 @@ if __name__ == '__main__':
 
     args = ConfigSingleton().get_config()
     try:
-        ray.init(num_gpus=1, local_mode=args.local_mode)
+        ray.init(num_gpus=args.num_gpus, local_mode=args.local_mode)
         time.sleep(1)
         train()
         ray.shutdown()
