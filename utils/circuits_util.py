@@ -1,6 +1,10 @@
 from pathlib import Path
 import re
 from collections import defaultdict
+
+from qiskit import QuantumCircuit, transpile
+from qiskit_aer import AerSimulator
+
 from utils.file.file_util import read_all
 directory  = Path('data')
 
@@ -56,4 +60,23 @@ def reassign_qxx_labels(code):
 
     return new_code
 
+simulator = AerSimulator()
+def get_circuit_swap(circuit:QuantumCircuit, coupling_map:list) -> int:
+    #[0,1,2,....,qubits的个数-1]
+    initial_layout = list(range(len(circuit.qubits)))
+    try:
+        avr = 0
+        for i in range(3):
+            cc = transpile(circuits=circuit, coupling_map=coupling_map,initial_layout=initial_layout,layout_method='sabre',routing_method='sabre', optimization_level=1,backend=simulator)
+            #avr += cc.size() * 0.5 + cc.depth()*0.5
+            avr += cc.decompose().depth()
+
+        #取平均值
+        return avr/3
+    except Exception as e:
+        #traceback.print_exc()
+        return None
+
 qubits_nn_constrain('XEB_5_qubits_8_cycles_circuit.txt')
+
+
