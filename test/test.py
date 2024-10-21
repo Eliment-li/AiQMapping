@@ -1,80 +1,54 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import matplotlib.cm as cm
-import matplotlib.colors as mcolors
-from matplotlib.patches import FancyArrowPatch
+def get_neighbors(grid):
+    # 获取网格的行数和列数
+    rows = len(grid)
+    cols = len(grid[0])
 
-def create_grid(rows, cols):
-    grid = np.zeros((rows, cols))
-    values = np.random.rand(rows, cols)  # Random values for each block
-    num = 0
+    # 用于存储有效方块的编号
+    valid_blocks = {}
+    block_number = 0
+
+    # 遍历整个网格，给有效方块编号
     for i in range(rows):
         for j in range(cols):
-            if (i % 2 == 0 and j % 2 == 0) or (i % 2 == 1 and j % 2 == 1):
-                grid[i][j] = -1  # Invalid block
-            else:
-                grid[i][j] = num  # Valid block with a number
-                num += 1
-    return grid, values
-
-def get_valid_positions(grid):
-    positions = {}
-    for i in range(grid.shape[0]):
-        for j in range(grid.shape[1]):
             if grid[i][j] != -1:
-                positions[f"Q{int(grid[i][j])}"] = (i, j)
-    return positions
+                valid_blocks[(i, j)] = block_number
+                block_number += 1
 
-def plot_grid(grid, values, trajectories, text_color='black'):
-    fig, ax = plt.subplots(dpi=250)
-    ax.set_xlim(-0.5, grid.shape[1] - 0.5)
-    ax.set_ylim(-0.5, grid.shape[0] - 0.5)
-    ax.set_aspect('equal')
+    # 用于存储相邻关系
+    neighbors = []
 
-    # Normalize the color map based on the values
-    norm = mcolors.Normalize(vmin=values.min(), vmax=values.max())
-    cmap = cm.viridis
+    # 定义四个对角方向的偏移量
+    directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
 
-    # Plot grid
-    for i in range(grid.shape[0]):
-        for j in range(grid.shape[1]):
-            if grid[i][j] == -1:
-                ax.add_patch(plt.Rectangle((j - 0.5, i - 0.5), 1, 1, color='lightgrey'))
-            else:
-                color = cmap(norm(values[i, j]))
-                ax.add_patch(plt.Rectangle((j - 0.5, i - 0.5), 1, 1, color=color))
-                ax.text(j, i, f"Q{int(grid[i][j])}", ha='center', va='center', fontsize=8, color=text_color)
+    # 遍历有效方块，查找其邻居
+    for (i, j), block_id in valid_blocks.items():
+        for di, dj in directions:
+            ni, nj = i + di, j + dj
+            if (ni, nj) in valid_blocks:
+                neighbor_id = valid_blocks[(ni, nj)]
+                neighbors.append([block_id, neighbor_id])
 
-    # Plot trajectories with arrows
-    color = ['#0D92F4','#F95454','#72BF78']
-    color_idx = 0
-    for trajectory in trajectories:
-        for k in range(len(trajectory) - 1):
-            start_pos = positions[f"Q{trajectory[k]}"]
-            end_pos = positions[f"Q{trajectory[k+1]}"]
-            arrow = FancyArrowPatch((start_pos[1], start_pos[0]), (end_pos[1], end_pos[0]),
-                                    arrowstyle='-|>', color=color[color_idx], mutation_scale=10)
-            ax.add_patch(arrow)
-        color_idx += 1
-        # Mark start and end points
-        start_pos = positions[f"Q{trajectory[0]}"]
-        end_pos = positions[f"Q{trajectory[-1]}"]
-        ax.text(start_pos[1], start_pos[0], "Start", ha='right', va='bottom', fontsize=8, color='#3C3D37')
-        ax.text(end_pos[1], end_pos[0], "End", ha='left', va='top', fontsize=8, color='#3C3D37')
+    return neighbors
 
-    plt.gca().invert_yaxis()
-    plt.show()
 
-# Parameters
-rows, cols = 10, 6
-grid, values = create_grid(rows, cols)
-positions = get_valid_positions(grid)
-
-# Example trajectories
-trajectories = [
-    [0, 1, 3, 5],  # Example trajectory 1
-    [2, 4, 6, 8]   # Example trajectory 2
+# 示例网格
+grid = [
+[-1, 0, -1, 1, -1, 2, -1, 3, -1, 4, -1, 5],
+[6, -1, 7, -1, 8, -1, 9, -1, 10, -1, 11, -1],
+[-1, 12, -1, 13, -1, 14, -1, 15, -1, 16, -1, 17],
+[18, -1, 19, -1, 20, -1, 21, -1, 22, -1, 23, -1],
+[-1, 24, -1, 25, -1, 26, -1, 27, -1, 28, -1, 29],
+[30, -1, 31, -1, 32, -1, 33, -1, 34, -1, 35, -1],
+[-1, 36, -1, 37, -1, 38, -1, 39, -1, 40, -1, 41],
+[42, -1, 43, -1, 44, -1, 45, -1, 46, -1, 47, -1],
+[-1, 48, -1, 49, -1, 50, -1, 51, -1, 52, -1, 53],
+[54, -1, 55, -1, 56, -1, 57, -1, 58, -1, 59, -1],
+[-1, 60, -1, 61, -1, 62, -1, 63, -1, 64, -1, 65],
 ]
 
-# Plot with custom text color
-plot_grid(grid, values, trajectories, text_color='white')
+# 计算相邻关系
+neighbor_relations = get_neighbors(grid)
+
+# 输出结果
+for relation in neighbor_relations:
+    print(relation)

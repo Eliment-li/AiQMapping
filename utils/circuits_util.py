@@ -1,3 +1,4 @@
+import traceback
 from pathlib import Path
 import re
 from collections import defaultdict
@@ -34,7 +35,6 @@ def qubits_nn_constrain(name):
     # 打印统计结果
     # for key, count in counts.items():
     #     print(f"{key} 出现 {count} 次")
-
     return nn
     # # 准备数据用于绘制饼状图
     # labels = list(counts.keys())
@@ -68,7 +68,7 @@ def get_circuit_swap(circuit:QuantumCircuit, coupling_map:list) -> int:
         avr = 0
         for i in range(3):
             cc = transpile(circuits=circuit, coupling_map=coupling_map,initial_layout=initial_layout,layout_method='sabre',routing_method='sabre', optimization_level=1,backend=simulator)
-            #avr += cc.size() * 0.5 + cc.depth()*0.5
+
             avr += cc.decompose().depth()
 
         #取平均值
@@ -77,6 +77,26 @@ def get_circuit_swap(circuit:QuantumCircuit, coupling_map:list) -> int:
         #traceback.print_exc()
         return None
 
-qubits_nn_constrain('XEB_5_qubits_8_cycles_circuit.txt')
+
+
+def count_gates(type,circuit:QuantumCircuit, initial_layout,coupling_map, gates=['swap'],) -> int:
+    try:
+        compiled_circuit = transpile(circuits=circuit,
+                                     coupling_map=coupling_map,
+                                     backend=simulator)
+
+        ops = compiled_circuit.count_ops()
+        if len(gates) == 0:
+            return  sum(ops.values())
+        else:
+            return  sum(ops[g] for g in gates if g in ops)
+    except Exception as e:
+        traceback.print_exc()
+        return 999999
+
+
+
+
+
 
 
