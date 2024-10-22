@@ -1,34 +1,4 @@
-def get_neighbors(grid):
-    # 获取网格的行数和列数
-    rows = len(grid)
-    cols = len(grid[0])
 
-    # 用于存储有效方块的编号
-    valid_blocks = {}
-    block_number = 0
-
-    # 遍历整个网格，给有效方块编号
-    for i in range(rows):
-        for j in range(cols):
-            if grid[i][j] != -1:
-                valid_blocks[(i, j)] = block_number
-                block_number += 1
-
-    # 用于存储相邻关系
-    neighbors = []
-
-    # 定义四个对角方向的偏移量
-    directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
-
-    # 遍历有效方块，查找其邻居
-    for (i, j), block_id in valid_blocks.items():
-        for di, dj in directions:
-            ni, nj = i + di, j + dj
-            if (ni, nj) in valid_blocks:
-                neighbor_id = valid_blocks[(ni, nj)]
-                neighbors.append([block_id, neighbor_id])
-
-    return neighbors
 
 
 # 示例网格
@@ -46,9 +16,4 @@ grid = [
 [-1, 60, -1, 61, -1, 62, -1, 63, -1, 64, -1, 65],
 ]
 
-# 计算相邻关系
-neighbor_relations = get_neighbors(grid)
 
-# 输出结果
-for relation in neighbor_relations:
-    print(relation)

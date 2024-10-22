@@ -33,12 +33,11 @@ class CircuitEnv_v2(gym.Env):
         self.trace = []
         self.rs = []
         # circuit 变量
-        self.circuit = 'XEB_3_qubits_8_cycles_circuit.txt'
         self.qubit_nums = 3
 
         #chip 变量
         self.position =generate_unique_coordinates(3)
-        self.nn = qubits_nn_constrain('XEB_3_qubits_8_cycles_circuit.txt')
+        self.nn = qubits_nn_constrain('XEB_'+str(self.qubit_nums)+'_qubits_8_cycles_circuit.txt')
         self.grid = copy(grid)
 
         # 被占据的qubit，用 Q序号为标识
