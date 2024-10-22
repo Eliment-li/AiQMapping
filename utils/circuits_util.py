@@ -7,6 +7,8 @@ from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
 
 from config import ConfigSingleton
+from core import chip
+from utils.code_conversion import QCIS_2_QASM
 from utils.file.file_util import read_all
 args = ConfigSingleton().get_config()
 '''
@@ -59,30 +61,51 @@ def reassign_qxx_labels(code):
     new_code = qxx_pattern.sub(replace_qxx, code)
 
     return new_code
-
-
-
+################################################################3
+path = Path(args.circuit_path) / 'XEB_5_qubits_8_cycles_circuit.txt'
+RE_LABEL_CIRCUIT = reassign_qxx_labels(read_all(path))
+QASM_STR = QCIS_2_QASM(RE_LABEL_CIRCUIT)
 simulator = AerSimulator()
-def score_layout():
-    pass
-def count_gates(circuit:QuantumCircuit, initial_layout,coupling_map, gates=['swap'],) -> int:
+'''
+* virtual to physical::
+[0, 3, 5]  # virtual qubits are ordered (in addition to named)
+'''
+def swap_counts(circuit_name,initial_layout):
+    #print(qcis)
+    circuit = QuantumCircuit.from_qasm_str(qasm_str=QASM_STR)
+    #circuit.draw('mpl').show()
+
+    return count_gates(circuit,initial_layout,coupling_map=chip.COUPLING_MAP,gates=['swap'])
+
+def count_gates(circuit:QuantumCircuit, layout,coupling_map, gates=['swap'],) -> int:
+    initial_layout = {}
+    for i, v in enumerate(layout):
+        initial_layout[circuit.qubits[i]] = v
+    #print(initial_layout)
+
     try:
         compiled_circuit = transpile(circuits=circuit,
+                                     initial_layout=initial_layout,
                                      coupling_map=coupling_map,
                                      backend=simulator)
 
         ops = compiled_circuit.count_ops()
-        if len(gates) == 0:
-            return  sum(ops.values())
+        #print(ops)
+        # if len(gates) == 0:
+        #     return  sum(ops.values())
+        # else:
+        #     return  sum(ops[g] for g in gates if g in ops)
+        if 'swap' in ops.keys():
+            return ops['swap']
         else:
-            return  sum(ops[g] for g in gates if g in ops)
+            return 0
     except Exception as e:
         traceback.print_exc()
         return -1
 
 
-
-
+if __name__ == '__main__':
+    print(swap_counts('XEB_5_qubits_8_cycles_circuit.txt',[21,26,14,20,9]))
 
 
 

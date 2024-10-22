@@ -93,6 +93,7 @@ def evaluate_policy(checkpoint):
         #         prev_r = reward
 
     algo.stop()
-    trace = np.array(trace)
-    pprint(trace.transpose())
-    show_trace(trace.transpose())
+    if args.show_trace:
+        trace = np.array(trace)
+        pprint(trace.transpose())
+        show_trace(trace.transpose())

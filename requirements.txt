@@ -18,5 +18,6 @@ qiskit
 qiskit-aer
 chardet
 cqlib
+pylatexenc
 
 # download swig
