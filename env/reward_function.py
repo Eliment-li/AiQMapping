@@ -10,8 +10,8 @@ class RewardFunction:
     def rfv1(self,env, action):
         reward = env.stop_thresh
         # 计算距离
-        distance = common_utils.compute_total_distance(
-            env.position)  # cu.swap_counts(circuit_name=env.circuit,initial_layout=env.occupy)
+        distance = common_utils.compute_total_distance(env.position)
+        #cu.swap_counts(circuit_name=env.circuit,initial_layout=env.occupy)
 
         d1 = (env.default_distance - distance) / env.default_distance
         d2 = (env.last_distance - distance) / env.last_distance
@@ -22,7 +22,7 @@ class RewardFunction:
             error += chip.QUBITS_ERROR_RATE[v]
 
         e1 = (env.default_error - error) / env.default_error
-        e2 = (env.last_error - distance) / env.last_error
+        e2 = (env.last_error - error) / env.last_error
         env.last_error = error
 
         k1 = 0.9 * d1 + 0.1 * e1
