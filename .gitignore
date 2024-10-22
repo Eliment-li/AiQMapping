@@ -4,3 +4,4 @@
 /core/__pycache__
 /env/__pycache__
 *.pyc
+config_private.yml
