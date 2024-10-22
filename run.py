@@ -18,6 +18,7 @@ from env.env_v4 import CircuitEnv_v4
 from env.env_v5 import CircuitEnv_v5
 from env.env_v6 import CircuitEnv_v6
 from env.env_v7 import CircuitEnv_v7
+from env.env_v8 import CircuitEnv_v8
 
 from config import ConfigSingleton
 import numpy as np
@@ -53,7 +54,7 @@ def train_policy():
     config = (
         get_trainable_cls(args.run)
         .get_default_config()
-        .environment(env=CircuitEnv_v7,env_config=env_config)
+        .environment(env=CircuitEnv_v8,env_config=env_config)
         .framework('torch')
         .rollouts(num_rollout_workers=int(cpus*0.9)
                   , num_envs_per_worker=2

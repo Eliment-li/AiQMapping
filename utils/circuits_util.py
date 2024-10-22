@@ -44,6 +44,7 @@ def qubits_nn_constrain(circuit_name):
 
 
 def reassign_qxx_labels(code):
+    print('reassign_qxx_labels')
     # 使用正则表达式匹配所有的 Qxx 指令
     qxx_pattern = re.compile(r'Q(\d{1,2})')
     matches = qxx_pattern.findall(code)
@@ -66,15 +67,13 @@ path = Path(args.circuit_path) / 'XEB_5_qubits_8_cycles_circuit.txt'
 RE_LABEL_CIRCUIT = reassign_qxx_labels(read_all(path))
 QASM_STR = QCIS_2_QASM(RE_LABEL_CIRCUIT)
 simulator = AerSimulator()
+circuit = QuantumCircuit.from_qasm_str(qasm_str=QASM_STR)
+#circuit.draw('mpl').show()
 '''
 * virtual to physical::
 [0, 3, 5]  # virtual qubits are ordered (in addition to named)
 '''
 def swap_counts(circuit_name,initial_layout):
-    #print(qcis)
-    circuit = QuantumCircuit.from_qasm_str(qasm_str=QASM_STR)
-    #circuit.draw('mpl').show()
-
     return count_gates(circuit,initial_layout,coupling_map=chip.COUPLING_MAP,gates=['swap'])
 
 def count_gates(circuit:QuantumCircuit, layout,coupling_map, gates=['swap'],) -> int:

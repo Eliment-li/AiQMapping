@@ -73,6 +73,8 @@ def evaluate_policy(checkpoint):
         if done:
             print('env done = %r, action = %r, reward = %r  occupy =  {%r} ' % (done,a, reward, info['occupy']))
             print(f"Episode done: Total reward = {episode_reward}")
+            print(f"CheckPoint = {checkpoint}")
+
 
             # attention
             # state = init_state

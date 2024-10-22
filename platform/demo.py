@@ -102,3 +102,6 @@ print(f'修正后的概率结果为: {corrected_result}')
 config_save = platform.download_config()
 for key, value in config_save.items():
     print(key, value)
+
+if __name__ == '__main__':
+    pass
