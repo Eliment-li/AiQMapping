@@ -6,14 +6,6 @@ import yaml
 
 from utils.file.file_util import get_root_dir
 
-def get_args():
-    config = None
-    rootdir = get_root_dir()
-    with open(rootdir+os.path.sep+'config.yml', 'r') as file:
-        config = yaml.safe_load(file)
-        config['device'] = "cuda" if torch.cuda.is_available() else "cpu"
-        config = Munch(config)
-    return config
 
 class Singleton(type):
     _instances = {}
@@ -26,22 +18,28 @@ class Singleton(type):
 class ConfigSingleton(metaclass=Singleton):
     def __init__(self):
         self.config = None
+        self.config_private = None
         self.load_config()
-        self.flag = 0
 
     def load_config(self):
         rootdir = get_root_dir()
+        # load public config
         with open(rootdir+os.path.sep+'config.yml', 'r') as file:
             config = yaml.safe_load(file)
             config['device'] = "cuda" if torch.cuda.is_available() else "cpu"
             self.config = Munch(config)
 
+        with open(rootdir+os.path.sep+'config_private.yml', 'r') as file:
+            config_private = yaml.safe_load(file)
+            self.config_private = Munch(config_private)
+        # load privateconfig
+
     def get_config(self):
-        self.flag += 1
         return self.config
+    def get_config_private(self):
+        return self.config_private
 
 if __name__ == '__main__':
     args = ConfigSingleton().get_config()
-    print(ConfigSingleton().get_config().qasm)
-    ConfigSingleton().get_config().qasm = 'test'
-    print(ConfigSingleton().get_config().qasm)
+    args_pri = ConfigSingleton().get_config_private()
+    print(args_pri.tianyan_token)
