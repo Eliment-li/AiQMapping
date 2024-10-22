@@ -25,8 +25,8 @@ class RewardFunction:
         e2 = (env.last_error - error) / env.last_error
         env.last_error = error
 
-        k1 = 0.9 * d1 + 0.1 * e1
-        k2 = 0.9 * d2 + 0.1 * e2
+        k1 = 0.8 * d1 + 0.2 * e1
+        k2 = 0.8 * d2 + 0.2 * e2
 
         if k1 == 0:
             k1 = 0.5
@@ -36,5 +36,5 @@ class RewardFunction:
             reward = -1 * (math.pow((1 - k2), 2) - 1) * math.fabs(k1)
         else:
             reward = 0
-
+        #reward *=1.5
         return reward

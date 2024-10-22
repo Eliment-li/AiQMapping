@@ -1,3 +1,4 @@
+from datetime import datetime
 from copy import deepcopy
 
 import numpy as np
@@ -6,6 +7,8 @@ import gymnasium as gym
 from sympy import pprint
 
 from config import ConfigSingleton
+from env.env_helper import register_custom_env
+from utils.file.data import save_array
 from utils.visualize.trace import show_trace
 
 args = ConfigSingleton().get_config()
@@ -97,8 +100,12 @@ def evaluate_policy(checkpoint):
     algo.stop()
     trace = np.array(trace)
     pprint(trace.transpose())
+    file  = datetime.today().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
+    save_array(trace,file)
     if args.show_trace:
         show_trace(trace.transpose())
 
 if __name__ == '__main__':
-    evaluate_policy('')
+    #register_custom_env(args.env_version)
+    print(datetime.today().strftime("%Y-%m-%d_%H-%M-%S")+'.txt')
+    #evaluate_policy('/tmp/checkpoint_tmp_cfb4d4a183d2477c85bb76d4546b4c69')
