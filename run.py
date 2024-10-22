@@ -11,11 +11,11 @@ from ray.rllib.core.models.configs import ModelConfig
 from sympy import timed
 
 from env.env_helper import  register_custom_env
-from env.env_v1 import CircuitEnv_v1
-from env.env_v2 import CircuitEnv_v2
-from env.env_v3 import CircuitEnv_v3
-from env.env_v4 import CircuitEnv_v4
-from env.env_v5 import CircuitEnv_v5
+# from env.env_v1 import CircuitEnv_v1
+# from env.env_v2 import CircuitEnv_v2
+# from env.env_v3 import CircuitEnv_v3
+# from env.env_v4 import CircuitEnv_v4
+# from env.env_v5 import CircuitEnv_v5
 from env.env_v6 import CircuitEnv_v6
 from env.env_v7 import CircuitEnv_v7
 from env.env_v8 import CircuitEnv_v8
@@ -50,13 +50,13 @@ env_config={
     #'name':'Env_1'
 }
 def train_policy():
-    cpus  = psutil.cpu_count(logical=False)
+    cpus  = psutil.cpu_count(logical=True)
     config = (
         get_trainable_cls(args.run)
         .get_default_config()
         .environment(env=CircuitEnv_v8,env_config=env_config)
         .framework('torch')
-        .rollouts(num_rollout_workers=int(cpus*0.9)
+        .rollouts(num_rollout_workers=int(cpus*0.75)
                   , num_envs_per_worker=2
                   # ,remote_worker_envs=True
                   )
