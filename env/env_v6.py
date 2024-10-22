@@ -120,7 +120,7 @@ class CircuitEnv_v6(gym.Env):
         #stop conditions
             # 计算是否满足连接性
         if meet_nn_constrain(self.nn):
-            reward *= 10
+            reward *= 100
             Terminated =True
         if reward == 0:
             reward = -0.01

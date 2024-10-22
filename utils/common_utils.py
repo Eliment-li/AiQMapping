@@ -77,4 +77,3 @@ def linear_scale(arr):
     scaled_arr = (arr - arr_min) / (arr_max - arr_min)
     return scaled_arr
 
-

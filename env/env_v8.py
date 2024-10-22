@@ -82,6 +82,13 @@ class CircuitEnv_v8(gym.Env):
         self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
 
+        #初始化错误信息
+        error = 0
+        for v in self.occupy:
+            error += QUBITS_ERROR_RATE[v]
+        self.default_error = error
+        self.last_error = error
+
         self.occupy = []
         for p in self.position:
             px = p[0]
@@ -148,9 +155,20 @@ class CircuitEnv_v8(gym.Env):
         #计算距离
         distance = cu.swap_counts(circuit_name=self.circuit,initial_layout=self.occupy)
 
-        k1 = (self.default_distance - distance) / self.default_distance
-        k2 = (self.last_distance - distance) / self.last_distance
+        d1 = (self.default_distance - distance) / self.default_distance
+        d2 = (self.last_distance - distance) / self.last_distance
         self.last_distance = distance
+
+        error = 0
+        for v in self.occupy:
+            error += QUBITS_ERROR_RATE[v]
+
+        e1 = (self.default_error - error) / self.default_error
+        e2 =(self.last_error - distance) / self.last_error
+        self.last_error = error
+        k1 = 0.8*d1 + 0.2*e1
+        k2 = 0.8*d2 + 0.2*e2
+
         if k1==0:
             k1=0.5
         if k2 > 0:

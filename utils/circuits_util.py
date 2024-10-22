@@ -86,6 +86,7 @@ def count_gates(circuit:QuantumCircuit, layout,coupling_map, gates=['swap'],) ->
         compiled_circuit = transpile(circuits=circuit,
                                      initial_layout=initial_layout,
                                      coupling_map=coupling_map,
+                                     optimization_level=0,
                                      backend=simulator)
 
         ops = compiled_circuit.count_ops()

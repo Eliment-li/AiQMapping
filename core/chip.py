@@ -153,3 +153,4 @@ def get_neighbors(grid):
 POSITION_MAP=init_position_map()
 # 计算相邻关系
 COUPLING_MAP = get_neighbors(grid)
+
