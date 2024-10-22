@@ -1,6 +1,6 @@
 
 env_version: 8
-
+reward_function_version: 1
 circuit_path: data/circuits/xeb/xeb5
 ###Iters is the number of batches the model will train on and the number of times your model weights will be updated (not counting minibatches).
 stop_iters: 2

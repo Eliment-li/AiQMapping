@@ -15,12 +15,15 @@ import warnings
 from typing import Optional
 import os
 
+from config import ConfigSingleton
 from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, ADJ_LIST, meet_nn_constrain, POSITION_MAP
 import utils.circuits_util as cu
 from utils.common_utils import compute_total_distance, generate_unique_coordinates, data_normalization, linear_scale
 from utils.visualize.trace import show_trace
-
+from env.reward_function import RewardFunction
 os.environ["SHARED_MEMORY_USE_LOCK"] = '1'
+args = ConfigSingleton().get_config()
+rfunctions = RewardFunction()
 simulator = AerSimulator()
 '''
 v8 加入测控信息
@@ -126,7 +129,7 @@ class CircuitEnv_v8(gym.Env):
         #stop conditions
             # 计算是否满足连接性
         if meet_nn_constrain(self.nn):
-            reward *= 10
+            reward *= 20
             Terminated =True
         if reward == 0:
             reward = -0.01
@@ -148,37 +151,15 @@ class CircuitEnv_v8(gym.Env):
         self.obs = np.concatenate((QUBITS_ERROR_RATE, data_normalization([1, 2, 3, 4, 5]))).astype(np.float32)
         return deepcopy(self.obs)
 
-
     def compute_reward(self,act):
-
-        reward = self.stop_thresh
-        #计算距离
-        distance = cu.swap_counts(circuit_name=self.circuit,initial_layout=self.occupy)
-
-        d1 = (self.default_distance - distance) / self.default_distance
-        d2 = (self.last_distance - distance) / self.last_distance
-        self.last_distance = distance
-
-        error = 0
-        for v in self.occupy:
-            error += QUBITS_ERROR_RATE[v]
-
-        e1 = (self.default_error - error) / self.default_error
-        e2 =(self.last_error - distance) / self.last_error
-        self.last_error = error
-        k1 = 0.8*d1 + 0.2*e1
-        k2 = 0.8*d2 + 0.2*e2
-
-        if k1==0:
-            k1=0.5
-        if k2 > 0:
-            reward = (math.pow((1 + k2), 2) - 1) * math.fabs(k1)
-        elif k2 < 0:
-            reward = -1 * (math.pow((1 - k2), 2) - 1) * math.fabs(k1)
+        reward = 0
+        rf_name = f"rfv{args.reward_function_version}"
+        function_to_call = getattr(rfunctions, rf_name, None)
+        if callable(function_to_call):
+            reward = function_to_call(self,act)
         else:
-            reward = 0
-
-        return reward
+            print(f"Function {rf_name} does not exist.")
+        return  reward
 
     def render(self):
         print('render')

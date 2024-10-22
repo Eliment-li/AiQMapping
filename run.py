@@ -118,3 +118,5 @@ if __name__ == '__main__':
         ray.shutdown()
     except Exception as e:
         print(e)
+    finally:
+        ray.shutdown()
