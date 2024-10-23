@@ -35,8 +35,8 @@ def qubits_nn_constrain(circuit_name):
             counts[key] += 1
             nn[int(q1[1:])].add(int(q2[1:]))
     # 打印统计结果
-    # for key, count in counts.items():
-    #     print(f"{key} 出现 {count} 次")
+    for key, count in counts.items():
+        print(f"{key} 出现 {count} 次")
     return nn
     # # 准备数据用于绘制饼状图
     # labels = list(counts.keys())
@@ -105,7 +105,8 @@ def count_gates(circuit:QuantumCircuit, layout,coupling_map, gates=['swap'],) ->
 
 
 if __name__ == '__main__':
-    print(swap_counts('XEB_5_qubits_8_cycles_circuit.txt',[21,26,14,20,9]))
+    #print(swap_counts('XEB_5_qubits_8_cycles_circuit.txt',[21,26,14,20,9]))
+    print(qubits_nn_constrain('XEB_5_qubits_8_cycles_circuit.txt'))
 
 
 

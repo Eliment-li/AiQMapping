@@ -50,15 +50,16 @@ ADJ_LIST = read_adj_list()
 def cnt_meet_nn_constrain(nn):
     cnt = 0
     for i, s in enumerate(nn):
-        if len(s) > 0:
-            for v in s:
-                # i,s 有依赖
-                if  ADJ_LIST[i].__contains__(s):
-                    cnt += 1
-                    #print(f'{i} - {s} 不满足连接关系')
-                    break
+        # i= q left
+        if len(s) <= 0:
+            break
+        for v in s:
+            # i,s 有依赖
+            if  ADJ_LIST[i].__contains__(v):
+                cnt += 1
+                #print(f'{i} - {s} 满足连接关系')
     if cnt > 0:
-        print(cnt)
+        print(f'cnt={cnt}')
     return cnt
 
 def meet_nn_constrain(nn):
