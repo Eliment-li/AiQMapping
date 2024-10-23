@@ -132,7 +132,7 @@ class CircuitEnv_v9(gym.Env):
         cnt =  cnt_meet_nn_constrain(self.nn)
         reward *= cnt
         if cnt == len(self.nn):
-            reward *= 10
+            reward  =  10*cnt
             Terminated =True
         if reward == 0:
             reward = -0.01
