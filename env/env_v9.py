@@ -43,7 +43,7 @@ class CircuitEnv_v9(gym.Env):
         self.position =generate_unique_coordinates(self.qubit_nums)
         self.nn = cu.qubits_nn_constrain(self.circuit)
         self.grid = copy(grid)
-
+        self.max_nn_meet = 0
         # 被占据的qubit，用 Q序号为标识
         self.occupy = []
         for p in self.position:
@@ -77,7 +77,7 @@ class CircuitEnv_v9(gym.Env):
     def reset(self, *, seed=None, options=None):
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
-
+        self.max_nn_meet = 0
         self.total_reward = 0
         self.step_cnt = 0
         #重新随机选取位置
@@ -130,9 +130,11 @@ class CircuitEnv_v9(gym.Env):
         #stop conditions
             # 计算是否满足连接性
         cnt =  cnt_meet_nn_constrain(self.nn,self.occupy)
-        reward =  4 * cnt
+        if cnt > self.max_nn_meet:
+            reward =  4 * cnt
+            self.max_nn_meet = cnt
         if cnt == len(self.nn):
-            reward  =  4*cnt
+            reward  =  2*cnt
             Terminated =True
         if reward == 0:
             reward = -0.01
