@@ -12,7 +12,7 @@ stop_timesteps: 99999999
 stop_reward: 100
 
 no_tune: False
-local_mode: True
+local_mode: False
 framework: torch
 checkpoint_frequency: 2
 checkpoint_at_end: True
