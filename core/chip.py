@@ -59,8 +59,6 @@ def cnt_meet_nn_constrain(nn,occupy):
             if  ADJ_LIST[occupy[i]].__contains__(v):
                 cnt += 1
                 #print(f'{i} - {s} 满足连接关系')
-    if cnt > 0:
-        print(f'cnt={cnt}')
     return cnt
 
 def meet_nn_constrain(nn):
