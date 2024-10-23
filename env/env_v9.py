@@ -130,9 +130,9 @@ class CircuitEnv_v9(gym.Env):
         #stop conditions
             # 计算是否满足连接性
         cnt =  cnt_meet_nn_constrain(self.nn,self.occupy)
-        reward *= cnt
+        reward =  4 * cnt
         if cnt == len(self.nn):
-            reward  =  10*cnt
+            reward  =  4*cnt
             Terminated =True
         if reward == 0:
             reward = -0.01
