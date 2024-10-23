@@ -47,15 +47,16 @@ QUBITS_ERROR_RATE = data_normalization(read_qubits_error_rate())
 COUPLING_SCORE = data_normalization(read_coupling_score())
 ADJ_LIST = read_adj_list()
 
-def cnt_meet_nn_constrain(nn):
+
+def cnt_meet_nn_constrain(nn,occupy):
     cnt = 0
     for i, s in enumerate(nn):
         # i= q left
         if len(s) <= 0:
             break
         for v in s:
-            # i,s 有依赖
-            if  ADJ_LIST[i].__contains__(v):
+            # 第i个比特,和比特v 有依赖
+            if  ADJ_LIST[occupy[i]].__contains__(v):
                 cnt += 1
                 #print(f'{i} - {s} 满足连接关系')
     if cnt > 0:
