@@ -16,7 +16,7 @@ from typing import Optional
 import os
 
 from config import ConfigSingleton
-from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, ADJ_LIST, meet_nn_constrain, POSITION_MAP, \
+from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, POSITION_MAP, \
     cnt_meet_nn_constrain
 import utils.circuits_util as cu
 from utils.common_utils import compute_total_distance, generate_unique_coordinates, data_normalization, linear_scale
@@ -129,7 +129,7 @@ class CircuitEnv_v9(gym.Env):
                 reward = self.compute_reward(action)
         #stop conditions
             # 计算是否满足连接性
-        cnt =  cnt_meet_nn_constrain(self.nn)
+        cnt =  cnt_meet_nn_constrain(self.nn,self.occupy)
         reward *= cnt
         if cnt == len(self.nn):
             reward  =  10*cnt
