@@ -134,10 +134,10 @@ class CircuitEnv_v9(gym.Env):
             reward =  4 * cnt
             self.max_nn_meet = cnt
         if cnt == len(self.nn):
-            reward  =  2*cnt
+            reward  =  6*cnt
             Terminated =True
         if reward == 0:
-            reward = -0.01
+            reward = -0.04
 
         if self.total_reward <= self.stop_thresh \
                 or reward <= self.stop_thresh \
