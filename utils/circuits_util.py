@@ -35,8 +35,8 @@ def qubits_nn_constrain(circuit_name):
             counts[key] += 1
             nn[int(q1[1:])].add(int(q2[1:]))
     # 打印统计结果
-    for key, count in counts.items():
-        print(f"{key} 出现 {count} 次")
+    # for key, count in counts.items():
+    #     print(f"{key} 出现 {count} 次")
     return nn
     # # 准备数据用于绘制饼状图
     # labels = list(counts.keys())
