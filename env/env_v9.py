@@ -131,11 +131,11 @@ class CircuitEnv_v9(gym.Env):
             # 计算是否满足连接性
         cnt =  cnt_meet_nn_constrain(self.nn,self.occupy)
         if cnt > self.max_nn_meet:
-            reward =  4 * cnt
+            reward  +=  4 * cnt
             self.max_nn_meet = cnt
         if cnt == len(self.nn):
-            reward  =  6*cnt
-            Terminated =True
+            reward  =  10*cnt
+            terminated =True
         if reward == 0:
             reward = -0.04
 
