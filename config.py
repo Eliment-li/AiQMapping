@@ -4,7 +4,7 @@ from munch import Munch
 import torch
 import yaml
 
-from utils.file.file_util import get_root_dir
+from utils.file.file_util import get_root_dir, get_encoding
 
 
 class Singleton(type):
@@ -23,10 +23,13 @@ class ConfigSingleton(metaclass=Singleton):
 
     def load_config(self):
         rootdir = get_root_dir()
+        path =rootdir+os.path.sep+'config.yml'
+        encoding = get_encoding(path)
         # load public config
-        with open(rootdir+os.path.sep+'config.yml', 'r') as file:
+        with open(path, 'r',encoding=encoding) as file:
             config = yaml.safe_load(file)
             config['device'] = "cuda" if torch.cuda.is_available() else "cpu"
+            config['num_gpus'] = 1 if torch.cuda.is_available() else 0
             self.config = Munch(config)
 
         with open(rootdir+os.path.sep+'config_private.yml', 'r') as file:
@@ -43,3 +46,4 @@ if __name__ == '__main__':
     args = ConfigSingleton().get_config()
     args_pri = ConfigSingleton().get_config_private()
     print(args_pri.tianyan_token)
+    print(args.num_gpus)

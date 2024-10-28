@@ -1,6 +1,6 @@
 
-env_version: 8
-reward_function_version: 1
+env_version: 10
+reward_function_version: 3
 circuit_path: data/circuits/xeb/xeb5
 ###Iters is the number of batches the model will train on and the number of times your model weights will be updated (not counting minibatches).
 stop_iters: 2
@@ -24,6 +24,7 @@ gamma: 0.99
 #fcnet_hiddens: [32,64,64,32,16]
 fcnet_activation: Swish
 run: PPO
+#在config.py中有自动配置
 num_gpus: 1
 #resume: False
 checkpoint: None
