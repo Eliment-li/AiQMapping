@@ -30,7 +30,7 @@ simulator = AerSimulator()
 v10 将满足的 临近 关系的数量 (nn_cnt) 加到 reward Function 中
 '''
 warnings.filterwarnings("ignore")
-class CircuitEnv_v9(gym.Env):
+class CircuitEnv_v10(gym.Env):
     def __init__(self, config: Optional[dict] = None):
         self.debug = False #config.get('debug')
         self.trace = []

@@ -15,6 +15,7 @@ from env.env_v6 import CircuitEnv_v6
 from env.env_v7 import CircuitEnv_v7
 from env.env_v8 import CircuitEnv_v8
 from env.env_v9 import CircuitEnv_v9
+from env.env_v10 import CircuitEnv_v10
 
 from config import ConfigSingleton
 import numpy as np
@@ -50,13 +51,13 @@ def train_policy():
     config = (
         get_trainable_cls(args.run)
         .get_default_config()
-        .environment(env=CircuitEnv_v9,env_config=env_config)
+        .environment(env=CircuitEnv_v10,env_config=env_config)
         .framework('torch')
         .rollouts(num_rollout_workers=int(cpus*0.75)
                   , num_envs_per_worker=2
                   # ,remote_worker_envs=True
                   )
-        .resources(num_gpus=args.num_gpus)
+        .resources(num_gpus=0)
         .training(
             model={
                 # Change individual keys in that dict by overriding them, e.g.
