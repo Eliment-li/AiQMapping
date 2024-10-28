@@ -77,8 +77,8 @@ class RewardFunction:
 
          # 计算是否满足连接性
         cnt =  chip.cnt_meet_nn_constrain(env.nn, env.occupy)
-        n1 = (env.default_nn - cnt) / (env.default_nn + 1)
-        n2 = (env.last_nn - cnt) / (env.last_nn + 1)
+        n1 = (cnt - env.default_nn) / (env.default_nn + 1)
+        n2 = (cnt - env.last_nn) / (env.last_nn + 1)
 
 
         k1 = d1 + n1
