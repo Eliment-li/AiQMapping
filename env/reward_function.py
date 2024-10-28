@@ -76,7 +76,7 @@ class RewardFunction:
         env.last_distance = distance
 
          # 计算是否满足连接性
-        cnt =  chip.cnt_meet_nn_constrain(self.nn, self.occupy)
+        cnt =  chip.cnt_meet_nn_constrain(env.nn, env.occupy)
         n1 = (env.default_nn - cnt) / env.default_nn
         n2 = (env.last_nn - cnt) / env.last_nn
 
@@ -92,10 +92,10 @@ class RewardFunction:
         else:
             reward = 0
 
-        if cnt > self.max_nn_meet:
+        if cnt > env.max_nn_meet:
             reward +=  cnt
-            self.max_nn_meet = cnt
-        if cnt == len(self.nn):
+            env.max_nn_meet = cnt
+        if cnt == len(env.nn):
             reward  =  2 * cnt
             terminated =True
         if reward == 0:
