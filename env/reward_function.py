@@ -64,3 +64,43 @@ class RewardFunction:
         return reward
 
 
+    def rfv3(self,env, action):
+        reward = env.stop_thresh
+        terminated =False
+        # 计算距离
+        distance = common_utils.compute_total_distance(env.position)
+        #cu.swap_counts(circuit_name=env.circuit,initial_layout=env.occupy)
+
+        d1 = (env.default_distance - distance) / env.default_distance
+        d2 = (env.last_distance - distance) / env.last_distance
+        env.last_distance = distance
+
+         # 计算是否满足连接性
+        cnt =  chip.cnt_meet_nn_constrain(self.nn, self.occupy)
+        n1 = (env.default_nn - cnt) / env.default_nn
+        n2 = (env.last_nn - cnt) / env.last_nn
+
+        k1 = d1 + n1
+        k2 = d2 + n2
+
+        if k1 == 0:
+            k1 = 0.5
+        if k2 > 0:
+            reward = (math.pow((1 + k2), 2) - 1) * math.fabs(k1)
+        elif k2 < 0:
+            reward = -1 * (math.pow((1 - k2), 2) - 1) * math.fabs(k1)
+        else:
+            reward = 0
+
+        if cnt > self.max_nn_meet:
+            reward +=  cnt
+            self.max_nn_meet = cnt
+        if cnt == len(self.nn):
+            reward  =  2 * cnt
+            terminated =True
+        if reward == 0:
+            reward = -0.04
+
+        return reward,terminated
+
+
