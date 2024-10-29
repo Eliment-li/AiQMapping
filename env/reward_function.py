@@ -84,7 +84,7 @@ class RewardFunction:
         elif k2 < 0:
             reward = -1 * (math.pow((1 - k2), 2) - 1) * math.fabs(k1)
         else:
-            reward = -0.02
+            reward = -0.1
 
             # 计算是否满足连接性
         nn = chip.cnt_meet_nn_constrain(env.nn, env.occupy)
