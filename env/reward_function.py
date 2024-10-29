@@ -74,8 +74,6 @@ class RewardFunction:
         d1 = (env.default_distance - distance) / env.default_distance
         d2 = (env.last_distance - distance) / env.last_distance
         env.last_distance = distance
-
-
         k1 = d1
         k2 = d2
 
@@ -86,7 +84,7 @@ class RewardFunction:
         elif k2 < 0:
             reward = -1 * (math.pow((1 - k2), 2) - 1) * math.fabs(k1)
         else:
-            reward = 0
+            reward = -0.02
 
             # 计算是否满足连接性
         nn = chip.cnt_meet_nn_constrain(env.nn, env.occupy)
