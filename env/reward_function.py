@@ -71,6 +71,8 @@ class RewardFunction:
         # 计算距离
         #distance = common_utils.compute_total_distance(env.position)
         distance = cu.swap_counts(circuit_name=env.circuit,initial_layout=env.occupy)
+        if distance == 0:
+            return 2,True
 
         d1 = (env.default_distance - distance) / env.default_distance
         d2 = (env.last_distance - distance) / env.last_distance
