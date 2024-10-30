@@ -132,6 +132,10 @@ class CircuitEnv_v10(gym.Env):
                 #self.occupy[q1] = self.grid[x][y]
                 self.occupy[q1] = q2
                 reward,terminated = self.compute_reward(action)
+            else:
+                reward = -0.1
+                truncated = True
+                terminated = True
         #stop conditions
 
 
