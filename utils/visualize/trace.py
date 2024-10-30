@@ -35,7 +35,7 @@ def create_grid(rows, cols):
                 num += 1
     return grid
 
-colors = ['#0D92F4','#F95454','#72BF78','#FF7E07','#BE3BCE']
+colors = ['#F95454','#0D92F4','#72BF78','#FF7E07','#BE3BCE']
 
 grid = create_grid(rows, cols)
 values = get_values(11,12)
@@ -142,8 +142,8 @@ def show_result(result, grid =grid , values=values):
                 ax.add_patch(arrow)
 
                 # Calculate the midpoint for text placement
-            midpoint_x = path_coords[k][0]*0.965
-            midpoint_y = path_coords[k][1]*0.965
+            midpoint_x = path_coords[k][0]-0.35
+            midpoint_y = path_coords[k][1]-0.35
 
             # Add text at the midpoint
             ax.text(
@@ -186,7 +186,7 @@ if __name__ == '__main__':
     trace = np.array(trace).transpose()
 
     #show_trace(paths=trace)
-    show_result([1,2,3,9])
+    show_result([0,6,11,65])
     # print(default_labels)
     #
     # for key in default_labels:

@@ -9,8 +9,7 @@ from sympy import pprint
 from config import ConfigSingleton
 from env.env_helper import register_custom_env
 from utils.file.data import save_array
-from utils.visualize.trace import show_trace
-
+from  utils.visualize.trace import show_trace, show_result
 args = ConfigSingleton().get_config()
 def evaluate_policy(checkpoint):
     if not isinstance(checkpoint, str):
@@ -102,8 +101,9 @@ def evaluate_policy(checkpoint):
     pprint(trace.transpose())
     file  = datetime.today().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
     save_array(trace,file)
-    if args.show_trace:
-        show_trace(trace.transpose())
+    # if args.show_trace:
+    #     show_trace(trace.transpose())
+    show_result(trace[-1])
 
 if __name__ == '__main__':
     #register_custom_env(args.env_version)
