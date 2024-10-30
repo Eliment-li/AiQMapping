@@ -5,3 +5,5 @@
 /env/__pycache__
 *.pyc
 config_private.yml
+utils/visualize/topology.html
+/utils/visualize/lib
