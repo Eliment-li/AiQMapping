@@ -75,6 +75,7 @@ class RewardFunction:
         d1 = (env.default_distance - distance) / env.default_distance
         d2 = (env.last_distance - distance) / env.last_distance
         env.last_distance = distance
+
         k1 = d1
         k2 = d2
 
@@ -87,21 +88,21 @@ class RewardFunction:
         else:
             reward = -0.1
 
-            # 计算是否满足连接性
-        nn = chip.cnt_meet_nn_constrain(env.nn, env.occupy)
-        # n1 = (cnt - env.default_nn) / (env.default_nn + 1)
-        n2 = (nn - env.last_nn) / (env.last_nn + 1)
-        env.last_nn = nn
-
-        if nn > env.max_nn_meet:
-            reward += nn
-            env.max_nn_meet = nn
-        else:
-            reward += n2
-
-        if nn == len(env.nn):
-            reward  +=  2 * nn
-            terminated =True
+        #     # 计算是否满足连接性
+        # nn = chip.cnt_meet_nn_constrain(env.nn, env.occupy)
+        # # n1 = (cnt - env.default_nn) / (env.default_nn + 1)
+        # n2 = (nn - env.last_nn) / (env.last_nn + 1)
+        # env.last_nn = nn
+        #
+        # if nn > env.max_nn_meet:
+        #     reward += nn
+        #     env.max_nn_meet = nn
+        # else:
+        #     reward += n2
+        #
+        # if nn == len(env.nn):
+        #     reward  +=  2 * nn
+        #     terminated =True
 
 
         return reward,terminated
