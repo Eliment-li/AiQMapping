@@ -134,8 +134,8 @@ class CircuitEnv_v10(gym.Env):
                 reward,terminated = self.compute_reward(action)
             else:
                 reward = -0.1
-                truncated = True
-                terminated = True
+                # truncated = True
+                # terminated = True
         #stop conditions
 
 

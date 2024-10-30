@@ -1,5 +1,7 @@
 import math
 
+import numpy as np
+
 import utils.common_utils as common_utils
 import  utils.circuits_util as cu
 import core.chip  as chip
@@ -64,6 +66,8 @@ class RewardFunction:
         #reward *=1.5
         return reward
 
+    def sigmoid(self,x):
+        return 1 / (1 + np.exp(-x))
 
     def rfv3(self,env, action):
         reward = env.stop_thresh
@@ -72,7 +76,7 @@ class RewardFunction:
         #distance = common_utils.compute_total_distance(env.position)
         distance = cu.swap_counts(circuit_name=env.circuit,initial_layout=env.occupy)
         if distance == 0:
-            return 2,True
+            return 4,True
 
         d1 = (env.default_distance - distance) / env.default_distance
         d2 = (env.last_distance - distance) / env.last_distance
@@ -84,7 +88,7 @@ class RewardFunction:
         if k1 == 0:
             k1 = 0.5
         if k2 > 0:
-            reward = (math.pow((1 + k2), 2) - 1) * math.fabs(k1)
+            reward = (math.pow((1 + k2), 2) - 1) * self.sigmoid(1 + k1)
         elif k2 < 0:
             reward = -1 * (math.pow((1 - k2), 2) - 1) * math.fabs(k1)
         else:
