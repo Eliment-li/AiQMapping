@@ -95,6 +95,70 @@ def show_trace( paths, grid =grid , values=values):
     plt.axis('off')
     plt.show()
 
+def show_result(result, grid =grid , values=values):
+    rows, cols = grid.shape
+    fig, ax = plt.subplots(figsize=(cols, rows), dpi=150)
+    # Normalize values for color mapping
+    cmap = cm.get_cmap('viridis', 256)
+    for i in range(rows):
+        for j in range(cols):
+            value = grid[i, j]
+            if value == -1:
+                color = ('white')
+            elif value in [5,17,22,35,47]:
+                color = ('lightgrey')
+            else:
+                color = cmap(values[i][j])
+
+            rect = patches.Rectangle((j, rows - i - 1), 1, 1, linewidth=0, edgecolor='none', facecolor=color)
+            ax.add_patch(rect)
+
+            if value != -1:
+                ax.text(j + 0.5, rows - i - 0.5, f'Q{int(value)}', color='white', ha='center',fontsize = 18, va='center')
+
+    # Plot paths
+    idx = -1
+    idx = idx + 1
+    color = colors[idx]
+    path_coords = []
+    for p in result:
+        coords = np.argwhere(grid == p)
+        if coords.size > 0:
+            x, y = coords[0]
+            path_coords.append((y + 0.5, rows - x - 0.5))
+
+    if path_coords:
+        path_coords = np.array(path_coords)
+        # plt.plot(path_coords[:, 0], path_coords[:, 1], marker='', color=color, linewidth=4)
+
+        # Add arrows
+        for k in range(len(path_coords)):
+            if k <= len(path_coords) - 2:
+                arrow = patches.FancyArrowPatch(
+                    path_coords[k], path_coords[k + 1],
+                    arrowstyle='->', color=color, mutation_scale=40, connectionstyle='arc3,rad=-0.2',
+                    lw=4,
+                )
+                ax.add_patch(arrow)
+
+                # Calculate the midpoint for text placement
+            midpoint_x = path_coords[k][0]*0.965
+            midpoint_y = path_coords[k][1]*0.965
+
+            # Add text at the midpoint
+            ax.text(
+                midpoint_x, midpoint_y, f'{k}',
+                fontsize=16, color='white', ha='center', va='center', rotation=0
+            )
+
+    ax.set_xlim(0, cols)
+    ax.set_ylim(0, rows)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_aspect('equal')
+    plt.axis('off')
+    plt.show()
+
 
 
 
@@ -116,34 +180,13 @@ if __name__ == '__main__':
 [33,27,32,21,39],
 [33,27,32,21,39]]
 
-#     trace = [
-#   [27, 25, 38],
-#   [27, 25, 38],
-#   [27, 25, 51],
-#   [27, 25, 33],
-#   [27, 25, 35],
-#   [27, 25, 52],
-#   [27, 25, 52],
-#   [33, 25, 52],
-#   [38, 25, 52],
-#   [38, 25, 52],
-#   [38, 25, 52],
-#   [38, 25, 45],
-#   [38, 25, 14],
-#   [38, 25, 51],
-#   [38, 25, 27],
-#   [38, 25, 33],
-#   [38, 25, 46],
-#   [38, 27, 46],
-#   [38, 27, 33]
-# ]
 
-    loaded_array = load_array('array.txt')
+    #loaded_array = load_array('array.txt')
 
     trace = np.array(trace).transpose()
 
-    show_trace(paths=trace)
-
+    #show_trace(paths=trace)
+    show_result([1,2,3,9])
     # print(default_labels)
     #
     # for key in default_labels:
