@@ -74,27 +74,20 @@ circuit = QuantumCircuit.from_qasm_str(qasm_str=QASM_STR)
 [0, 3, 5]  # virtual qubits are ordered (in addition to named)
 '''
 def swap_counts(circuit_name,initial_layout):
-    return count_gates(circuit,initial_layout,coupling_map=chip.COUPLING_MAP,gates=['swap'])
+    return count_gates(circuit,initial_layout,coupling_map=chip.COUPLING_MAP)
 
-def count_gates(circuit:QuantumCircuit, layout,coupling_map, gates=['swap'],) -> int:
+def count_gates(circuit:QuantumCircuit, layout,coupling_map) -> int:
     initial_layout = {}
     for i, v in enumerate(layout):
         initial_layout[circuit.qubits[i]] = v
     #print(initial_layout)
-
     try:
         compiled_circuit = transpile(circuits=circuit,
                                      initial_layout=initial_layout,
                                      coupling_map=coupling_map,
                                      optimization_level=0,
                                      backend=simulator)
-
         ops = compiled_circuit.count_ops()
-        #print(ops)
-        # if len(gates) == 0:
-        #     return  sum(ops.values())
-        # else:
-        #     return  sum(ops[g] for g in gates if g in ops)
         if 'swap' in ops.keys():
             return ops['swap']
         else:
