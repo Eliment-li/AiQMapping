@@ -57,7 +57,7 @@ def train_policy():
                   , num_envs_per_worker=2
                   # ,remote_worker_envs=True
                   )
-        .resources(num_gpus=0)
+        .resources(num_gpus=args.num_gpus)
         .training(
             model={
                 # Change individual keys in that dict by overriding them, e.g.

@@ -123,7 +123,6 @@ class CircuitEnv_v10(gym.Env):
         #终止条件
         if q1 == 5:
             terminated = True
-            reward = 0
         else:
             #执行 远距离移动 q1->q2
             x,y = POSITION_MAP[int(q2)][0],POSITION_MAP[int(q2)][1]
@@ -132,7 +131,6 @@ class CircuitEnv_v10(gym.Env):
                 self.position[q1][0], self.position[q1][1] = x,y
                 #self.occupy[q1] = self.grid[x][y]
                 self.occupy[q1] = q2
-
                 reward,terminated = self.compute_reward(action)
         #stop conditions
 
@@ -141,6 +139,7 @@ class CircuitEnv_v10(gym.Env):
                 or reward <= self.stop_thresh \
                 or self.step_cnt==self.max_step :
             terminated = True
+            truncated = True
 
         self.rs.append(reward)
 

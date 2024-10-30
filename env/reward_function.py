@@ -1,6 +1,7 @@
 import math
 
 import utils.common_utils as common_utils
+import  utils.circuits_util as cu
 import core.chip  as chip
 class RewardFunction:
 
@@ -68,8 +69,8 @@ class RewardFunction:
         reward = env.stop_thresh
         terminated =False
         # 计算距离
-        distance = common_utils.compute_total_distance(env.position)
-        #cu.swap_counts(circuit_name=env.circuit,initial_layout=env.occupy)
+        #distance = common_utils.compute_total_distance(env.position)
+        distance = cu.swap_counts(circuit_name=env.circuit,initial_layout=env.occupy)
 
         d1 = (env.default_distance - distance) / env.default_distance
         d2 = (env.last_distance - distance) / env.last_distance
@@ -93,16 +94,15 @@ class RewardFunction:
         env.last_nn = nn
 
         if nn > env.max_nn_meet:
-            reward +=  nn
+            reward += nn
             env.max_nn_meet = nn
         else:
             reward += n2
 
         if nn == len(env.nn):
-            reward  =  2 * nn
+            reward  +=  2 * nn
             terminated =True
-        if reward == 0:
-            reward = -0.04
+
 
         return reward,terminated
 
