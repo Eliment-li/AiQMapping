@@ -133,13 +133,14 @@ class CircuitEnv_v10(gym.Env):
                 self.occupy[q] = Q
             else:
                 # q2位置不为空,交换位置
-                self.position[Q][0], self.position[Q][1] = self.position[q][0], self.position[q][1]
+                q2 = self.occupy.index(Q)
+
+                self.position[q2][0], self.position[q2][1] = self.position[q][0], self.position[q][1]
                 self.position[q][0], self.position[q][1] = x, y
 
                 temp = self.occupy[q]
                 self.occupy[q] = Q
-                index = self.occupy.index(Q)
-                self.occupy[index] = temp
+                self.occupy[q2] = temp
 
             reward,terminated = self.compute_reward(action)
         #stop conditions
