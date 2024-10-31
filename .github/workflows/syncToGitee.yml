@@ -14,6 +14,5 @@ jobs:
           dst: 'gitee/Eliment-li/AiQMapping'
           dst_key: ${{ secrets.GITEE }}
           dst_token:  ${{ secrets.GITEE_TOKEN }}
-          static_list: "AiQMapping"
           force_update: true
           debug: true
