@@ -118,24 +118,30 @@ class CircuitEnv_v10(gym.Env):
         terminated = False
         truncated = False
 
-        q1 = action[0]
-        q2 = action[1]
+        q = action[0] #logical qubit
+        Q = action[1] #physics qubit
         #终止条件
-        if q1 == 5:
+        if q == 5:
             terminated = True
         else:
-            #执行 远距离移动 q1->q2
-            x,y = POSITION_MAP[int(q2)][0],POSITION_MAP[int(q2)][1]
+            #执行 远距离移动 q<->Q 交换位置
+            x,y = POSITION_MAP[int(Q)][0],POSITION_MAP[int(Q)][1]
+
             if not np.any(np.all(self.position == np.array([x,y]), axis=1)):
-                #目标坐标无冲突
-                self.position[q1][0], self.position[q1][1] = x,y
-                #self.occupy[q1] = self.grid[x][y]
-                self.occupy[q1] = q2
-                reward,terminated = self.compute_reward(action)
+                # q2位置为空,直接占据
+                self.position[q][0], self.position[q][1] = x,y
+                self.occupy[q] = Q
             else:
-                reward = -0.1
-                # truncated = True
-                # terminated = True
+                # q2位置不为空,交换位置
+                self.position[Q][0], self.position[Q][1] = self.position[q][0], self.position[q][1]
+                self.position[q][0], self.position[q][1] = x, y
+
+                temp = self.occupy[q]
+                self.occupy[q] = Q
+                index = self.occupy.index(Q)
+                self.occupy[index] = temp
+
+            reward,terminated = self.compute_reward(action)
         #stop conditions
 
 

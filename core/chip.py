@@ -61,6 +61,7 @@ def cnt_meet_nn_constrain(nn,occupy):
                 #print(f'{i} - {s} 满足连接关系')
     return cnt
 
+#discard
 def meet_nn_constrain(nn):
     flag = True
     for i, s in enumerate(nn):

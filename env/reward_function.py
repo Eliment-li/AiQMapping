@@ -90,7 +90,7 @@ class RewardFunction:
         if k2 > 0:
             reward = (math.pow((1 + k2), 2) - 1) * self.sigmoid(1 + k1)
         elif k2 < 0:
-            reward = -1 * (math.pow((1 - k2), 2) - 1) * math.fabs(k1)
+            reward = -1 * (math.pow((1 - k2), 2) - 1) * self.sigmoid(1-k1)
         else:
             reward = -0.1
 

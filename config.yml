@@ -14,7 +14,7 @@ stop_reward: 100
 no_tune: False
 local_mode: False
 framework: torch
-checkpoint_frequency: 2
+checkpoint_frequency: 10
 checkpoint_at_end: True
 lr: 1e-4
 qasm: None
