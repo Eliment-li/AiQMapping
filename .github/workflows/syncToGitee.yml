@@ -10,8 +10,8 @@ jobs:
       - name: Mirror the Github organization repos to Gitee.
         uses: Eliment-li/hub-mirror-action@master
         with:
-          src: 'github/Eliment-li'
-          dst: 'gitee/Eliment-li'
+          src: 'github/Eliment-li/AiQMapping'
+          dst: 'gitee/Eliment-li/AiQMapping'
           dst_key: ${{ secrets.GITEE }}
           dst_token:  ${{ secrets.GITEE_TOKEN }}
           static_list: "AiQMapping"
