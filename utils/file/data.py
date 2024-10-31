@@ -17,13 +17,13 @@ def load_array(filename):
 
 if __name__ == '__main__':
 
-    # 示例二维数组
-    array = np.array([[1, 1, 3], [4, 5, 6], [7, 8, 9]])
-    file  = datetime.today().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
-    # 保存二维数组到文件，覆盖已有文件
-    save_array(array, file)
+    # # 示例二维数组
+    # array = np.array([[1, 1, 3], [4, 5, 6], [7, 8, 9]])
+    # file  = datetime.today().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
+    # # 保存二维数组到文件，覆盖已有文件
+    # save_array(array, file)
 
     # 从文件中读取二维数组
-    loaded_array = load_array(file)
+    loaded_array = load_array('array.txt')
     print("Loaded array:")
     print(loaded_array)
