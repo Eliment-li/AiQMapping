@@ -69,6 +69,7 @@ class RewardFunction:
     def sigmoid(self,x):
         return 1 / (1 + np.exp(-x))
 
+    #可基于Qiskit达到训练目标
     def rfv3(self,env, action):
         reward = env.stop_thresh
         terminated =False
@@ -106,6 +107,50 @@ class RewardFunction:
         #     reward  +=  2 * nn
         #     terminated =True
 
+    #基于distance 计算快
+    def rfv4(self, env, action):
+
+        reward = env.stop_thresh
+        terminated = False
+        # 计算距离
+        distance = common_utils.compute_total_distance(env.position)
+
+        k1 = (env.default_distance - distance) / env.default_distance
+        k2 = (env.last_distance - distance) / env.last_distance
+        env.last_distance = distance
+
+        if k2 > 0:
+            r1 = (math.pow((1 + k2), 2) - 1) * (1 + np.tanh(k1))
+        elif k2 < 0:
+            r1= -1 * (math.pow((1 - k2), 2) - 1) * (1 - np.tanh(k1))
+        else:
+            r1 = -0.1
+
+        # 计算是否满足连接性
+        nn = chip.cnt_meet_nn_constrain(env.nn, env.occupy)
+        n1 = (nn - env.default_nn) / (env.default_nn + 1)
+        n2 = (nn - env.last_nn) / (env.last_nn + 1)
+        env.last_nn = nn
+
+        if n2 > 0:
+            r2 = (math.pow((1 + n2), 2) - 1) * (1 + np.tanh(n1))
+        elif n2 < 0:
+            r2= -1 * (math.pow((1 - n2), 2) - 1) * (1 - np.tanh(n1))
+        else:
+            r2 = -0.1
+
+        # if nn > env.max_nn_meet:
+        #     r2 += 2
+        #     env.max_nn_meet = nn
+
+        #完全满足
+        if nn == len(env.nn):
+            r2  +=  4
+            terminated =True
+
+        reward = 0.2 * r1 + 0.8 * r2
+
+        return reward, terminated
 
 
 
