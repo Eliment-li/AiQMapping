@@ -78,22 +78,18 @@ class RewardFunction:
         if distance == 0:
             return 4,True
 
-        d1 = (env.default_distance - distance) / env.default_distance
-        d2 = (env.last_distance - distance) / env.last_distance
+        k1 = (env.default_distance - distance) / env.default_distance
+        k2 = (env.last_distance - distance) / env.last_distance
         env.last_distance = distance
 
-        k1 = d1
-        k2 = d2
-
-        if k1 == 0:
-            k1 = 0.5
         if k2 > 0:
-            reward = (math.pow((1 + k2), 2) - 1) * self.sigmoid(1 + k1)
+            reward = (math.pow((1 + k2), 2) - 1) * (1 + np.tanh(k1))
         elif k2 < 0:
-            reward = -1 * (math.pow((1 - k2), 2) - 1) * self.sigmoid(1-k1)
+            reward = -1 * (math.pow((1 - k2), 2) - 1) * (1 - np.tanh(k1))
         else:
             reward = -0.1
 
+        return reward,terminated
         #     # 计算是否满足连接性
         # nn = chip.cnt_meet_nn_constrain(env.nn, env.occupy)
         # # n1 = (cnt - env.default_nn) / (env.default_nn + 1)
@@ -111,6 +107,6 @@ class RewardFunction:
         #     terminated =True
 
 
-        return reward,terminated
+
 
 
