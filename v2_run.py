@@ -65,14 +65,14 @@ def train_policy():
                 #"fcnet_hiddens": [32,64,128,64,32],
                 #"fcnet_activation":args.fcnet_activation,
                 "use_attention": True,
-                "attention_num_transformer_units": 1,
-                "attention_use_n_prev_actions": 0,
-                "attention_use_n_prev_rewards": 0,
-                "attention_dim": 32,
-                "attention_memory_inference": 10,
-                "attention_memory_training": 10,
+                "attention_num_transformer_units": args.attention_num_transformer_units,
+                "attention_use_n_prev_actions": args.prev_n_actions,
+                "attention_use_n_prev_rewards": args.prev_n_rewards,
+                "attention_dim": args.attention_dim,
+                "attention_memory_inference": args.attention_memory_inference,
+                "attention_memory_training": args.attention_memory_training,
             },
-            gamma=0.99,
+            gamma=args.gamma,
         )
     )
     #stop = {"training_iteration": 100, "episode_reward_mean": 300}
@@ -95,12 +95,7 @@ def train_policy():
 
 def train():
     best_result = train_policy()
-    try:
-        evaluate_policyv2(best_result)
-    except Exception as e:
-        print(e)
-    finally:
-        ray.shutdown()
+    evaluate_policyv2(best_result)
 
 
 if __name__ == '__main__':

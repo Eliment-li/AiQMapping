@@ -135,4 +135,4 @@ if __name__ == '__main__':
     register_custom_env(args.env_version)
     #evaluate_policy('/tmp/checkpoint_tmp_cfb4d4a183d2477c85bb76d4546b4c69')
 
-    evaluate_policyv2(f'C:/Users/Administrator/ray_results/PPO_2024-11-04_11-13-13/PPO_CircuitEnv_v10_ba0c5_00000_0_2024-11-04_11-13-13/checkpoint_000000')
+    evaluate_policyv2(f'C:/Users/Administrator/ray_results/PPO_2024-11-04_17-10-47/PPO_CircuitEnv_v10_addc0_00000_0_2024-11-04_17-10-47/checkpoint_000000')

@@ -37,11 +37,11 @@ debug: False
 
 explore_during_inference: False
 #attention:
-use_attention: False
-prev_n_actions: 0
-prev_n_rewards: 0
+use_attention: True
 
 attention_num_transformer_units: 1
+prev_n_actions: 0
+prev_n_rewards: 0
 attention_dim: 32
 attention_memory_inference: 10
 attention_memory_training: 10
