@@ -78,31 +78,87 @@ def linear_scale(arr):
     return scaled_arr
 
 
+def append2matrix(array, new_row):
+    """
+    把 1d array 加到 2d array 后面，如果太长则换行，太短则补0
 
-import numpy as np
+    # demo:
+    original_array = np.array([[1, 2, 3], [4, 5, 6]])
+    new_row = [7, 8, 9, 10, 11, 12, 13]
+
+    result_array = append2matrix(original_array, new_row)
+    print(result_array)
+    """
+    length = len(array[0])
+    # Convert the input array to a NumPy array if it isn't already
+    array = np.array(array)
+
+    # Determine the number of full rows we can get from new_row
+    num_full_rows = len(new_row) // length
+    remainder = len(new_row) % length
+
+    # Create a list to store the rows to be added
+    rows_to_add = []
+
+    # Add full rows
+    for i in range(num_full_rows):
+        start_index = i * length
+        end_index = start_index + length
+        rows_to_add.append(new_row[start_index:end_index])
+
+    # Add the remaining part of the row, padded with zeros if necessary
+    if remainder > 0:
+        last_row = new_row[num_full_rows * length:]
+        last_row_padded = np.pad(last_row, (0, length - remainder), 'constant')
+        rows_to_add.append(last_row_padded)
+
+    # Convert the list of rows to a NumPy array
+    rows_to_add = np.array(rows_to_add)
+
+    # Append the new rows to the original array
+    if array.size == 0:  # If the original array is empty
+        return rows_to_add
+    else:
+        return np.vstack((array, rows_to_add))
+
+
+def replace_last_n(matrix, replacement_array):
+    """
+    用一维数组替换二维数组的最后 n 个元素。
+    #demo
+        # 示例使用
+    matrix = [
+        [1, 2, 3, 4],
+        [5, 6, 7, 8],
+        [9, 10, 11, 12]
+    ]
+
+    replacement_array = [13, 14, 15, 16]
+
+    # 调用函数
+    new_matrix = replace_last_n(matrix, replacement_array)
+    print(new_matrix)
+    """
+
+    # 获取矩阵的行数和列数
+    rows = len(matrix)
+    cols = len(matrix[0]) if rows > 0 else 0
+    n = len(replacement_array)
+
+    # 确保 n 不超过矩阵的总元素数
+    if n > rows * cols:
+        raise ValueError("Replacement array is too long for the matrix.")
+
+    # 从最后一个元素开始替换
+    for i in range(n):
+        # 计算二维数组中对应的行和列
+        row_index = (rows * cols - n + i) // cols
+        col_index = (rows * cols - n + i) % cols
+        matrix[row_index][col_index] = replacement_array[i]
+
+    return matrix
 
 
 
 if __name__ == '__main__':
-    state =[np.array(
-        [[0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0]]
-    )]
-    state_out = [[4, 14, 24,1]]
-    state = [
-        np.concatenate([state[i], [state_out[i]]], axis=0)[1:]
-        for i in range(1)
-    ]
-    print(state)
-
-    state = [np.array(
-        [[0, 0, 0, 0],
-         [0, 0, 0, 0],
-         [0, 0, 0, 0]]
-    )]
-
-    # 使用 np.roll 向前移动行
-    state[0] = np.roll(state[0] , -1, axis=0)
-    state[0][-1, :] = state_out[0]
-    print(state)
+    pass

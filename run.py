@@ -35,7 +35,6 @@ from evaluate import evaluate_policy
 from utils.visualize.trace import show_trace
 args = ConfigSingleton().get_config()
 
-
 stop = {
     TRAINING_ITERATION: args.stop_iters,
     #NUM_ENV_STEPS_SAMPLED_LIFETIME: args.stop_timesteps,

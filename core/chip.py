@@ -1,7 +1,7 @@
 import numpy as np
 from sympy import pprint
 
-from utils.common_utils import data_normalization, compute_total_distance
+from utils.common_utils import data_normalization, compute_total_distance, append2matrix
 from utils.file.csv_util import read_df
 from pathlib import Path
 #path
@@ -167,4 +167,10 @@ def get_neighbors(grid):
 POSITION_MAP=init_position_map()
 # 计算相邻关系
 COUPLING_MAP = get_neighbors(grid)
+
+#for attention
+#表示芯片状态，用于 env 的state
+# todo new_row 根据线路类型自动赋值
+CHIPSTATE = append2matrix(grid,[0,0,0,0,0])
+
 

@@ -16,10 +16,10 @@ from typing import Optional
 import os
 
 from config import ConfigSingleton
-from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, POSITION_MAP, \
-    cnt_meet_nn_constrain
+from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, POSITION_MAP, CHIPSTATE,cnt_meet_nn_constrain
 import utils.circuits_util as cu
-from utils.common_utils import compute_total_distance, generate_unique_coordinates, data_normalization, linear_scale
+from utils.common_utils import compute_total_distance, generate_unique_coordinates, data_normalization, linear_scale, \
+    replace_last_n
 from utils.visualize.trace import show_trace
 from env.reward_function import RewardFunction
 os.environ["SHARED_MEMORY_USE_LOCK"] = '1'
@@ -27,10 +27,10 @@ args = ConfigSingleton().get_config()
 rfunctions = RewardFunction()
 simulator = AerSimulator()
 '''
-v10 将满足的 临近 关系的数量 (nn_cnt) 加到 reward Function 中
+v11 use attention, totally new env
 '''
 warnings.filterwarnings("ignore")
-class CircuitEnv_v10(gym.Env):
+class CircuitEnv_v11(gym.Env):
     def __init__(self, config: Optional[dict] = None):
         self.debug = False #config.get('debug')
         self.trace = []
@@ -55,14 +55,12 @@ class CircuitEnv_v10(gym.Env):
         self.qubits = np.float32(QUBITS_ERROR_RATE)
         self.coupling= np.float32(COUPLING_SCORE)
 
-        obs_size = self.qubit_nums+1*2
-        #先试试 flatten, 后面尝试直接用 spaces.Box
-        high = np.array([66] * self.qubit_nums)
-        self.observation_space = Box(0, 1, (66+self.qubit_nums,), np.float32)
 
-        self.obs = np.array(self.occupy).astype(int)
+        STATE_H,STATE_W = len(CHIPSTATE), len(CHIPSTATE[0])
+        self.observation_space = Box( low=0, high=255, shape=(STATE_H, STATE_W), dtype=np.uint8)
+        self.obs = deepcopy(CHIPSTATE)
+
         self.action_space = MultiDiscrete([(self.qubit_nums+1), 65])
-
         self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
 
@@ -111,6 +109,9 @@ class CircuitEnv_v10(gym.Env):
         # trace = np.array(self.trace)
         # show_trace(trace.transpose())
         self.trace = []
+        self.obs = deepcopy(CHIPSTATE)
+        self.obs = replace_last_n(self.obs,self.occupy)
+
         return self.get_obs() , info
 
     def step(self, action):
@@ -143,6 +144,7 @@ class CircuitEnv_v10(gym.Env):
                 self.occupy[q2] = temp
 
             reward,terminated = self.compute_reward(action)
+            self.obs = replace_last_n(self.obs, self.occupy)
         #stop conditions
 
 
@@ -161,8 +163,7 @@ class CircuitEnv_v10(gym.Env):
         return self.get_obs(), reward, terminated,truncated, self._info()
 
     def get_obs(self):
-        self.obs = np.concatenate((QUBITS_ERROR_RATE, data_normalization( self.occupy))).astype(np.float32)
-        return deepcopy(self.obs)
+        return self.obs
 
     def compute_reward(self,act):
         reward = 0

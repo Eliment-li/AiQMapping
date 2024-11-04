@@ -11,11 +11,7 @@ from ray.rllib.core.models.configs import ModelConfig
 from sympy import timed
 
 from env.env_helper import  register_custom_env
-from env.env_v6 import CircuitEnv_v6
-from env.env_v7 import CircuitEnv_v7
-from env.env_v8 import CircuitEnv_v8
-from env.env_v9 import CircuitEnv_v9
-from env.env_v10 import CircuitEnv_v10
+from env.env_v11 import CircuitEnv_v11
 
 from config import ConfigSingleton
 import numpy as np
@@ -44,14 +40,13 @@ stop = {
 # todo move to config.yml
 env_config={
     'debug':False,
-    #'name':'Env_1'
 }
 def train_policy():
     cpus  = psutil.cpu_count(logical=True)
     config = (
         get_trainable_cls(args.run)
         .get_default_config()
-        .environment(env=CircuitEnv_v10,env_config=env_config)
+        .environment(env=CircuitEnv_v11,env_config=env_config)
         .framework('torch')
         .rollouts(num_rollout_workers=int(cpus*0.75)
                   , num_envs_per_worker=2
@@ -78,7 +73,7 @@ def train_policy():
     #stop = {"training_iteration": 100, "episode_reward_mean": 300}
     # config['model']['fcnet_hiddens'] = [32, 32]
     # automated run with Tune and grid search and TensorBoard
-    print(config)
+
     tuner = tune.Tuner(
         args.run,
         param_space=config.to_dict(),

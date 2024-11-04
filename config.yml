@@ -1,5 +1,5 @@
 
-env_version: 10
+env_version: 11
 reward_function_version: 3
 circuit_path: data/circuits/xeb/xeb5
 ###Iters is the number of batches the model will train on and the number of times your model weights will be updated (not counting minibatches).
@@ -36,16 +36,39 @@ debug: False
 
 
 explore_during_inference: False
-#attention:
+#attention start
 use_attention: True
 
+# The number of transformer units within GTrXL.
+# A transformer unit in GTrXL consists of :
+# a) MultiHeadAttention module and
+# b) a position-wise MLP.
 attention_num_transformer_units: 1
+
+# The number of attention heads within the MultiHeadAttention units.
+attention_num_heads: 1,
+# The dim of a single head (within the MultiHeadAttention units).
+attention_head_dim: 32,
+
+# Whether to feed a_{t-n:t-1} to GTrXL (one-hot encoded if discrete).
 prev_n_actions: 0
+# Whether to feed r_{t-n:t-1} to GTrXL.
 prev_n_rewards: 0
+ # The input and output size of each transformer unit.
 attention_dim: 32
+
+# The memory sizes for inference and training.
 attention_memory_inference: 10
 attention_memory_training: 10
-#rllib ppo end
+
+# The output dim of the position-wise MLP.
+attention_position_wise_mlp_dim: 32
+# The initial bias values for the 2 GRU gates within a transformer unit.
+attention_init_gru_gate_bias: 2.0
+
+#attention end
+
+
 
 #unimportant
 show_trace: False
