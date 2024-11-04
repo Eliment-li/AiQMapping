@@ -17,28 +17,7 @@ def evaluate_policy(checkpoint):
     algo = Algorithm.from_checkpoint(checkpoint)
     env = gym.make('Env_'+str(args.env_version))
     obs, info = env.reset()
-
     episode_reward = 0.0
-    #attention
-
-    # In case the model needs previous-reward/action inputs, keep track of
-    # these via these variables here (we'll have to pass them into the
-    # compute_actions methods below).
-    init_prev_a = prev_a = None
-    init_prev_r = prev_r = None
-    # Set attention net's initial internal state.
-    # num_transformers = args.attention_num_transformer_units
-    # memory_inference =  args.attention_memory_inference
-    # attention_dim =  args.attention_dim
-    # init_state = state = [
-    #     np.zeros([memory_inference, attention_dim], np.float32)
-    #     for _ in range(num_transformers)
-    # ]
-    # Do we need prev-action/reward as part of the input?
-    # if args.prev_n_actions:
-    #     init_prev_a = prev_a = np.array([0] * int(args.prev_n_actions))
-    # if args.prev_n_rewards:
-    #     init_prev_r = prev_r = np.array([0.0] * int(args.prev_n_rewards))
 
     # trace
     trace = []
@@ -51,18 +30,6 @@ def evaluate_policy(checkpoint):
             explore=None,
             policy_id="default_policy",  # <- default value
         )
-        #attention
-        # a, state_out, _ = algo.compute_single_action(
-        #     observation=obs,
-        #     state=state,
-        #     prev_action=prev_a,
-        #     prev_reward=prev_r,
-        #     explore=args.explore_during_inference,
-        #     policy_id="default_policy",  # <- default value
-        # )
-
-        # Send the computed action `a` to the env.
-
         obs, reward, done, truncated, info = env.step(a)
         #trace
         trace.append(deepcopy(info['occupy']))
@@ -77,25 +44,6 @@ def evaluate_policy(checkpoint):
             print(f"Episode done: Total reward = {episode_reward}")
             print(f"CheckPoint = {checkpoint}")
 
-
-            # attention
-            # state = init_state
-            # prev_a = init_prev_a
-            # prev_r = init_prev_r
-
-        # attention
-        # else:
-        #     # Append the just received state-out (most recent timestep) to the
-        #     # cascade (memory) of our state-ins and drop the oldest state-in.
-        #     state = [
-        #         np.concatenate([state[i], [state_out[i]]], axis=0)[1:]
-        #         for i in range(num_transformers)
-        #     ]
-        #     if init_prev_a is not None:
-        #         prev_a = a
-        #     if init_prev_r is not None:
-        #         prev_r = reward
-
     algo.stop()
     trace = np.array(trace)
     pprint(trace.transpose())
@@ -105,7 +53,86 @@ def evaluate_policy(checkpoint):
     #     show_trace(trace.transpose())
     show_result(trace[-1])
 
+    #use attention
+def evaluate_policyv2(checkpoint):
+    if not isinstance(checkpoint, str):
+        checkpoint = checkpoint.to_directory()
+    algo = Algorithm.from_checkpoint(checkpoint)
+    env = gym.make('Env_'+str(args.env_version))
+    obs, info = env.reset()
+    episode_reward = 0.0
+    #attention
+
+    # In case the model needs previous-reward/action inputs, keep track of
+    # these via these variables here (we'll have to pass them into the
+    # compute_actions methods below).
+    init_prev_a = prev_a = None
+    init_prev_r = prev_r = None
+    # Set attention net's initial internal state.
+    num_transformers = int(args.attention_num_transformer_units)
+    memory_inference =  int(args.attention_memory_inference)
+    attention_dim =  int(args.attention_dim)
+    init_state = state = [
+        np.zeros([memory_inference, attention_dim], np.float32)
+        for _ in range(num_transformers)
+    ]
+    # need prev-action/reward as part of the input?
+    if args.prev_n_actions:
+        init_prev_a = prev_a = np.array([0] * int(args.prev_n_actions))
+    if args.prev_n_rewards:
+        init_prev_r = prev_r = np.array([0.0] * int(args.prev_n_rewards))
+
+    # trace
+    trace = []
+    trace.append(deepcopy(info['occupy']))
+    done = False
+    while not done:
+        a, state_out, _ = algo.compute_single_action(
+            observation=obs,
+            state=state,
+            prev_action=prev_a,
+            prev_reward=prev_r,
+            explore=args.explore_during_inference,
+            policy_id="default_policy",  # <- default value
+        )
+
+        obs, reward, done, truncated, info = env.step(a)
+        #trace
+        trace.append(deepcopy(info['occupy']))
+
+        print('done = %r, action = %r, reward = %r,  info = %r \n' % (done,a, reward,info['occupy']))
+        episode_reward *=0.99
+        episode_reward += reward
+
+        # Is the episode `done`? -> Reset.
+        if done:
+            print('env done = %r, action = %r, reward = %r  occupy =  {%r} ' % (done,a, reward, info['occupy']))
+            print(f"Episode done: Total reward = {episode_reward}")
+            print(f"CheckPoint = {checkpoint}")
+        else:
+            # Append the just received state-out (most recent timestep) to the
+            # cascade (memory) of our state-ins and drop the oldest state-in.
+            state[0] = np.roll(state[0], -1, axis=0)
+            state[0][-1, :] = state_out[0]
+
+            if init_prev_a is not None:
+                prev_a = np.roll(prev_a, -1,axis=0)
+                prev_a[-1, :] = a
+            if init_prev_r is not None:
+                prev_r = np.roll(prev_r, -1)
+                prev_r[-1] = a
+    algo.stop()
+    trace = np.array(trace)
+    pprint(trace.transpose())
+    file  = datetime.today().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
+    save_array(trace,file)
+    # if args.show_trace:
+    #     show_trace(trace.transpose())
+    show_result(trace[-1])
+
+
 if __name__ == '__main__':
-    #register_custom_env(args.env_version)
-    print(datetime.today().strftime("%Y-%m-%d_%H-%M-%S")+'.txt')
+    register_custom_env(args.env_version)
     #evaluate_policy('/tmp/checkpoint_tmp_cfb4d4a183d2477c85bb76d4546b4c69')
+
+    evaluate_policyv2(f'C:/Users/Administrator/ray_results/PPO_2024-11-04_11-13-13/PPO_CircuitEnv_v10_ba0c5_00000_0_2024-11-04_11-13-13/checkpoint_000000')

@@ -77,3 +77,32 @@ def linear_scale(arr):
     scaled_arr = (arr - arr_min) / (arr_max - arr_min)
     return scaled_arr
 
+
+
+import numpy as np
+
+
+
+if __name__ == '__main__':
+    state =[np.array(
+        [[0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]]
+    )]
+    state_out = [[4, 14, 24,1]]
+    state = [
+        np.concatenate([state[i], [state_out[i]]], axis=0)[1:]
+        for i in range(1)
+    ]
+    print(state)
+
+    state = [np.array(
+        [[0, 0, 0, 0],
+         [0, 0, 0, 0],
+         [0, 0, 0, 0]]
+    )]
+
+    # 使用 np.roll 向前移动行
+    state[0] = np.roll(state[0] , -1, axis=0)
+    state[0][-1, :] = state_out[0]
+    print(state)

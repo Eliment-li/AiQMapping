@@ -34,17 +34,17 @@ check_point_zip_path: None
 
 debug: False
 
-explore_during_inference: False
 
+explore_during_inference: False
 #attention:
 use_attention: False
-prev-n-actions: 0
-prev-n-rewards: 0
+prev_n_actions: 0
+prev_n_rewards: 0
 
 attention_num_transformer_units: 1
-attention_dim: 32,
-attention_memory_inference: 10,
-attention_memory_training: 10,
+attention_dim: 32
+attention_memory_inference: 10
+attention_memory_training: 10
 #rllib ppo end
 
 #unimportant
