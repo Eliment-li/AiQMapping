@@ -1,38 +1,19 @@
-import datetime
-import pathlib
 import time
-from copy import copy, deepcopy
 
 import psutil
-from gymnasium import register
-from ray.rllib.algorithms import Algorithm
-from ray.rllib.algorithms.ppo import PPOConfig
-from ray.rllib.core.models.configs import ModelConfig
-from sympy import timed
 
 from env.env_helper import  register_custom_env
-from env.env_v6 import CircuitEnv_v6
-from env.env_v7 import CircuitEnv_v7
-from env.env_v8 import CircuitEnv_v8
-from env.env_v9 import CircuitEnv_v9
 from env.env_v10 import CircuitEnv_v10
 
 from config import ConfigSingleton
-import numpy as np
 
 import ray
 from ray import air, tune
 from ray.air.constants import TRAINING_ITERATION
-from ray.rllib.algorithms.algorithm import Algorithm
-from ray.rllib.utils.metrics import (
-    ENV_RUNNER_RESULTS,
-    EPISODE_RETURN_MEAN,
-    NUM_ENV_STEPS_SAMPLED_LIFETIME,
-)
 from ray.tune.registry import get_trainable_cls
 
-from evaluate import evaluate_policy
-from utils.visualize.trace import show_trace
+from utils.evaluate import evaluate_policy
+
 args = ConfigSingleton().get_config()
 
 stop = {
