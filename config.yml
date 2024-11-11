@@ -72,3 +72,4 @@ attention_init_gru_gate_bias: 2.0
 
 #unimportant
 show_trace: False
+storage_path: d:/file/ray_results

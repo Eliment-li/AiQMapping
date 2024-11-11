@@ -139,10 +139,6 @@ class RewardFunction:
         else:
             r2 = -0.1
 
-        # if nn > env.max_nn_meet:
-        #     r2 += 2
-        #     env.max_nn_meet = nn
-
         #完全满足
         if nn == len(env.nn):
             r2  +=  4

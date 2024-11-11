@@ -1,6 +1,5 @@
 from datetime import datetime
 from copy import deepcopy
-
 import numpy as np
 from ray.rllib.algorithms import Algorithm
 import gymnasium as gym
@@ -85,8 +84,9 @@ def evaluate_policyv2(checkpoint):
     # trace
     trace = []
     trace.append(deepcopy(info['occupy']))
-    done = False
-    while not done:
+
+    max_step = 100
+    while max_step > 0:
         a, state_out, _ = algo.compute_single_action(
             observation=obs,
             state=state,
@@ -104,7 +104,6 @@ def evaluate_policyv2(checkpoint):
         episode_reward *=0.99
         episode_reward += reward
 
-        # Is the episode `done`? -> Reset.
         if done:
             print('env done = %r, action = %r, reward = %r  occupy =  {%r} ' % (done,a, reward, info['occupy']))
             print(f"Episode done: Total reward = {episode_reward}")
@@ -121,6 +120,7 @@ def evaluate_policyv2(checkpoint):
             if init_prev_r is not None:
                 prev_r = np.roll(prev_r, -1)
                 prev_r[-1] = a
+        max_step -= 1
     algo.stop()
     trace = np.array(trace)
     pprint(trace.transpose())

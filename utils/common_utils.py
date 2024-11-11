@@ -1,5 +1,6 @@
 import math
 import random
+import re
 from copy import deepcopy
 import numpy as np
 
@@ -123,22 +124,20 @@ def append2matrix(array, new_row):
 
 
 def replace_last_n(matrix, replacement_array):
-    """
+    '''
     用一维数组替换二维数组的最后 n 个元素。
     #demo
-        # 示例使用
     matrix = [
         [1, 2, 3, 4],
         [5, 6, 7, 8],
         [9, 10, 11, 12]
     ]
-
     replacement_array = [13, 14, 15, 16]
 
     # 调用函数
     new_matrix = replace_last_n(matrix, replacement_array)
     print(new_matrix)
-    """
+    '''
 
     # 获取矩阵的行数和列数
     rows = len(matrix)
@@ -158,6 +157,20 @@ def replace_last_n(matrix, replacement_array):
 
     return matrix
 
+
+
+def parse_tensorboard(content):
+    # 使用正则表达式搜索匹配的字符串
+    pattern = r'tensorboard --logdir\s(.+)'
+    result = re.findall(pattern, content)
+
+    if result:
+        matched_string = result[0][:-1]
+        tensorboard = matched_string[matched_string.find("PPO"):]
+        return  tensorboard
+    else:
+        print("未找到匹配的 tensorboard")
+        return  ''
 
 
 if __name__ == '__main__':
