@@ -54,13 +54,14 @@ def show_train_metric(data, label,save = True,max_length = 20):
 
 
 
+if __name__ == '__main__':
 
-# Example usage:
-data = [
-    [10, 20, 30, 40, 50],
-    [200, 300, 400, 500, 600],
-    [3, 4, 5, 6, 7]
-]
-label = ['Metric 1', 'Metric 2', 'Metric 3']
+    # Example usage:
+    data = [
+        [10, 20, 30, 40, 50],
+        [200, 300, 400, 500, 600],
+        [3, 4, 5, 6, 7]
+    ]
+    label = ['Metric 1', 'Metric 2', 'Metric 3']
 
-show_train_metric(data, label)
+    show_train_metric(data, label)
