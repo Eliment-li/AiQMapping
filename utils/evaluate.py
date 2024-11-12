@@ -9,7 +9,21 @@ from config import ConfigSingleton
 from env.env_helper import register_custom_env
 from utils.file.data import save_array
 from  utils.visualize.trace import show_trace, show_result
+from utils.visualize.train import show_train_metric
+
 args = ConfigSingleton().get_config()
+max_step = 100
+r_arr = []
+dist_arr = []
+nn_arr = []
+
+#获取每一个 step 的数据，用于分析
+def grap_metric(reward,info):
+    dist_arr.append(info['distance'])
+    r_arr.append(reward)
+    nn_arr.append(info['nn'])
+
+
 def evaluate_policy(results):
 
     checkpoint = results.get_best_result().checkpoint
@@ -21,13 +35,10 @@ def evaluate_policy(results):
     env = gym.make('Env_'+str(args.env_version))
     obs, info = env.reset()
     episode_reward = 0.0
-
-    # trace
     trace = []
+    # trace
     trace.append(deepcopy(info['occupy']))
-    max_step = 100
-    while max_step > 0:
-        max_step -= 1
+    for i in range(max_step):
         # Compute an action (`a`).
         a = algo.compute_single_action(
             observation=obs,
@@ -37,7 +48,7 @@ def evaluate_policy(results):
         obs, reward, done, truncated, info = env.step(a)
         #trace
         trace.append(deepcopy(info['occupy']))
-
+        grap_metric(reward,info)
         print('done = %r, action = %r, reward = %r,  info = %r \n' % (done,a, reward,info['occupy']))
         episode_reward *=0.99
         episode_reward += reward
@@ -56,6 +67,7 @@ def evaluate_policy(results):
     # if args.show_trace:
     #     show_trace(trace.transpose())
     show_result(trace[-1])
+    show_train_metric([r_arr,nn_arr,dist_arr],['reward','nn','dist'])
 
     #use attention
 def evaluate_policyv2(results):
@@ -93,9 +105,7 @@ def evaluate_policyv2(results):
     # trace
     trace = []
     trace.append(deepcopy(info['occupy']))
-
-    max_step = 100
-    while max_step > 0:
+    for i in range(max_step):
         a, state_out, _ = algo.compute_single_action(
             observation=obs,
             state=state,
@@ -108,7 +118,7 @@ def evaluate_policyv2(results):
         obs, reward, done, truncated, info = env.step(a)
         #trace
         trace.append(deepcopy(info['occupy']))
-
+        grap_metric(reward, info)
         print('done = %r, action = %r, reward = %r,  info = %r \n' % (done,a, reward,info['occupy']))
         episode_reward *=0.99
         episode_reward += reward
@@ -129,7 +139,6 @@ def evaluate_policyv2(results):
             if init_prev_r is not None:
                 prev_r = np.roll(prev_r, -1)
                 prev_r[-1] = a
-        max_step -= 1
     algo.stop()
     trace = np.array(trace)
     pprint(trace.transpose())
@@ -138,7 +147,7 @@ def evaluate_policyv2(results):
     # if args.show_trace:
     #     show_trace(trace.transpose())
     show_result(trace[-1])
-
+    show_train_metric([r_arr, nn_arr, dist_arr], ['reward','nn','dist'])
 
 if __name__ == '__main__':
     register_custom_env(args.env_version)
