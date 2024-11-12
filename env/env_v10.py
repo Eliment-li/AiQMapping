@@ -63,7 +63,7 @@ class CircuitEnv_v10(gym.Env):
         self.obs = np.array(self.occupy).astype(int)
         self.action_space = MultiDiscrete([(self.qubit_nums+1), 65])
 
-        self.default_distance = compute_total_distance(self.position)
+        self.default_distance = 80# compute_total_distance(self.position)
         self.last_distance = self.default_distance
 
         self.default_nn = cnt_meet_nn_constrain(self.nn,self.occupy)
@@ -87,7 +87,7 @@ class CircuitEnv_v10(gym.Env):
         #重新随机选取位置
         # todo  直接从 position map 中选就行
         self.position = generate_unique_coordinates(self.qubit_nums)
-        self.default_distance = compute_total_distance(self.position)
+        self.default_distance = 80#compute_total_distance(self.position)
         self.last_distance = self.default_distance
 
         #初始化错误信息

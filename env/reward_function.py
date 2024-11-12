@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 
-import utils.common_utils as common_utils
+import utils.common_utils as comu
 import  utils.circuits_util as cu
 import core.chip  as chip
 class RewardFunction:
@@ -13,7 +13,7 @@ class RewardFunction:
     def rfv1(self,env, action):
         reward = env.stop_thresh
         # 计算距离
-        distance = common_utils.compute_total_distance(env.position)
+        distance = comu.compute_total_distance(env.position)
         #cu.swap_counts(circuit_name=env.circuit,initial_layout=env.occupy)
 
         d1 = (env.default_distance - distance) / env.default_distance
@@ -45,7 +45,7 @@ class RewardFunction:
     def rfv2(self,env, action):
         reward = env.stop_thresh
         # 计算距离
-        distance = common_utils.compute_total_distance(env.position)
+        distance = comu.compute_total_distance(env.position)
         #cu.swap_counts(circuit_name=env.circuit,initial_layout=env.occupy)
 
         d1 = (env.default_distance - distance) / env.default_distance
@@ -74,7 +74,7 @@ class RewardFunction:
         reward = env.stop_thresh
         terminated =False
         # 计算距离
-        #distance = common_utils.compute_total_distance(env.position)
+        #distance = comu.compute_total_distance(env.position)
         distance = cu.swap_counts(circuit_name=env.circuit,initial_layout=env.occupy)
         if distance == 0:
             return 4,True
@@ -113,7 +113,7 @@ class RewardFunction:
         reward = env.stop_thresh
         terminated = False
         # 计算距离
-        distance = common_utils.compute_total_distance(env.position)
+        distance = comu.compute_total_distance(env.position)
 
         k1 = (env.default_distance - distance) / env.default_distance
         k2 = (env.last_distance - distance) / env.last_distance
@@ -144,7 +144,7 @@ class RewardFunction:
             r2  +=  4
             terminated =True
 
-        reward = 0.2 * r1 + 0.8 * r2
+        reward = np.tanh(0.2*r1) +  np.tanh(0.2*r2)
 
         return reward, terminated
 
