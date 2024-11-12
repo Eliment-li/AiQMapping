@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from munch import Munch
 import torch
@@ -30,6 +31,9 @@ class ConfigSingleton(metaclass=Singleton):
             config = yaml.safe_load(file)
             config['device'] = "cuda" if torch.cuda.is_available() else "cpu"
             config['num_gpus'] = 1 if torch.cuda.is_available() else 0
+            p = Path(get_root_dir())
+            ray_path = p / 'data' / 'ray'
+            config['storage_path'] = ray_path
             self.config = Munch(config)
 
         with open(rootdir+os.path.sep+'config_private.yml', 'r') as file:
