@@ -1,10 +1,12 @@
 import os
+from pathlib import Path
 from pprint import pprint
 
 from ray.tune import ResultGrid, tune
 from ray.tune.registry import get_trainable_cls
 
 from config import ConfigSingleton
+from utils.file.file_util import get_root_dir
 
 args = ConfigSingleton().get_config()
 
@@ -22,13 +24,24 @@ def analysis_res(results:ResultGrid):
     best_checkpoint = best_result.checkpoint  # Get best trial's best checkpoint
     best_metrics = best_result.metrics  # Get best trial's last results
     best_result_df = best_result.metrics_dataframe  # Get best result as pandas dataframe
-    pprint(best_result_df)
 
-    # Get a dataframe with the last results for each trial
-    df_results = results.get_dataframe()
+    output_path = Path(get_root_dir()) / 'data' / 'result' / 'output.csv'
+    best_result_df.to_csv(output_path,mode='a', index=False)
 
     # Get a dataframe of results for a specific score or mode
     #df = results.get_dataframe(filter_metric="score", filter_mode="max")
     df = results.get_dataframe()
-    df.to_csv('d:/output.csv', index=False)
-    print(df)
+    df.to_csv(output_path,mode='a')
+
+
+def iterate_res(results:ResultGrid):
+    # Iterate over results
+    for i, result in enumerate(results):
+        if result.error:
+            print(f"Trial #{i} had an error:", result.error)
+            continue
+
+        print(
+            f"Trial #{i} finished successfully with a mean accuracy metric of:",
+            result.metrics["mean_accuracy"]
+        )

@@ -2,6 +2,7 @@ import sys
 import time
 from io import StringIO
 
+import numpy as np
 import psutil
 from ray.rllib.utils.metrics import NUM_ENV_STEPS_SAMPLED_LIFETIME
 
@@ -17,13 +18,14 @@ from ray.tune.registry import get_trainable_cls
 
 from utils.common_utils import parse_tensorboard
 from utils.evaluate import evaluate_policy
+from utils.results import analysis_res
 from v2_run import wirte2file
 
 args = ConfigSingleton().get_config()
 
 stop = {
     TRAINING_ITERATION: args.stop_iters,
-    NUM_ENV_STEPS_SAMPLED_LIFETIME: 1000,
+    #NUM_ENV_STEPS_SAMPLED_LIFETIME: 1000,
 }
 
 # todo move to config.yml
@@ -57,7 +59,9 @@ def train_policy():
     #stop = {"training_iteration": 100, "episode_reward_mean": 300}
     # config['model']['fcnet_hiddens'] = [32, 32]
     # automated run with Tune and grid search and TensorBoard
-    print(config)
+    search_space = {
+        "lr": tune.grid_search([0.001, 0.01, 0.1, 1.0]),
+    }
     tuner = tune.Tuner(
         args.run,
         param_space=config.to_dict(),
@@ -76,13 +80,13 @@ def train():
     try:
         # Redirect stdout to the StringIO object
         sys.stdout = output
-
         results = train_policy()
         evaluate_policy(results)
         # Get the output from the StringIO object
         captured_output = output.getvalue()
         # write to filereassign_qxx_labels
         wirte2file(captured_output)
+        analysis_res(results)
 
     finally:
         # Revert stdout back to the original
