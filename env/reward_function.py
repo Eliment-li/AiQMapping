@@ -91,21 +91,7 @@ class RewardFunction:
             reward = -0.1
 
         return reward,terminated
-        #     # 计算是否满足连接性
-        # nn = chip.cnt_meet_nn_constrain(env.nn, env.occupy)
-        # # n1 = (cnt - env.default_nn) / (env.default_nn + 1)
-        # n2 = (nn - env.last_nn) / (env.last_nn + 1)
-        # env.last_nn = nn
-        #
-        # if nn > env.max_nn_meet:
-        #     reward += nn
-        #     env.max_nn_meet = nn
-        # else:
-        #     reward += n2
-        #
-        # if nn == len(env.nn):
-        #     reward  +=  2 * nn
-        #     terminated =True
+
 
     #基于distance 计算快
     def rfv4(self, env, action):
@@ -141,10 +127,9 @@ class RewardFunction:
 
         #完全满足
         if nn == len(env.nn):
-            r2  +=  4
             terminated =True
 
-        reward = r1 + 0.2*r2
+        reward = r1
 
         return reward, terminated
 
