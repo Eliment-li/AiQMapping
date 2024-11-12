@@ -1,6 +1,9 @@
+import sys
 import time
+from io import StringIO
 
 import psutil
+from ray.rllib.utils.metrics import NUM_ENV_STEPS_SAMPLED_LIFETIME
 
 from env.env_helper import  register_custom_env
 from env.env_v10 import CircuitEnv_v10
@@ -12,13 +15,15 @@ from ray import air, tune
 from ray.air.constants import TRAINING_ITERATION
 from ray.tune.registry import get_trainable_cls
 
+from utils.common_utils import parse_tensorboard
 from utils.evaluate import evaluate_policy
+from v2_run import wirte2file
 
 args = ConfigSingleton().get_config()
 
 stop = {
     TRAINING_ITERATION: args.stop_iters,
-    #NUM_ENV_STEPS_SAMPLED_LIFETIME: args.stop_timesteps,
+    NUM_ENV_STEPS_SAMPLED_LIFETIME: 1000,
 }
 
 # todo move to config.yml
@@ -41,17 +46,10 @@ def train_policy():
         .training(
             model={
                 # Change individual keys in that dict by overriding them, e.g.
-                "fcnet_hiddens":args.fcnet_hiddens ,
+                #"fcnet_hiddens":args.fcnet_hiddens ,
                 #"fcnet_hiddens": [32,64,128,64,32],
                 "fcnet_activation":args.fcnet_activation,
                 "use_attention": False,
-               # "use_attention": args.use_attention,
-                # "attention_num_transformer_units": args.attention_num_transformer_units,
-                # "attention_use_n_prev_actions": args.prev_n_actions,
-                # "attention_use_n_prev_rewards": args.prev_n_rewards,
-                # "attention_dim": args.attention_dim,
-                # "attention_memory_inference": args.attention_memory_inference,
-                # "attention_memory_training": args.attention_memory_training,
             },
             gamma=0.99,
         )
@@ -70,14 +68,28 @@ def train_policy():
                                  ))
     )
     results = tuner.fit()
-    checkpoint = results.get_best_result().checkpoint
-    print("Training completed")
-    return checkpoint
+    return results
 
 def train():
-    best_result = train_policy()
-    evaluate_policy(best_result)
+    output = StringIO()
+    original_stdout = sys.stdout
+    try:
+        # Redirect stdout to the StringIO object
+        sys.stdout = output
 
+        results = train_policy()
+        evaluate_policy(results)
+        # Get the output from the StringIO object
+        captured_output = output.getvalue()
+        # write to filereassign_qxx_labels
+        wirte2file(captured_output)
+
+    finally:
+        # Revert stdout back to the original
+        sys.stdout = original_stdout
+
+    tensorboard = parse_tensorboard(captured_output)
+    print(f'tensorboard: {tensorboard}')
 
 if __name__ == '__main__':
     register_custom_env(args.env_version)

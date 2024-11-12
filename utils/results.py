@@ -30,3 +30,5 @@ def analysis_res(results:ResultGrid):
     # Get a dataframe of results for a specific score or mode
     #df = results.get_dataframe(filter_metric="score", filter_mode="max")
     df = results.get_dataframe()
+    df.to_csv('d:/output.csv', index=False)
+    print(df)

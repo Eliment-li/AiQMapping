@@ -10,7 +10,11 @@ from env.env_helper import register_custom_env
 from utils.file.data import save_array
 from  utils.visualize.trace import show_trace, show_result
 args = ConfigSingleton().get_config()
-def evaluate_policy(checkpoint):
+def evaluate_policy(results):
+
+    checkpoint = results.get_best_result().checkpoint
+    print("Training completed")
+
     if not isinstance(checkpoint, str):
         checkpoint = checkpoint.to_directory()
     algo = Algorithm.from_checkpoint(checkpoint)
@@ -21,8 +25,9 @@ def evaluate_policy(checkpoint):
     # trace
     trace = []
     trace.append(deepcopy(info['occupy']))
-    done = False
-    while not done:
+    max_step = 100
+    while max_step > 0:
+        max_step -= 1
         # Compute an action (`a`).
         a = algo.compute_single_action(
             observation=obs,
@@ -47,13 +52,17 @@ def evaluate_policy(checkpoint):
     trace = np.array(trace)
     pprint(trace.transpose())
     file  = datetime.today().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
-    save_array(trace,file)
+    #save_array(trace,file)
     # if args.show_trace:
     #     show_trace(trace.transpose())
     show_result(trace[-1])
 
     #use attention
-def evaluate_policyv2(checkpoint):
+def evaluate_policyv2(results):
+
+    checkpoint = results.get_best_result().checkpoint
+    print("Training completed")
+
     if not isinstance(checkpoint, str):
         checkpoint = checkpoint.to_directory()
     algo = Algorithm.from_checkpoint(checkpoint)
@@ -125,7 +134,7 @@ def evaluate_policyv2(checkpoint):
     trace = np.array(trace)
     pprint(trace.transpose())
     file  = datetime.today().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
-    save_array(trace,file)
+    #save_array(trace,file)
     # if args.show_trace:
     #     show_trace(trace.transpose())
     show_result(trace[-1])

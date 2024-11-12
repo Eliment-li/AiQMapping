@@ -144,7 +144,7 @@ class RewardFunction:
             r2  +=  4
             terminated =True
 
-        reward = np.tanh(0.2*r1) +  np.tanh(0.2*r2)
+        reward = r1 + 0.2*r2
 
         return reward, terminated
 

@@ -5,6 +5,7 @@ import time
 from io import StringIO
 from pathlib import Path
 import psutil
+from ray.tune import ResultGrid
 
 from env.env_helper import  register_custom_env
 from env.env_v11 import CircuitEnv_v11
@@ -19,6 +20,7 @@ from ray.tune.registry import get_trainable_cls
 from utils.common_utils import parse_tensorboard
 from utils.evaluate import evaluate_policyv2
 from utils.file.file_util import write, get_root_dir
+from utils.results import analysis_res
 
 args = ConfigSingleton().get_config()
 
@@ -31,7 +33,7 @@ stop = {
 env_config={
     'debug':False,
 }
-def train_policy():
+def train_policy() -> ResultGrid:
     cpus  = psutil.cpu_count(logical=True)
     trainable =  get_trainable_cls(args.run)
     config = (
@@ -71,7 +73,10 @@ def train_policy():
     '''
     tuner = tune.Tuner(
         args.run,
-        param_space=config.to_dict(),
+        #param_space=config.to_dict(),
+        param_space={
+            'fcnet_activation': tune.choice(['Swish','Relu'])
+        },
         run_config=air.RunConfig(
                                 name='AiQMapping',
                                 stop=stop,
@@ -79,14 +84,12 @@ def train_policy():
                                 checkpoint_frequency=args.checkpoint_frequency,
                                 checkpoint_at_end=args.checkpoint_at_end,
                                ),
-                                storage_path=str(args.storage_path)
+                                #storage_path=str(args.storage_path)
         ),
 
     )
     results = tuner.fit()
-    checkpoint = results.get_best_result().checkpoint
-    print("Training completed")
-    return checkpoint
+    return results
 
 def train():
     output = StringIO()
@@ -95,20 +98,18 @@ def train():
         # Redirect stdout to the StringIO object
         sys.stdout = output
 
-        best_result = train_policy()
-        evaluate_policyv2(best_result)
+        result = train_policy()
+        analysis_res(result)
+        evaluate_policyv2(result)
 
         # Get the output from the StringIO object
         captured_output = output.getvalue()
         #write to file
         wirte2file(captured_output)
 
-
     finally:
         # Revert stdout back to the original
         sys.stdout = original_stdout
-
-
 
     tensorboard = parse_tensorboard(captured_output)
     print(f'tensorboard: {tensorboard}')
@@ -117,7 +118,7 @@ def train():
 def wirte2file(content):
     datetime_str = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')
     p = Path(get_root_dir())
-    text_path = p / 'data' / 'result' / (str(args.stop_iters) + '_' + datetime_str) / '.txt'
+    text_path = p / 'data' / 'result' / (str(args.stop_iters) + '_' + datetime_str + '.txt')
     write(text_path, content)
 
 
