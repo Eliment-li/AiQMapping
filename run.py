@@ -40,7 +40,7 @@ def train_policy():
         .get_default_config()
         .environment(env=CircuitEnv_v10,env_config=env_config)
         .framework('torch')
-        .rollouts(num_rollout_workers=int(cpus*0.75)
+        .rollouts(num_rollout_workers=int(cpus*0.7)
                   , num_envs_per_worker=2
                   # ,remote_worker_envs=True
                   )
