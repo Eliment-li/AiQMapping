@@ -78,7 +78,10 @@ class CircuitEnv_v10(gym.Env):
         self.first_stp = True
 
     def _info(self):
-        return {'occupy': self.occupy}
+        return {'occupy': self.occupy,
+                'distance': self.last_distance,
+                'nn': self.last_nn,
+                }
 
     def reset(self, *, seed=None, options=None):
         self.first_stp = True
