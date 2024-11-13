@@ -61,18 +61,7 @@ def cnt_meet_nn_constrain(nn,occupy):
                 #print(f'{i} - {s} 满足连接关系')
     return cnt
 
-#discard
-def meet_nn_constrain(nn):
-    flag = True
-    for i, s in enumerate(nn):
-        if len(s) > 0:
-            for v in s:
-                # i,s 有依赖
-                if not ADJ_LIST[i].__contains__(s):
-                    flag = False
-                    #print(f'{i} - {s} 不满足连接关系')
-                    break
-    return flag
+
 
 
 def move_point(grid, direction,i,j):
@@ -173,4 +162,75 @@ COUPLING_MAP = get_neighbors(grid)
 # todo new_row 根据线路类型自动赋值
 CHIPSTATE = append2matrix(grid,[0,0,0,0,0])
 
+
+
+#计算距离
+#备用，旋转坐标系
+def rotate_grid_45_degrees(grid):
+    original_rows = len(grid)
+    original_cols = len(grid[0])
+    new_size = original_rows + original_cols - 1
+    new_grid = [[-2 for _ in range(new_size)] for _ in range(new_size)]
+
+    coordinate_map = {}
+
+    center = (new_size - 1) // 2
+
+    for i in range(original_rows):
+        for j in range(original_cols):
+            if grid[i][j] != -1:
+                new_row = i + j
+                new_col = center + i - j
+                new_grid[new_row][new_col] = grid[i][j]
+                coordinate_map[grid[i][j]] = (new_row, new_col)
+
+    return new_grid, coordinate_map
+
+GRID_45 = [   [-2, -2, -2, -2, -2, -1, -2, -2, -2, -2, -2],
+    [-2, -2, -2, -2, -2, 0, 6, -2, -2, -2, -2, -2],
+    [-2, -2, -2, -2, -1, -1, -1, -2, -2, -2, -2],
+    [-2, -2, -2, -2, 1, 7, 12, 18, -2, -2, -2, -2],
+    [-2, -2, -2, -1, -1, -1, -1, -1, -2, -2, -2],
+    [-2, -2, -2, 2, 8, 13, 19, 24, 30, -2, -2, -2],
+    [-2, -2, -1, -1, -1, -1, -1, -1, -1, -2, -2],
+    [-2, -2, 3, 9, 14, 20, 25, 31, 36, 42, -2, -2],
+    [-2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2],
+    [-2, 4, 10, 15, 21, 26, 32, 37, 43, 48, 54, -2],
+    [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+    [5, 11, 16, 22, 27, 33, 38, 44, 49, 55, 60],
+    [-2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2],
+    [-2, 17, 23, 28, 34, 39, 45, 50, 56, 61, -2],
+    [-2, -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, -2],
+    [-2, -2, 29, 35, 40, 46, 51, 57, 62, -2, -2],
+    [-2, -2, -2, -1, -1, -1, -1, -1, -1, -2, -2, -2],
+    [-2, -2, -2, 41, 47, 52, 58, 63, -2, -2, -2],
+    [-2, -2, -2, -2, -1, -1, -1, -1, -2, -2, -2, -2],
+    [-2, -2, -2, -2, 53, 59, 64, -2, -2, -2, -2],
+    [-2, -2, -2, -2, -2, -1, -1, -2, -2, -2, -2, -2],
+    [-2, -2, -2, -2, -2, 65, -2, -2, -2, -2, -2]]
+
+CORRD_45 = {}
+
+#init CORRD_45
+for i,row in enumerate(GRID_45):
+    for j,val in enumerate(row):
+        if val != -1:
+            CORRD_45[val] = (i, j)
+
+
+def chip_Qubit_distance(nn,occupy):
+    dist = 0
+    for i, s in enumerate(nn):
+        # i= q left
+        if len(s) == 0:
+            continue
+        for v in s:
+            # 第i个比特,和比特v 有依赖
+            # 计算 i, v  的距离
+            # occupy[n]代表线路中 n号 qubit 在chip上对应的Qubit的编号
+            x1,y1 = CORRD_45[occupy[i]]
+
+            x2,y2 = CORRD_45[occupy[v]]
+            dist += (abs(x1 - x2)/2) + abs(y1 - y2)
+    return dist
 
