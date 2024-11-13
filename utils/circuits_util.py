@@ -14,6 +14,7 @@ args = ConfigSingleton().get_config()
 '''
 从代码中抽取 qubit nn 依赖关系
 适用于 QCIS 格式的指令
+return  [{1, 2}, {3}, {3, 4}, set(),set()]
 '''
 def qubits_nn_constrain(circuit_name):
     nn = [set() for _ in range(66)]
