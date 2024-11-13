@@ -1,6 +1,6 @@
 
-env_version: 11
-reward_function_version: 3
+env_version: 10
+reward_function_version: 4
 circuit_path: data/circuits/xeb/xeb5
 ###Iters is the number of batches the model will train on and the number of times your model weights will be updated (not counting minibatches).
 stop_iters: 2
@@ -72,4 +72,4 @@ attention_init_gru_gate_bias: 2.0
 
 #unimportant
 show_trace: False
-storage_path: d:/file/ray_results
+storage_path: ' '
