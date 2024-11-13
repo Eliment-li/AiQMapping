@@ -108,7 +108,7 @@ class RewardFunction:
         if k2 > 0:
             r1 = (math.pow((1 + k2), 2) - 1) * (1 + np.tanh(k1))
         elif k2 < 0:
-            r1= -2 * (math.pow((1 - k2), 2) - 1) * (1 - np.tanh(k1))
+            r1= -2.5 * (math.pow((1 - k2), 2) - 1) * (1 - np.tanh(k1))
         else:
             r1 = -0.1
 
