@@ -186,7 +186,7 @@ if __name__ == '__main__':
     trace = np.array(trace).transpose()
 
     #show_trace(paths=trace)
-    show_result([0,6,11,65])
+    show_result( [38, 21, 33, 45, 32]  )
     # print(default_labels)
     #
     # for key in default_labels:

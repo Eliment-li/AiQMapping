@@ -4,6 +4,7 @@ from io import StringIO
 
 import numpy as np
 import psutil
+from ray.rllib.algorithms import PPOConfig
 from ray.rllib.utils.metrics import NUM_ENV_STEPS_SAMPLED_LIFETIME
 
 from env.env_helper import  register_custom_env
@@ -35,36 +36,48 @@ env_config={
 }
 def train_policy():
     cpus  = psutil.cpu_count(logical=True)
-    config = (
-        get_trainable_cls(args.run)
-        .get_default_config()
-        .environment(env=CircuitEnv_v10,env_config=env_config)
-        .framework('torch')
-        .rollouts(num_rollout_workers=int(cpus*0.7)
-                  , num_envs_per_worker=2
-                  # ,remote_worker_envs=True
-                  )
-        .resources(num_gpus=args.num_gpus)
-        .training(
-            model={
-                # Change individual keys in that dict by overriding them, e.g.
-                #"fcnet_hiddens":args.fcnet_hiddens ,
-                #"fcnet_hiddens": [32,64,128,64,32],
-                "fcnet_activation":args.fcnet_activation,
-                "use_attention": False,
-            },
-            gamma=0.99,
-        )
+    # config = (
+    #     get_trainable_cls(args.run)
+    #     .get_default_config()
+    #     .environment(env=CircuitEnv_v10,env_config=env_config)
+    #     .framework('torch')
+    #     .rollouts(num_rollout_workers=int(cpus*0.7)
+    #               , num_envs_per_worker=2
+    #               # ,remote_worker_envs=True
+    #               )
+    #     .resources(num_gpus=args.num_gpus)
+    #     .training(
+    #         #lr = tune.grid_search([0.001, 0.01, 0.1, 1.0]),
+    #         model={
+    #             # Change individual keys in that dict by overriding them, e.g.
+    #             #"fcnet_hiddens":args.fcnet_hiddens ,
+    #             #"fcnet_hiddens": [32,64,128,64,32],
+    #             "fcnet_activation":args.fcnet_activation,
+    #             "use_attention": False,
+    #         },
+    #         gamma=0.99,
+    #     )
+    # )
+
+    config = PPOConfig()\
+    .environment(env=CircuitEnv_v10, env_config=env_config)\
+    .framework('torch')\
+    .rollouts(num_rollout_workers=int(cpus * 0.7), num_envs_per_worker=2)\
+    .resources(num_gpus=args.num_gpus)\
+    .training(
+        model={
+            # "fcnet_hiddens":args.fcnet_hiddens ,
+            # "fcnet_hiddens": [32,64,128,64,32],
+            "fcnet_activation": args.fcnet_activation,
+            "use_attention": False,
+        },
+        lr=tune.grid_search([0.01, 0.001, 0.0001]),
+        gamma=0.99,
     )
-    #stop = {"training_iteration": 100, "episode_reward_mean": 300}
-    # config['model']['fcnet_hiddens'] = [32, 32]
-    # automated run with Tune and grid search and TensorBoard
-    search_space = {
-        "lr": tune.grid_search([0.001, 0.01, 0.1, 1.0]),
-    }
+
     tuner = tune.Tuner(
         args.run,
-        param_space=config.to_dict(),
+        param_space=config,
         run_config=air.RunConfig(stop=stop,
                                 checkpoint_config=air.CheckpointConfig(
                                 checkpoint_frequency=args.checkpoint_frequency,
@@ -81,7 +94,7 @@ def train():
         # Redirect stdout to the StringIO object
         sys.stdout = output
         results = train_policy()
-        evaluate_policy(results)
+        #evaluate_policy(results)
         # Get the output from the StringIO object
         captured_output = output.getvalue()
         # write to filereassign_qxx_labels
