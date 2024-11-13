@@ -63,7 +63,7 @@ class CircuitEnv_v10(gym.Env):
         self.obs = np.array(self.occupy).astype(int)
         self.action_space = MultiDiscrete([(self.qubit_nums+1), 65])
 
-        self.default_distance = 80# compute_total_distance(self.position)
+        self.default_distance = compute_total_distance(self.position)
         self.last_distance = self.default_distance
 
         self.default_nn = cnt_meet_nn_constrain(self.nn,self.occupy)
@@ -75,10 +75,13 @@ class CircuitEnv_v10(gym.Env):
         self.total_reward = 0
         self.step_cnt = 0
 
+        self.first_stp = True
+
     def _info(self):
         return {'occupy': self.occupy}
 
     def reset(self, *, seed=None, options=None):
+        self.first_stp = True
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
         self.max_nn_meet = 0
