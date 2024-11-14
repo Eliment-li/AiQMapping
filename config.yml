@@ -1,9 +1,9 @@
 
-env_version: 10
-reward_function_version: 4
+env_version: 12
+reward_function_version: 5
 circuit_path: data/circuits/xeb/xeb5
 ###Iters is the number of batches the model will train on and the number of times your model weights will be updated (not counting minibatches).
-stop_iters: 2
+stop_iters: 4
 
 #One call to env.step() is one timestep.
 stop_timesteps: 99999999

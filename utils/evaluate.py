@@ -26,7 +26,7 @@ def grap_metric(reward,info):
 
 def evaluate_policy(results):
 
-    checkpoint = results.get_best_result().checkpoint
+    checkpoint = results.get_best_result(metric='env_runners/episode_reward_mean',mode='max').checkpoint
     print("Training completed")
 
     if not isinstance(checkpoint, str):
