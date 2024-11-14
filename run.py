@@ -71,7 +71,7 @@ def train_policy():
             "fcnet_activation": args.fcnet_activation,
             "use_attention": False,
         },
-        #lr=tune.grid_search([0.01, 0.001, 0.0001]),
+        lr=tune.grid_search([5e-5, 3e-5,1e-5]),
         gamma=0.99,
     )
 
@@ -94,7 +94,7 @@ def train():
         # Redirect stdout to the StringIO object
         sys.stdout = output
         results = train_policy()
-        #evaluate_policy(results)
+        evaluate_policy(results)
         # Get the output from the StringIO object
         captured_output = output.getvalue()
         # write to filereassign_qxx_labels
