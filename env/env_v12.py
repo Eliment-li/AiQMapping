@@ -17,9 +17,9 @@ import os
 
 from config import ConfigSingleton
 from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, POSITION_MAP, \
-    cnt_meet_nn_constrain
+    cnt_meet_nn_constrain, chip_Qubit_distance
 import utils.circuits_util as cu
-from utils.common_utils import compute_total_distance, generate_unique_coordinates, data_normalization, linear_scale
+from utils.common_utils import  data_normalization, unique_random_int
 from utils.visualize.trace import show_trace
 from env.reward_function import RewardFunction
 os.environ["SHARED_MEMORY_USE_LOCK"] = '1'
@@ -30,7 +30,7 @@ simulator = AerSimulator()
 v12 不使用attention, 使用精确的distance
 '''
 warnings.filterwarnings("ignore")
-class CircuitEnv_v10(gym.Env):
+class CircuitEnv_v12(gym.Env):
     def __init__(self, config: Optional[dict] = None):
         self.debug = False #config.get('debug')
         self.trace = []
@@ -41,33 +41,24 @@ class CircuitEnv_v10(gym.Env):
         self.circuit = 'XEB_'+str(self.qubit_nums)+'_qubits_8_cycles_circuit.txt'
 
         #chip 变量
-        self.position =generate_unique_coordinates(self.qubit_nums)
+        #todo
         self.nn = cu.qubits_nn_constrain(self.circuit)
         self.grid = copy(grid)
         self.max_nn_meet = 0
         # 被占据的qubit，用 Q序号为标识
-        self.occupy = []
-        for p in self.position:
-            px = p[0]
-            py = p[1]
-            self.occupy.append(deepcopy(self.grid[px][py]))
-
+        #todo 优化 len 自动识别，且过滤无效比特
+        self.occupy = unique_random_int(5,0,65)
         self.qubits = np.float32(QUBITS_ERROR_RATE)
         self.coupling= np.float32(COUPLING_SCORE)
 
-        obs_size = self.qubit_nums+1*2
-        #先试试 flatten, 后面尝试直接用 spaces.Box
-        high = np.array([66] * self.qubit_nums)
+
         self.observation_space = Box(0, 1, (66+self.qubit_nums,), np.float32)
 
         self.obs = np.array(self.occupy).astype(int)
         self.action_space = MultiDiscrete([(self.qubit_nums+1), 65])
 
-        self.default_distance = compute_total_distance(self.position)
+        self.default_distance = chip_Qubit_distance(nn = self.nn,occupy=self.occupy)
         self.last_distance = self.default_distance
-
-        self.default_nn = cnt_meet_nn_constrain(self.nn,self.occupy)
-        self.last_nn = self.default_nn
 
         #stop conditions
         self.max_step = -1
@@ -80,7 +71,7 @@ class CircuitEnv_v10(gym.Env):
     def _info(self):
         return {'occupy': self.occupy,
                 'distance': self.last_distance,
-                'nn': self.last_nn,
+                'nn': 0,
                 }
 
     def reset(self, *, seed=None, options=None):
@@ -90,10 +81,10 @@ class CircuitEnv_v10(gym.Env):
         self.max_nn_meet = 0
         self.total_reward = 0
         self.step_cnt = 0
+
         #重新随机选取位置
-        # todo  直接从 position map 中选就行
-        self.position = generate_unique_coordinates(self.qubit_nums)
-        self.default_distance = 80#compute_total_distance(self.position)
+        self.occupy = unique_random_int(5, 0, 65)
+        self.default_distance = chip_Qubit_distance(nn=self.nn, occupy=self.occupy)
         self.last_distance = self.default_distance
 
         #初始化错误信息
@@ -103,14 +94,6 @@ class CircuitEnv_v10(gym.Env):
         self.default_error = error
         self.last_error = error
 
-        self.occupy = []
-        for p in self.position:
-            px = p[0]
-            py = p[1]
-            self.occupy.append(deepcopy(self.grid[px][py]))
-
-        self.default_nn = cnt_meet_nn_constrain(self.nn, self.occupy)
-        self.last_nn = self.default_nn
 
         info = self._info()
 
@@ -130,23 +113,17 @@ class CircuitEnv_v10(gym.Env):
         if q == 5:
             terminated = True
         else:
-            #执行 远距离移动 q<->Q 交换位置
-            x,y = POSITION_MAP[int(Q)][0],POSITION_MAP[int(Q)][1]
+            #move logic qubit to physics Qubit
 
-            if not np.any(np.all(self.position == np.array([x,y]), axis=1)):
+            if not Q in self.occupy:
                 # q2位置为空,直接占据
-                self.position[q][0], self.position[q][1] = x,y
                 self.occupy[q] = Q
             else:
                 # q2位置不为空,交换位置
-                q2 = self.occupy.index(Q)
-
-                self.position[q2][0], self.position[q2][1] = self.position[q][0], self.position[q][1]
-                self.position[q][0], self.position[q][1] = x, y
-
+                qold = self.occupy.index(Q)
                 temp = self.occupy[q]
                 self.occupy[q] = Q
-                self.occupy[q2] = temp
+                self.occupy[qold] = temp
 
             reward,terminated = self.compute_reward(action)
         #stop conditions

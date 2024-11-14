@@ -9,7 +9,6 @@ from ray.rllib.utils.metrics import NUM_ENV_STEPS_SAMPLED_LIFETIME
 
 from env.env_helper import  register_custom_env
 from env.env_v10 import CircuitEnv_v10
-
 from config import ConfigSingleton
 
 import ray
@@ -17,6 +16,7 @@ from ray import air, tune
 from ray.air.constants import TRAINING_ITERATION
 from ray.tune.registry import get_trainable_cls
 
+from env.env_v12 import CircuitEnv_v12
 from utils.common_utils import parse_tensorboard
 from utils.evaluate import evaluate_policy
 from utils.results import analysis_res
@@ -60,7 +60,7 @@ def train_policy():
     # )
 
     config = PPOConfig()\
-    .environment(env=CircuitEnv_v10, env_config=env_config)\
+    .environment(env=CircuitEnv_v12, env_config=env_config)\
     .framework('torch')\
     .rollouts(num_rollout_workers=int(cpus * 0.7), num_envs_per_worker=2)\
     .resources(num_gpus=args.num_gpus)\
@@ -71,7 +71,7 @@ def train_policy():
             "fcnet_activation": args.fcnet_activation,
             "use_attention": False,
         },
-        lr=tune.grid_search([0.01, 0.001, 0.0001]),
+        #lr=tune.grid_search([0.01, 0.001, 0.0001]),
         gamma=0.99,
     )
 

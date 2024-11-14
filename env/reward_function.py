@@ -4,7 +4,7 @@ import numpy as np
 
 import utils.common_utils as comu
 import  utils.circuits_util as cu
-import core.chip  as chip
+from core import chip
 class RewardFunction:
 
     '''
@@ -128,6 +128,29 @@ class RewardFunction:
         #完全满足
         if nn == len(env.nn):
             terminated =True
+
+        reward = r1
+
+        return reward, terminated
+
+    #基于新的精确 distance
+    def rfv5(self, env, action):
+
+        reward = env.stop_thresh
+        terminated = False
+        # 计算距离
+        distance = chip.chip_Qubit_distance(env.nn, env.occupy)
+
+        k1 = (env.default_distance - distance) / env.default_distance
+        k2 = (env.last_distance - distance) / env.last_distance
+        env.last_distance = distance
+
+        if k2 > 0:
+            r1 = (math.pow((1 + k2), 2) - 1) * (1 + np.tanh(k1))
+        elif k2 < 0:
+            r1= -2.5 * (math.pow((1 - k2), 2) - 1) * (1 - np.tanh(k1))
+        else:
+            r1 = -0.1
 
         reward = r1
 
