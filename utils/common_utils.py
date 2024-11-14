@@ -13,6 +13,9 @@ def generate_unique_coordinates(count):
     # 根据下标获取对应的值
     result = [deepcopy(valid_position[i]) for i in indices]
     return result
+
+def unique_random_int(len,min=0,max=1):
+    return random.sample(range(min,max), len)
 def compute_total_distance(positions):
     # 初始化距离之和
     total_distance = 0
