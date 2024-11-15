@@ -6,44 +6,47 @@ import numpy as np
 
 from utils.file.file_util import get_root_dir
 
+#data[0]:  data[1]:
+def show_train_metric(data,save = True,max_length = 20):
 
-def show_train_metric(data, label,save = True,max_length = 20):
-    #对 dist 进行归一化
-    data[1] = data[1]/(np.max(data[1])/np.max(data[0]))
-    data[2] = data[2]/(np.max(data[2])/np.max(data[0]))
-
-    # Check if the data and label lengths match
-    if len(data) != len(label):
-        raise ValueError("The number of labels must match the number of data rows.")
-
-    # Set up the plot
-    plt.figure(figsize=(10, 6))
+    # 创建一个图形和一个坐标轴
+    fig, ax1 = plt.subplots()
 
     # Generate a colormap
     num_lines = len(data)
     colors = plt.cm.viridis(np.linspace(0, 1, num_lines))
 
-    # Plot each row of the data
-    # for i, (row, lbl) in enumerate(zip(data, label)):
-    #     plt.plot(row[0:max_length], label=lbl, color=colors[i])
-    for i, (row, lbl) in enumerate(zip(data, label)):
-        x_values = np.arange(len(row[:max_length]))
-        y_values = row[:max_length]
-        plt.plot(x_values, y_values, label=lbl, color=colors[i],marker='o')
+    x1 = np.arange(len(data[0][:max_length]))
+    y1 = data[0][:max_length]
 
-        for x, y in zip(x_values, y_values):
-            # Annotate each point with its value
-            plt.annotate(f'{y:.2f}', (x, y), textcoords="offset points", xytext=(0, 10), ha='center')
+    x2 = np.arange(len(data[1][:max_length]))
+    y2 = data[1][:max_length]
 
-            # Draw a vertical line from each point to the x-axis
-            plt.axvline(x=x, ymin=0, ymax=(y - plt.ylim()[0]) / (plt.ylim()[1] - plt.ylim()[0]), color=colors[i],
-                        linestyle='--', linewidth=0.5)
 
+    ax1.plot( x1, y1,  label = 'reward',color = '#5370c4',marker='o')
+    ax1.set_xlabel('step')
+    ax1.set_ylabel('reward',color='#5370c4')
+    # for x, y in zip(x0, y0):
+    #     # Annotate each point with its value
+    #     plt.annotate(f'{y:.2f}', (x, y), textcoords="offset points", xytext=(0, 10), ha='center')
+    #
+    #     # Draw a vertical line from each point to the x-axis
+    #     plt.axvline(x=x, ymin=0, ymax=(y - plt.ylim()[0]) / (plt.ylim()[1] - plt.ylim()[0]), color=colors[0],
+    #                 linestyle='--', linewidth=0.5)
+
+
+
+    # 创建第二个坐标轴，共享x轴
+    ax2 = ax1.twinx()
+    ax2.plot(x2, y2,label = 'distance', color ='#f16569',marker='v')
+    ax2.set_ylabel('distance',color ='#f16569')
+
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper left')
     # Add labels and legend
-    plt.xlabel('step')
-    plt.ylabel('Value')
     plt.title('Train Metrics')
-    plt.legend()
+
     if save:
         p = Path(get_root_dir())
         datetime_str = datetime.now().strftime('%Y-%m-%d_%H-%M')
@@ -59,7 +62,7 @@ if __name__ == '__main__':
     # Example usage:
     data = [
         [10, 20, 30, 40, 50],
-        [200, 300, 400, 500, 600],
+        [0, 342, 200, 500, 600],
         [3, 4, 5, 6, 7]
     ]
     label = ['Metric 1', 'Metric 2', 'Metric 3']

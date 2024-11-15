@@ -37,7 +37,7 @@ class CircuitEnv_v12(gym.Env):
         #save reward
         self.rs = []
         # circuit 变量
-        self.qubit_nums = 5
+        self.qubit_nums = 7
         self.circuit = 'XEB_'+str(self.qubit_nums)+'_qubits_8_cycles_circuit.txt'
 
         #chip 变量

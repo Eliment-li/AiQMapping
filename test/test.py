@@ -1,47 +1,30 @@
-from pprint import pprint
+import matplotlib.pyplot as plt
+import numpy as np
 
+# 创建数据
+x = np.arange(0, 10, 0.1)
+y1 = np.sin(x)
+y2 = np.cos(x)
 
-def rotate_45(grid):
-    num_rows = len(grid)
-    num_cols = len(grid[0])
-    max_diagonal_length = num_rows + num_cols - 1
+# 创建一个图形和一个坐标轴
+fig, ax1 = plt.subplots()
 
-    # Initialize the new grid with -2
-    new_grid = [[] for _ in range(max_diagonal_length)]
+# 在 ax1 上绘制第一个折线
+ax1.plot(x, y1, 'g-', label='sin(x)')
+ax1.set_xlabel('X 数据')
+ax1.set_ylabel('sin(x)', color='g')
 
-    # Fill the new grid with the rotated elements
-    for i in range(num_rows):
-        for j in range(num_cols):
-            new_grid[i + j].append(grid[i][j])
+# 创建第二个坐标轴，共享 x 轴
+ax2 = ax1.twinx()
+ax2.plot(x, y2, 'b-', label='cos(x)')
+ax2.set_ylabel('cos(x)', color='b')
 
-    # Determine the maximum row length for padding
-    max_row_length = max(len(row) for row in new_grid)
+# 添加图例
+# 通过获取两个坐标轴的句柄和标签来创建一个综合图例
+lines_1, labels_1 = ax1.get_legend_handles_labels()
+lines_2, labels_2 = ax2.get_legend_handles_labels()
+ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper left')
 
-    # Pad each row with -2 to make them all the same length
-    for row in new_grid:
-        while len(row) < max_row_length:
-            row.insert(0, -2)
-            row.append(-2)
-
-    return new_grid
-
-
-# Original grid
-grid = [
-    [-1, 0, -1, 1, -1, 2, -1, 3, -1, 4, -1, 5],
-    [6, -1, 7, -1, 8, -1, 9, -1, 10, -1, 11, -1],
-    [-1, 12, -1, 13, -1, 14, -1, 15, -1, 16, -1, 17],
-    [18, -1, 19, -1, 20, -1, 21, -1, 22, -1, 23, -1],
-    [-1, 24, -1, 25, -1, 26, -1, 27, -1, 28, -1, 29],
-    [30, -1, 31, -1, 32, -1, 33, -1, 34, -1, 35, -1],
-    [-1, 36, -1, 37, -1, 38, -1, 39, -1, 40, -1, 41],
-    [42, -1, 43, -1, 44, -1, 45, -1, 46, -1, 47, -1],
-    [-1, 48, -1, 49, -1, 50, -1, 51, -1, 52, -1, 53],
-    [54, -1, 55, -1, 56, -1, 57, -1, 58, -1, 59, -1],
-    [-1, 60, -1, 61, -1, 62, -1, 63, -1, 64, -1, 65],
-]
-
-# Rotate and print the new grid
-new_grid = rotate_45(grid)
-print(repr(new_grid))
-pprint(new_grid, width=80, indent=4, compact=True)
+# 显示图形
+plt.title('双折线图示例')
+plt.show()
