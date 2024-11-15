@@ -47,7 +47,7 @@ class CircuitEnv_v12(gym.Env):
         self.max_nn_meet = 0
         # 被占据的qubit，用 Q序号为标识
         #todo 优化 len 自动识别，且过滤无效比特
-        self.occupy = unique_random_int(5,0,65)
+        self.occupy = unique_random_int(self.qubit_nums,0,65)
         self.qubits = np.float32(QUBITS_ERROR_RATE)
         self.coupling= np.float32(COUPLING_SCORE)
 
@@ -83,7 +83,7 @@ class CircuitEnv_v12(gym.Env):
         self.step_cnt = 0
 
         #重新随机选取位置
-        self.occupy = unique_random_int(5, 0, 65)
+        self.occupy = unique_random_int(self.qubit_nums, 0, 65)
         self.default_distance = chip_Qubit_distance(nn=self.nn, occupy=self.occupy)
         self.last_distance = self.default_distance
 
@@ -110,7 +110,7 @@ class CircuitEnv_v12(gym.Env):
         q = action[0] #logical qubit
         Q = action[1] #physics qubit
         #终止条件
-        if q == 5:
+        if q == self.qubit_nums:
             terminated = True
         else:
             #move logic qubit to physics Qubit
