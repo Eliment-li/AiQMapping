@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from pathlib import Path
 from pprint import pprint
 
@@ -64,12 +65,14 @@ def analysis_res(results:ResultGrid):
     # best_checkpoint = best_result.checkpoint  # Get best trial's best checkpoint
     # best_metrics = best_result.metrics  # Get best trial's last results
     # best_result_df = best_result.metrics_dataframe  # Get best result as pandas dataframe
-    output_path = Path(get_root_dir()) / 'data' / 'result' / 'output.csv'
+    datetime_str = datetime.now().strftime('%Y-%m-%d_%H-%M')
+    p = Path(get_root_dir())
+    output_path = p / 'data' / 'result' / (str(args.stop_iters) + '_' + datetime_str + '.output.csv')
     #best_result_df.to_csv(output_path,mode='a', index=False)
     # Get a dataframe of results for a specific score or mode
     #df = results.get_dataframe(filter_metric="score", filter_mode="max")
     df = results.get_dataframe()
-    df.to_csv(output_path,mode='a')
+    df.to_csv(output_path,mode='x')
 
 
     '''
