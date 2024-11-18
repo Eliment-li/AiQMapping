@@ -60,6 +60,7 @@ def evaluate_policy(results):
         if done:
             print('env done = %r, action = %r, reward = %r  occupy =  {%r} ' % (done,a, reward, info['occupy']))
             print(f"Episode done: Total reward = {episode_reward}")
+            break
 
     algo.stop()
     trace = np.array(trace)
@@ -155,4 +156,4 @@ if __name__ == '__main__':
     register_custom_env(args.env_version)
     #evaluate_policy('/tmp/checkpoint_tmp_cfb4d4a183d2477c85bb76d4546b4c69')
 
-    evaluate_policy(r'C:\Users\Administrator\AppData\Local\Temp\checkpoint_tmp_ababfe11c9144a329dc18acea726373f')
+    evaluate_policy(r'')
