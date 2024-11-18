@@ -18,7 +18,7 @@ from ray.tune.registry import get_trainable_cls
 
 from env.env_v12 import CircuitEnv_v12
 from utils.common_utils import parse_tensorboard
-from utils.evaluate import evaluate_policy
+from evaluate import evaluate_policy
 from utils.results import analysis_res
 from v2_run import wirte2file
 
@@ -67,11 +67,11 @@ def train_policy():
     .training(
         model={
             # "fcnet_hiddens":args.fcnet_hiddens ,
-            "fcnet_hiddens": [128,256,256,128],
+            "fcnet_hiddens": [256,512,512,256],
             "fcnet_activation": args.fcnet_activation,
             "use_attention": False,
         },
-        #lr=tune.grid_search([5e-5, 3e-5,1e-5]),
+        lr=tune.grid_search([5e-5, 3e-5,1e-5]),
         gamma=0.99,
     )
     '''
@@ -81,7 +81,7 @@ def train_policy():
         [[0, 0.001], [1e9, 0.0005]],
     ]),
     '''
-    config["lr_schedule"]=[[0, 5e-5],[400000, 3e-5],[1200000, 1e-5]]
+    #config["lr_schedule"]=[[0, 5e-5],[400000, 3e-5],[1200000, 1e-5]]
 
     tuner = tune.Tuner(
         args.run,
