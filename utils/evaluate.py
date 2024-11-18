@@ -26,12 +26,15 @@ def grap_metric(reward,info):
 
 def evaluate_policy(results):
 
-    checkpoint = results.get_best_result(metric='env_runners/episode_reward_mean',mode='max').checkpoint
-    print("Training completed")
-
-    if not isinstance(checkpoint, str):
+    if  not isinstance(results, str):
+        checkpoint = results.get_best_result(metric='env_runners/episode_reward_mean', mode='max').checkpoint
         checkpoint = checkpoint.to_directory()
-    algo = Algorithm.from_checkpoint(checkpoint)
+        print(f'best checkpoint: {checkpoint}')
+        algo = Algorithm.from_checkpoint(path=checkpoint)
+    else:
+        algo = Algorithm.from_checkpoint(path=results)
+
+
     env = gym.make('Env_'+str(args.env_version))
     obs, info = env.reset()
     episode_reward = 0.0
@@ -57,7 +60,6 @@ def evaluate_policy(results):
         if done:
             print('env done = %r, action = %r, reward = %r  occupy =  {%r} ' % (done,a, reward, info['occupy']))
             print(f"Episode done: Total reward = {episode_reward}")
-            print(f"CheckPoint = {checkpoint}")
 
     algo.stop()
     trace = np.array(trace)
@@ -153,4 +155,4 @@ if __name__ == '__main__':
     register_custom_env(args.env_version)
     #evaluate_policy('/tmp/checkpoint_tmp_cfb4d4a183d2477c85bb76d4546b4c69')
 
-    evaluate_policyv2(f'C:/Users/Administrator/ray_results/PPO_2024-11-04_17-10-47/PPO_CircuitEnv_v10_addc0_00000_0_2024-11-04_17-10-47/checkpoint_000000')
+    evaluate_policy(r'C:\Users\Administrator\AppData\Local\Temp\checkpoint_tmp_ababfe11c9144a329dc18acea726373f')
