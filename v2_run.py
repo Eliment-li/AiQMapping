@@ -1,4 +1,3 @@
-import contextlib
 import datetime
 import sys
 import time
@@ -18,7 +17,7 @@ from ray.air.constants import TRAINING_ITERATION
 from ray.tune.registry import get_trainable_cls
 
 from utils.common_utils import parse_tensorboard
-from utils.evaluate import evaluate_policyv2
+from evaluate import evaluate_policyv2
 from utils.file.file_util import write, get_root_dir
 from utils.results import analysis_res
 
