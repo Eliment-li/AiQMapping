@@ -26,6 +26,14 @@ def show_train_metric(data,save = True,max_length = 20):
     ax1.plot( x1, y1,  label = 'reward',color = '#5370c4',marker='o')
     ax1.set_xlabel('step')
     ax1.set_ylabel('reward',color='#5370c4')
+    for x, y in zip(x1, y1):
+        # Annotate each point with its value
+        ax1.annotate(f'{y:.2f}', (x, y), textcoords="offset points", xytext=(0, 10), ha='center')
+
+        # Draw a vertical line from each point to the x-axis
+        ax1.axvline(x=x, ymin=0, ymax=(y - plt.ylim()[0]) / (plt.ylim()[1] - plt.ylim()[0]), color=colors[0],
+                    linestyle='--', linewidth=0.5)
+
     # for x, y in zip(x0, y0):
     #     # Annotate each point with its value
     #     plt.annotate(f'{y:.2f}', (x, y), textcoords="offset points", xytext=(0, 10), ha='center')
@@ -40,6 +48,9 @@ def show_train_metric(data,save = True,max_length = 20):
     ax2 = ax1.twinx()
     ax2.plot(x2, y2,label = 'distance', color ='#f16569',marker='v')
     ax2.set_ylabel('distance',color ='#f16569')
+    for x, y in zip(x2, y2):
+        # Annotate each point with its value
+        ax2.annotate(f'{y:.0f}', (x, y), textcoords="offset points", xytext=(0, 10), ha='center')
 
     lines_1, labels_1 = ax1.get_legend_handles_labels()
     lines_2, labels_2 = ax2.get_legend_handles_labels()
