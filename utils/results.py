@@ -56,8 +56,48 @@ def load_res(path):
 
     restored_tuner = tune.Tuner.restore(experiment_path, trainable=get_trainable_cls(args.run))
     result_grid = restored_tuner.get_results()
+'''
+filter the panda.dataframe
+drop columns not in given list, order the colums using given list and return the new dataframe
+params can be more than one list
+'''
+def filter_df(df, *params):
+    """
+       Filters the given pandas DataFrame by dropping columns not in the given lists,
+       orders the columns using the given lists, and returns the new DataFrame.
+
+       Args:
+           df (pd.DataFrame): The DataFrame to filter.
+           *params (List[str]): One or more lists of column names to keep and order.
+
+       Returns:
+           pd.DataFrame: The filtered and ordered DataFrame.
+        example
+               data = {
+        'a': [1, 2, 3],
+        'b': [4, 5, 6],
+        'c': [7, 8, 9]
+    }
+    df = pd.DataFrame(data)
+    print(df)
+    print(filter_df(df, ['a', 'c']))
+    print(filter_df(df, ['b', 'a'], ['c']))
+    print(filter_df(df, ['c', 'b', 'a']))
+    print(filter_df(df, ['c'], ['a', 'b']))
+    print(filter_df(df, ['b'], ['c', 'a']))
+       """
+    columns_to_keep = [col for sublist in params for col in sublist]
+    # Drop columns not in the given list
+    df = df.drop(columns=[col for col in df.columns if col not in columns_to_keep])
+    # Order the columns using the given list
+    df = df[columns_to_keep]
+    return df
+
 
 def analysis_res(results:ResultGrid):
+    datetime_str = datetime.now().strftime('%Y-%m-%d_%H-%M')
+    p = Path(get_root_dir())
+    output_path = p / 'data' / 'result' / (str(args.stop_iters) + '_' + datetime_str + '.output.csv')
 
     # best_result = results.get_best_result("mean_loss", "min")  # Get best result object
     # best_config = best_result.config  # Get best trial's hyperparameters
@@ -65,16 +105,20 @@ def analysis_res(results:ResultGrid):
     # best_checkpoint = best_result.checkpoint  # Get best trial's best checkpoint
     # best_metrics = best_result.metrics  # Get best trial's last results
     # best_result_df = best_result.metrics_dataframe  # Get best result as pandas dataframe
-    datetime_str = datetime.now().strftime('%Y-%m-%d_%H-%M')
-    p = Path(get_root_dir())
-    output_path = p / 'data' / 'result' / (str(args.stop_iters) + '_' + datetime_str + '.output.csv')
+
     #best_result_df.to_csv(output_path,mode='a', index=False)
     # Get a dataframe of results for a specific score or mode
     #df = results.get_dataframe(filter_metric="score", filter_mode="max")
+
     df = results.get_dataframe()
+    df = filter_df(df, perf_metric, key_metric)
     df.to_csv(output_path,mode='x')
 
-
+    best_result_df = results.get_dataframe(
+        filter_metric="env_runners/episode_reward_mean", filter_mode="max"
+    )
+    best_result_df = filter_df(best_result_df, perf_metric, key_metric)
+    best_result_df.to_csv(output_path,mode='a')
     '''
 
     results_df = results.get_dataframe()
@@ -83,10 +127,7 @@ def analysis_res(results:ResultGrid):
     print("Shortest training time:", results_df["time_total_s"].min())
     print("Longest training time:", results_df["time_total_s"].max())
 
-    best_result_df = results.get_dataframe(
-        filter_metric="episode_reward_mean", filter_mode="max"
-    )
-    best_result_df[["training_iteration", "episode_reward_mean"]]
+   
     '''
 
 def iterate_res(results:ResultGrid):
@@ -100,3 +141,8 @@ def iterate_res(results:ResultGrid):
             f"Trial #{i} finished successfully with a mean accuracy metric of:",
             result.metrics["mean_accuracy"]
         )
+
+
+# Example usage
+if __name__ == '__main__':
+    pass
