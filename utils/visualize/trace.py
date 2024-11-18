@@ -97,7 +97,7 @@ def show_trace( paths, grid =grid , values=values):
 
 def show_result(result, grid =grid , values=values):
     rows, cols = grid.shape
-    fig, ax = plt.subplots(figsize=(cols, rows), dpi=150)
+    fig, ax = plt.subplots(figsize=(cols, rows), dpi=100)
     # Normalize values for color mapping
     cmap = cm.get_cmap('viridis', 256)
     for i in range(rows):
@@ -186,7 +186,8 @@ if __name__ == '__main__':
     trace = np.array(trace).transpose()
 
     #show_trace(paths=trace)
-    show_result([38, 45, 33, 39, 8] )
+    result = [26, 33, 32, 38, 41]
+    show_result(result )
     # print(default_labels)
     #
     # for key in default_labels:
