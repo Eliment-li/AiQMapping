@@ -1,6 +1,7 @@
 import math
 import random
 import re
+import shutil
 from copy import deepcopy
 import numpy as np
 
@@ -169,12 +170,22 @@ def parse_tensorboard(content):
 
     if result:
         matched_string = result[0][:-1]
-        tensorboard = matched_string[matched_string.find("PPO"):]
+        #tensorboard = matched_string[matched_string.find("tmp"):matched_string.find("driver_artifacts")]
+        tensorboard = matched_string[matched_string.find("C"):matched_string.find("driver_artifacts")]
         return  tensorboard
     else:
         print("未找到匹配的 tensorboard")
         return  ''
 
 
+# move a folder to another folder
+def move_folder(src_folder, dest_folder):
+    # Move the folder to the destination folder
+    shutil.move(src_folder, dest_folder)
+
+    # Print a message to indicate that the folder has been moved
+    print(f"Folder '{src_folder}' has been moved to '{dest_folder}'.")
+    return True
 if __name__ == '__main__':
-    pass
+    ts= parse_tensorboard('To visualize your results with TensorBoard, run: `tensorboard --logdir C:/Users/Administrator/AppData/Local/Temp/ray/session_2024-11-19_11-11-06_708517_17204/artifacts/2024-11-19_11-11-15/PPO_2024-11-19_11-11-15/driver_artifacts`')
+    print(ts)
