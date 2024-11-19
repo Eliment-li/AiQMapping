@@ -1,29 +1,26 @@
 import sys
 import time
+from datetime import datetime
 from io import StringIO
 
-import numpy as np
 import psutil
 from ray.rllib.algorithms import PPOConfig
-from ray.rllib.utils.metrics import NUM_ENV_STEPS_SAMPLED_LIFETIME
 
 from env.env_helper import  register_custom_env
-from env.env_v10 import CircuitEnv_v10
 from config import ConfigSingleton
 
 import ray
 from ray import air, tune
 from ray.air.constants import TRAINING_ITERATION
-from ray.tune.registry import get_trainable_cls
 
 from env.env_v12 import CircuitEnv_v12
-from utils.common_utils import parse_tensorboard
-from utils.evaluate import evaluate_policy
+from utils.common_utils import parse_tensorboard, move_folder
+from evaluate import evaluate_policy
 from utils.results import analysis_res
 from v2_run import wirte2file
 
 args = ConfigSingleton().get_config()
-
+args_pri = ConfigSingleton().get_config_private()
 stop = {
     TRAINING_ITERATION: args.stop_iters,
     #NUM_ENV_STEPS_SAMPLED_LIFETIME: 1000,
@@ -72,6 +69,7 @@ def train_policy():
             "use_attention": False,
         },
         #lr=tune.grid_search([5e-5, 3e-5,1e-5]),
+        lr=3e-5,
         gamma=0.99,
     )
     '''
@@ -81,7 +79,7 @@ def train_policy():
         [[0, 0.001], [1e9, 0.0005]],
     ]),
     '''
-    config["lr_schedule"]=[[0, 5e-5],[400000, 3e-5],[1200000, 1e-5]]
+    #config["lr_schedule"]=[[0, 5e-5],[400000, 3e-5],[1200000, 1e-5]]
 
     tuner = tune.Tuner(
         args.run,
@@ -115,6 +113,9 @@ def train():
 
     tensorboard = parse_tensorboard(captured_output)
     print(f'tensorboard: {tensorboard}')
+    datetime_str = datetime.now().strftime('%Y-%m-%d_%H-%M')
+    move_folder(tensorboard, args_pri.tensorboard_dir + datetime_str)
+
 
 if __name__ == '__main__':
     register_custom_env(args.env_version)
