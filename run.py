@@ -64,12 +64,11 @@ def train_policy():
     .training(
         model={
             # "fcnet_hiddens":args.fcnet_hiddens ,
-            "fcnet_hiddens": [128,256,256,128],
+            "fcnet_hiddens": [256,512,512,256],
             "fcnet_activation": args.fcnet_activation,
             "use_attention": False,
         },
-        #lr=tune.grid_search([5e-5, 3e-5,1e-5]),
-        lr=3e-5,
+        lr=tune.grid_search([5e-5, 3e-5,1e-5]),
         gamma=0.99,
     )
     '''
