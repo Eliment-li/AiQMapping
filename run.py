@@ -33,28 +33,6 @@ env_config={
 }
 def train_policy():
     cpus  = psutil.cpu_count(logical=True)
-    # config = (
-    #     get_trainable_cls(args.run)
-    #     .get_default_config()
-    #     .environment(env=CircuitEnv_v10,env_config=env_config)
-    #     .framework('torch')
-    #     .rollouts(num_rollout_workers=int(cpus*0.7)
-    #               , num_envs_per_worker=2
-    #               # ,remote_worker_envs=True
-    #               )
-    #     .resources(num_gpus=args.num_gpus)
-    #     .training(
-    #         #lr = tune.grid_search([0.001, 0.01, 0.1, 1.0]),
-    #         model={
-    #             # Change individual keys in that dict by overriding them, e.g.
-    #             #"fcnet_hiddens":args.fcnet_hiddens ,
-    #             #"fcnet_hiddens": [32,64,128,64,32],
-    #             "fcnet_activation":args.fcnet_activation,
-    #             "use_attention": False,
-    #         },
-    #         gamma=0.99,
-    #     )
-    # )
 
     config = PPOConfig()\
     .environment(env=CircuitEnv_v12, env_config=env_config)\

@@ -40,11 +40,18 @@ def read_adj_list():
         if qa not in list[qb]:
             (list[qb]).append(qa)
 
-
     return list
 
 QUBITS_ERROR_RATE = data_normalization(read_qubits_error_rate())
+#key is qubit index, value is error rate
+QUBITS_ERROR_RATE_MAP = {}
+for i, v in enumerate(QUBITS_ERROR_RATE):
+    QUBITS_ERROR_RATE_MAP[i] = v
+pprint(QUBITS_ERROR_RATE_MAP)
+
 COUPLING_SCORE = data_normalization(read_coupling_score())
+
+#Qubits 邻接表
 ADJ_LIST = read_adj_list()
 
 
@@ -209,6 +216,7 @@ GRID_45 = [   [-2, -2, -2, -2, -2, -1, -2, -2, -2, -2, -2],
     [-2, -2, -2, -2, -2, -1, -1, -2, -2, -2, -2, -2],
     [-2, -2, -2, -2, -2, 65, -2, -2, -2, -2, -2]]
 
+#key = qubit index value = (x,y)
 CORRD_45 = {}
 
 #init CORRD_45

@@ -156,6 +156,14 @@ class RewardFunction:
 
         return reward, terminated
 
+    #加上 qubite error rate
+    def rfv6(self,env,action):
+        error_rate = 0
+        for Q in env.occupy:
+            error_rate += chip.QUBITS_ERROR_RATE_MAP[Q]
+        pass
+
+
 
 
 
