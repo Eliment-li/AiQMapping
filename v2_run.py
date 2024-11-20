@@ -18,13 +18,13 @@ from ray.air.constants import TRAINING_ITERATION
 from ray.tune.registry import get_trainable_cls
 
 from env.env_v12 import CircuitEnv_v12
-from utils.common_utils import parse_tensorboard
+from utils.common_utils import parse_tensorboard, move_folder
 from evaluate import evaluate_policyv2
 from utils.file.file_util import write, get_root_dir
 from utils.results import analysis_res
 
 args = ConfigSingleton().get_config()
-
+args_pri = ConfigSingleton().get_config_private()
 
 stop = {
     TRAINING_ITERATION: args.stop_iters,
@@ -116,18 +116,16 @@ def train():
 
     tensorboard = parse_tensorboard(captured_output)
     print(f'tensorboard: {tensorboard}')
+    move_folder(tensorboard, args_pri.tensorboard_dir + args.time_id)
 
 
 def wirte2file(content):
-    datetime_str = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')
-    p = Path(get_root_dir())
-    text_path = p / 'data' / 'result' / (str(args.stop_iters) + '_' + datetime_str + '.txt')
+    text_path =  Path(get_root_dir())/ 'data' / 'result' / (str(args.stop_iters) + '_' + args.time_id + '.txt')
     write(text_path, content)
 
 
 if __name__ == '__main__':
     register_custom_env(args.env_version)
-    args = ConfigSingleton().get_config()
     try:
         ray.init(num_gpus=args.num_gpus, local_mode=args.local_mode)
         time.sleep(1)
