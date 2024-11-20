@@ -77,5 +77,6 @@ attention_init_gru_gate_bias: 2.0
 
 
 #unimportant
-show_trace: False
+plot_trace: False
+plot_result: False
 storage_path: ' '

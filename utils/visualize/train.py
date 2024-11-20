@@ -63,7 +63,7 @@ def show_train_metric(data,save = True,max_length = 20):
         path = Path(get_root_dir())/ 'data' / 'result' /  (args.time_id + '.png')
         plt.savefig(path)
     # Show the plot
-    plt.show()
+    #plt.show()
 
 
 

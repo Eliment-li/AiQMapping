@@ -69,7 +69,8 @@ def evaluate_policy(results):
     #save_array(trace,file)
     # if args.show_trace:
     #     show_trace(trace.transpose())
-    show_result(trace[-1])
+    if args.plot_result:
+        show_result(trace[-1])
     show_train_metric([r_arr,dist_arr],['reward','nn','dist'])
 
     #use attention
