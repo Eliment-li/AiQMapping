@@ -47,7 +47,6 @@ QUBITS_ERROR_RATE = data_normalization(read_qubits_error_rate())
 QUBITS_ERROR_RATE_MAP = {}
 for i, v in enumerate(QUBITS_ERROR_RATE):
     QUBITS_ERROR_RATE_MAP[i] = v
-pprint(QUBITS_ERROR_RATE_MAP)
 
 COUPLING_SCORE = data_normalization(read_coupling_score())
 
@@ -168,7 +167,6 @@ COUPLING_MAP = get_neighbors(grid)
 #表示芯片状态，用于 env 的state
 # todo new_row 根据线路类型自动赋值
 CHIPSTATE = append2matrix(grid,[0,0,0,0,0,0,0])
-
 
 
 #计算距离
