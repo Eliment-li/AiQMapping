@@ -42,12 +42,12 @@ def train_policy():
     .training(
         model={
             # "fcnet_hiddens":args.fcnet_hiddens ,
-            "fcnet_hiddens": [256,512,512,256],
-            "fcnet_activation": args.fcnet_activation,
+            "fcnet_hiddens": args.fcnet_hiddens,
+            "fcnet_activation": tune.grid_search(args.fcnet_activation),
             "use_attention": False,
         },
-        lr=tune.grid_search([5e-5, 3e-5,1e-5]),
-        gamma=0.99,
+        lr=tune.grid_search(args.lr_grid),
+        gamma=tune.grid_search(args.gamma_grid),
     )
     '''
     #use tune to test different lr_schedule

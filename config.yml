@@ -3,7 +3,14 @@ env_version: 12
 reward_function_version: 5
 circuit_path: data/circuits/xeb
 ###Iters is the number of batches the model will train on and the number of times your model weights will be updated (not counting minibatches).
-stop_iters: 4
+stop_iters: 2
+
+lr: 3.0e-5
+lr_grid: [5.0e-5, 3.0e-5]
+gamma: 0.99
+gamma_grid: [0.99, 0.8]
+fcnet_activation: [Swish]
+fcnet_hiddens: [128,256,256,128]
 
 #One call to env.step() is one timestep.
 stop_timesteps: 99999999
@@ -16,13 +23,12 @@ local_mode: False
 framework: torch
 checkpoint_frequency: 10
 checkpoint_at_end: True
-lr: 1e-4
+
 qasm: None
 log_file_id: 0
-gamma: 0.99
-#fcnet_hiddens: [1024,2048,2048,1024,512,256]
-#fcnet_hiddens: [32,64,64,32,16]
-fcnet_activation: Swish
+
+
+
 run: PPO
 #在config.py中有自动配置
 num_gpus: 1
@@ -46,9 +52,9 @@ use_attention: True
 attention_num_transformer_units: 1
 
 # The number of attention heads within the MultiHeadAttention units.
-attention_num_heads: 1,
+attention_num_heads: 1
 # The dim of a single head (within the MultiHeadAttention units).
-attention_head_dim: 32,
+attention_head_dim: 32
 
 # Whether to feed a_{t-n:t-1} to GTrXL (one-hot encoded if discrete).
 prev_n_actions: 0

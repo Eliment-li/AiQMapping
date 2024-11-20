@@ -4,6 +4,7 @@ import time
 from io import StringIO
 from pathlib import Path
 import psutil
+from ray.rllib.algorithms import PPOConfig
 from ray.tune import ResultGrid
 
 from env.env_helper import  register_custom_env
@@ -16,6 +17,7 @@ from ray import air, tune
 from ray.air.constants import TRAINING_ITERATION
 from ray.tune.registry import get_trainable_cls
 
+from env.env_v12 import CircuitEnv_v12
 from utils.common_utils import parse_tensorboard
 from evaluate import evaluate_policyv2
 from utils.file.file_util import write, get_root_dir
@@ -34,33 +36,37 @@ env_config={
 }
 def train_policy() -> ResultGrid:
     cpus  = psutil.cpu_count(logical=True)
-    trainable =  get_trainable_cls(args.run)
-    config = (
-        trainable
-        .get_default_config()
-        .environment(env=CircuitEnv_v11,env_config=env_config)
-        .framework('torch')
-        .rollouts(num_rollout_workers=int(cpus*0.75)
-                  , num_envs_per_worker=2
-                  )
-        .resources(num_gpus=args.num_gpus)
-        .training(
-            model={
-                # Change individual keys in that dict by overriding them, e.g.
-                #"fcnet_hiddens":args.fcnet_hiddens ,
-                #"fcnet_hiddens": [32,64,128,64,32],
-                "fcnet_activation": args.fcnet_activation,
-                "use_attention": True,
+    config = PPOConfig()\
+    .environment(env=CircuitEnv_v12, env_config=env_config)\
+    .framework('torch')\
+    .rollouts(num_rollout_workers=int(cpus * 0.7), num_envs_per_worker=2)\
+    .resources(num_gpus=args.num_gpus)\
+    .training(
+        model={
+            # "fcnet_hiddens":args.fcnet_hiddens ,
+            "fcnet_hiddens": args.fcnet_hiddens,
+            "fcnet_activation":tune.choice(args.fcnet_activation), #args.fcnet_activation,
+            "use_attention": True,
                 "attention_num_transformer_units": args.attention_num_transformer_units,
                 "attention_use_n_prev_actions": args.prev_n_actions,
                 "attention_use_n_prev_rewards": args.prev_n_rewards,
                 "attention_dim": args.attention_dim,
                 "attention_memory_inference": args.attention_memory_inference,
                 "attention_memory_training": args.attention_memory_training,
-            },
-            gamma=args.gamma,
-        )
+        },
+        lr=tune.grid_search(args.lr_grid),
+        gamma=tune.grid_search(args.gamma_grid),
     )
+    '''
+    #use tune to test different lr_schedule
+        lr_schedule: tune.grid_search([
+        [[0, 0.01], [1e6, 0.00001]],
+        [[0, 0.001], [1e9, 0.0005]],
+    ]),
+    '''
+    #config["lr_schedule"]=[[0, 5e-5],[400000, 3e-5],[1200000, 1e-5]]
+
+
     #stop = {"training_iteration": 100, "episode_reward_mean": 300}
     # config['model']['fcnet_hiddens'] = [32, 32]
     # automated run with Tune and grid search and TensorBoard
@@ -73,9 +79,7 @@ def train_policy() -> ResultGrid:
     tuner = tune.Tuner(
         args.run,
         #param_space=config.to_dict(),
-        param_space={
-            'fcnet_activation': tune.choice(['Swish','Relu'])
-        },
+        param_space=config,
         run_config=air.RunConfig(
                                 name='AiQMapping',
                                 stop=stop,
@@ -91,12 +95,12 @@ def train_policy() -> ResultGrid:
     return results
 
 def train():
+    print('train:')
     output = StringIO()
     original_stdout = sys.stdout
     try:
         # Redirect stdout to the StringIO object
         sys.stdout = output
-
         result = train_policy()
         analysis_res(result)
         evaluate_policyv2(result)
