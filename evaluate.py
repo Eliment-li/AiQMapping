@@ -74,18 +74,20 @@ def evaluate_policy(results):
 
     #use attention
 def evaluate_policyv2(results):
-
-    checkpoint = results.get_best_result().checkpoint
-    print("Training completed")
-
-    if not isinstance(checkpoint, str):
+    if  not isinstance(results, str):
+        checkpoint = results.get_best_result(metric='env_runners/episode_reward_mean', mode='max').checkpoint
         checkpoint = checkpoint.to_directory()
-    algo = Algorithm.from_checkpoint(checkpoint)
+        print(f'best checkpoint: {checkpoint}')
+        algo = Algorithm.from_checkpoint(path=checkpoint)
+    else:
+        algo = Algorithm.from_checkpoint(path=results)
+
+
     env = gym.make('Env_'+str(args.env_version))
     obs, info = env.reset()
     episode_reward = 0.0
-    #attention
 
+    #attention start
     # In case the model needs previous-reward/action inputs, keep track of
     # these via these variables here (we'll have to pass them into the
     # compute_actions methods below).
@@ -104,6 +106,7 @@ def evaluate_policyv2(results):
         init_prev_a = prev_a = np.array([0] * int(args.prev_n_actions))
     if args.prev_n_rewards:
         init_prev_r = prev_r = np.array([0.0] * int(args.prev_n_rewards))
+    #attention end
 
     # trace
     trace = []
@@ -123,13 +126,14 @@ def evaluate_policyv2(results):
         trace.append(deepcopy(info['occupy']))
         grap_metric(reward, info)
         print('done = %r, action = %r, reward = %r,  info = %r \n' % (done,a, reward,info['occupy']))
-        episode_reward *=0.99
+        episode_reward *=args.gamma
         episode_reward += reward
 
         if done:
             print('env done = %r, action = %r, reward = %r  occupy =  {%r} ' % (done,a, reward, info['occupy']))
             print(f"Episode done: Total reward = {episode_reward}")
             print(f"CheckPoint = {checkpoint}")
+            break
         else:
             # Append the just received state-out (most recent timestep) to the
             # cascade (memory) of our state-ins and drop the oldest state-in.
@@ -143,13 +147,13 @@ def evaluate_policyv2(results):
                 prev_r = np.roll(prev_r, -1)
                 prev_r[-1] = a
     algo.stop()
-    trace = np.array(trace)
-    pprint(trace.transpose())
+    #trace = np.array(trace)
+    #pprint(trace.transpose())
     file  = datetime.today().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
     #save_array(trace,file)
     # if args.show_trace:
     #     show_trace(trace.transpose())
-    show_result(trace[-1])
+    #show_result(trace[-1])
     show_train_metric([r_arr, nn_arr, dist_arr], ['reward','nn','dist'])
 
 if __name__ == '__main__':
