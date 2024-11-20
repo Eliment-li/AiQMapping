@@ -37,7 +37,7 @@ class CircuitEnv_v12(gym.Env):
         #save reward
         self.rs = []
         # circuit 变量
-        self.qubit_nums = 7
+        self.qubit_nums = 5
         self.circuit = 'XEB_'+str(self.qubit_nums)+'_qubits_8_cycles_circuit.txt'
 
         #chip 变量
@@ -46,8 +46,11 @@ class CircuitEnv_v12(gym.Env):
         self.grid = copy(grid)
         self.max_nn_meet = 0
         # 被占据的qubit，用 Q序号为标识
-        #todo 优化 len 自动识别，且过滤无效比特
-        self.occupy = unique_random_int(self.qubit_nums,0,65)
+
+        # init an array from 0 to self.qubit_nums - 1
+
+
+        self.occupy = np.arange(self.qubit_nums) #unique_random_int(self.qubit_nums,0,65)
         self.qubits = np.float32(QUBITS_ERROR_RATE)
         self.coupling= np.float32(COUPLING_SCORE)
 
@@ -83,7 +86,7 @@ class CircuitEnv_v12(gym.Env):
         self.step_cnt = 0
 
         #重新随机选取位置
-        self.occupy = unique_random_int(self.qubit_nums, 0, 65)
+        self.occupy =np.arange(self.qubit_nums) #unique_random_int(self.qubit_nums, 0, 65)
         self.default_distance = chip_Qubit_distance(nn=self.nn, occupy=self.occupy)
         self.last_distance = self.default_distance
 
