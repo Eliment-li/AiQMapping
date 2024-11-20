@@ -95,9 +95,7 @@ def filter_df(df, *params):
 
 
 def analysis_res(results:ResultGrid):
-    datetime_str = datetime.now().strftime('%Y-%m-%d_%H-%M')
-    p = Path(get_root_dir())
-    output_path = p / 'data' / 'result' / (str(args.stop_iters) + '_' + datetime_str + '.output.csv')
+    output_path = Path(get_root_dir()) / 'data' / 'result' / (str(args.stop_iters) + '_' + args.time_id + '.output.csv')
 
     # best_result = results.get_best_result("mean_loss", "min")  # Get best result object
     # best_config = best_result.config  # Get best trial's hyperparameters

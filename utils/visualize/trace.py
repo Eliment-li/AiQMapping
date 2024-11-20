@@ -4,6 +4,7 @@ import matplotlib.patches as patches
 import matplotlib.cm as cm
 from sympy import pprint
 
+from config import ConfigSingleton
 from core.chip import QUBITS_ERROR_RATE
 from utils.file.data import load_array
 
@@ -159,7 +160,7 @@ def show_result(result, grid =grid , values=values):
     plt.axis('off')
     plt.show()
 
-
+args = ConfigSingleton().get_config()
 
 
 if __name__ == '__main__':
@@ -186,7 +187,8 @@ if __name__ == '__main__':
     trace = np.array(trace).transpose()
 
     #show_trace(paths=trace)
-    result = [26, 33, 32, 38, 41]
+    result =[55, 18, 39, 31, 45, 50, 30]
+
     show_result(result )
     # print(default_labels)
     #

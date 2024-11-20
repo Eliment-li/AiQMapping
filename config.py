@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from pathlib import Path
 
 from munch import Munch
@@ -34,6 +35,7 @@ class ConfigSingleton(metaclass=Singleton):
             p = Path(get_root_dir())
             ray_path = p / 'data' / 'ray'
             config['storage_path'] = ray_path
+            config['time_id'] = datetime.now().strftime('%Y-%m-%d_%H-%M')
             self.config = Munch(config)
 
         with open(rootdir+os.path.sep+'config_private.yml', 'r') as file:

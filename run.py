@@ -90,8 +90,7 @@ def train():
 
     tensorboard = parse_tensorboard(captured_output)
     print(f'tensorboard: {tensorboard}')
-    datetime_str = datetime.now().strftime('%Y-%m-%d_%H-%M')
-    move_folder(tensorboard, args_pri.tensorboard_dir + datetime_str)
+    move_folder(tensorboard, args_pri.tensorboard_dir + args.time_id)
 
 
 if __name__ == '__main__':

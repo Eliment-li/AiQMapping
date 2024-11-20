@@ -3,9 +3,10 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+from config import ConfigSingleton
 
 from utils.file.file_util import get_root_dir
-
+args = ConfigSingleton().get_config()
 #data[0]:  data[1]:
 def show_train_metric(data,save = True,max_length = 20):
 
@@ -59,9 +60,7 @@ def show_train_metric(data,save = True,max_length = 20):
     plt.title('Train Metrics')
 
     if save:
-        p = Path(get_root_dir())
-        datetime_str = datetime.now().strftime('%Y-%m-%d_%H-%M')
-        path = p / 'data' / 'result' /  (datetime_str + '.png')
+        path = Path(get_root_dir())/ 'data' / 'result' /  (args.time_id + '.png')
         plt.savefig(path)
     # Show the plot
     plt.show()
