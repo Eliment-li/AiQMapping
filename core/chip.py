@@ -4,6 +4,7 @@ from sympy import pprint
 from utils.common_utils import data_normalization, compute_total_distance, append2matrix
 from utils.file.csv_util import read_df
 from pathlib import Path
+import utils.circuits_util as cu
 #path
 directory  = Path('data')
 qubits_error_path = directory / 'chip' / 'SingleQubit.csv'
@@ -237,6 +238,13 @@ def chip_Qubit_distance(nn,occupy):
             x1,y1 = CORRD_45[occupy[i]]
 
             x2,y2 = CORRD_45[occupy[v]]
-            dist += (abs(x1 - x2)/2) + abs(y1 - y2)
-    return dist
+            d = (abs(x1 - x2)/2) + abs(y1 - y2) -1
+            dist += d
+            print(f'{i} - {v} 的距离为 {d}')
+    #防止 dist 为 0
+    return dist +1
 
+if __name__ == '__main__':
+    nn = cu.qubits_nn_constrain('XEB_'+str(5)+'_qubits_8_cycles_circuit.txt')
+    occupy = [9, 14, 2, 3, 8]
+    print(chip_Qubit_distance(nn,occupy))
