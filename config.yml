@@ -11,6 +11,7 @@ gamma: 0.99
 gamma_grid: [0.99, 0.8]
 fcnet_activation: [Swish]
 fcnet_hiddens: [128,256,256,128]
+fcnet_hiddens_grid: [[128,256,256,128],[256,512,512,512]]
 
 #One call to env.step() is one timestep.
 stop_timesteps: 99999999

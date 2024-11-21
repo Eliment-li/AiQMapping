@@ -65,7 +65,7 @@ class CircuitEnv_v12(gym.Env):
         self.last_distance = self.default_distance
 
         #stop conditions
-        self.max_step = 15
+        self.max_step = 20
         self.stop_thresh = -100
         self.total_reward = 0
         self.step_cnt = 0
