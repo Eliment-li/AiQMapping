@@ -169,8 +169,8 @@ def parse_tensorboard(content):
 
     if result:
         matched_string = result[0][:-1]
-        #tensorboard = matched_string[matched_string.find("tmp"):matched_string.find("driver_artifacts")]
-        tensorboard = matched_string[matched_string.find("C"):matched_string.find("driver_artifacts")]
+        tensorboard =  matched_string[matched_string.find("tmp"):matched_string.find("driver_artifacts")]
+        #tensorboard = matched_string[matched_string.find("C"):matched_string.find("driver_artifacts")]
         return  tensorboard
     else:
         print("未找到匹配的 tensorboard")

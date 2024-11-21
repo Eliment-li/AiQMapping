@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.patches as patches
@@ -7,6 +9,7 @@ from sympy import pprint
 from config import ConfigSingleton
 from core.chip import QUBITS_ERROR_RATE
 from utils.file.data import load_array
+from utils.file.file_util import get_root_dir
 
 # Example usage
 rows, cols = 11, 12
@@ -158,7 +161,10 @@ def show_result(result, grid =grid , values=values):
     ax.set_yticks([])
     ax.set_aspect('equal')
     plt.axis('off')
-    plt.show()
+    path = Path(get_root_dir()) / 'data' / 'result' / (args.time_id + 'result.png')
+    plt.savefig(path)
+    if args.plot_result:
+        plt.show()
 
 args = ConfigSingleton().get_config()
 
@@ -187,7 +193,7 @@ if __name__ == '__main__':
     trace = np.array(trace).transpose()
 
     #show_trace(paths=trace)
-    result =[55, 18, 39, 31, 45, 50, 30]
+    result =[9, 14, 2, 8, 4]
 
     show_result(result )
     # print(default_labels)

@@ -240,7 +240,7 @@ def chip_Qubit_distance(nn,occupy):
             x2,y2 = CORRD_45[occupy[v]]
             d = (abs(x1 - x2)/2) + abs(y1 - y2) -1
             dist += d
-            print(f'{i} - {v} 的距离为 {d}')
+            #print(f'{i} - {v} 的距离为 {d}')
     #防止 dist 为 0
     return dist +1
 
