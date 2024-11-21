@@ -44,13 +44,14 @@ class CircuitEnv_v12(gym.Env):
         #todo
         self.nn = cu.qubits_nn_constrain(self.circuit)
         self.grid = copy(grid)
-        self.max_nn_meet = 0
         # 被占据的qubit，用 Q序号为标识
 
         # init an array from 0 to self.qubit_nums - 1
 
 
-        self.occupy = np.arange(self.qubit_nums).tolist() #unique_random_int(self.qubit_nums,0,65)
+        #self.occupy = np.arange(self.qubit_nums).tolist()
+        self.occupy = unique_random_int(self.qubit_nums,0,65)
+
         self.qubits = np.float32(QUBITS_ERROR_RATE)
         self.coupling= np.float32(COUPLING_SCORE)
 
@@ -58,13 +59,13 @@ class CircuitEnv_v12(gym.Env):
         self.observation_space = Box(0, 1, (66+self.qubit_nums,), np.float32)
 
         self.obs = np.array(self.occupy).astype(int)
-        self.action_space = MultiDiscrete([(self.qubit_nums+1), 65])
+        self.action_space = MultiDiscrete([(self.qubit_nums), 65])
 
         self.default_distance = chip_Qubit_distance(nn = self.nn,occupy=self.occupy)
         self.last_distance = self.default_distance
 
         #stop conditions
-        self.max_step = -1
+        self.max_step = 15
         self.stop_thresh = -100
         self.total_reward = 0
         self.step_cnt = 0
@@ -81,7 +82,6 @@ class CircuitEnv_v12(gym.Env):
         self.first_stp = True
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
-        self.max_nn_meet = 0
         self.total_reward = 0
         self.step_cnt = 0
 
@@ -106,15 +106,16 @@ class CircuitEnv_v12(gym.Env):
         return self.get_obs() , info
 
     def step(self, action):
+        self.step_cnt += 1
         reward = 0
-        terminated = False
         truncated = False
 
         q = action[0] #logical qubit
         Q = action[1] #physics qubit
         #终止条件
-        if q == self.qubit_nums:
+        if q == self.qubit_nums or self.step_cnt >= self.max_step:
             terminated = True
+            truncated = True
         else:
             #move logic qubit to physics Qubit
 
@@ -134,7 +135,7 @@ class CircuitEnv_v12(gym.Env):
 
         if self.total_reward <= self.stop_thresh \
                 or reward <= self.stop_thresh \
-                or self.step_cnt==self.max_step :
+                 :
             terminated = True
             truncated = True
 
