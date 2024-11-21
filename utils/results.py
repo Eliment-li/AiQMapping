@@ -12,13 +12,13 @@ from utils.file.file_util import get_root_dir
 args = ConfigSingleton().get_config()
 
 key_metric=[
-'trial_id',
-'date',
-'training_iteration',
 'env_runners/episode_reward_min',
 'env_runners/episode_reward_max',
 'env_runners/episode_reward_mean',
 'env_runners/hist_stats/episode_reward',
+'trial_id',
+'date',
+'training_iteration',
 'config/env',
 'config/gamma',
 'config/lr',
@@ -109,7 +109,7 @@ def analysis_res(results:ResultGrid):
     #df = results.get_dataframe(filter_metric="score", filter_mode="max")
 
     df = results.get_dataframe()
-    df = filter_df(df, perf_metric, key_metric)
+    df = filter_df(df, key_metric,perf_metric )
     df.to_csv(output_path,mode='x')
 
     best_result_df = results.get_dataframe(
