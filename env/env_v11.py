@@ -16,11 +16,11 @@ from typing import Optional
 import os
 
 from config import ConfigSingleton
-from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, POSITION_MAP, CHIPSTATE,cnt_meet_nn_constrain
+from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, POSITION_MAP, CHIPSTATE, \
+    cnt_meet_nn_constrain, chip_Qubit_distance
 import utils.circuits_util as cu
-from utils.common_utils import compute_total_distance, generate_unique_coordinates, data_normalization, linear_scale, \
-    replace_last_n
-from utils.visualize.trace import show_trace
+from utils.common_utils import  data_normalization, linear_scale, \
+    replace_last_n, unique_random_int
 from env.reward_function import RewardFunction
 os.environ["SHARED_MEMORY_USE_LOCK"] = '1'
 args = ConfigSingleton().get_config()
@@ -39,33 +39,32 @@ class CircuitEnv_v11(gym.Env):
         # circuit 变量
         self.qubit_nums = 5
         self.circuit = 'XEB_'+str(self.qubit_nums)+'_qubits_8_cycles_circuit.txt'
-
         #chip 变量
-        self.position =generate_unique_coordinates(self.qubit_nums)
         self.nn = cu.qubits_nn_constrain(self.circuit)
         self.grid = copy(grid)
-        self.max_nn_meet = 0
+
+
+
+        # 初始化错误信息
+        # error = 0
+        # for v in self.occupy:
+        #     error += QUBITS_ERROR_RATE[v]
+        # self.default_error = error
+        # self.last_error = error
         # 被占据的qubit，用 Q序号为标识
-        self.occupy = []
-        for p in self.position:
-            px = p[0]
-            py = p[1]
-            self.occupy.append(deepcopy(self.grid[px][py]))
+        # 重新随机选取位置
+        self.occupy = unique_random_int(self.qubit_nums, 0, 65)
 
         self.qubits = np.float32(QUBITS_ERROR_RATE)
         self.coupling= np.float32(COUPLING_SCORE)
-
+        self.default_distance = chip_Qubit_distance(nn=self.nn, occupy=self.occupy)
+        self.last_distance = self.default_distance
 
         STATE_H,STATE_W = len(CHIPSTATE), len(CHIPSTATE[0])
         self.observation_space = Box( low=0, high=255, shape=(STATE_H, STATE_W), dtype=np.uint8)
         self.obs = deepcopy(CHIPSTATE)
 
         self.action_space = MultiDiscrete([(self.qubit_nums+1), 65])
-        self.default_distance = compute_total_distance(self.position)
-        self.last_distance = self.default_distance
-
-        self.default_nn = cnt_meet_nn_constrain(self.nn,self.occupy)
-        self.last_nn = self.default_nn
 
         #stop conditions
         self.max_step = 20
@@ -74,35 +73,28 @@ class CircuitEnv_v11(gym.Env):
         self.step_cnt = 0
 
     def _info(self):
-        return {'occupy': self.occupy}
+        return {'occupy': self.occupy,
+                'distance': self.last_distance,
+                'nn': 0,
+                }
 
     def reset(self, *, seed=None, options=None):
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
-        self.max_nn_meet = 0
         self.total_reward = 0
         self.step_cnt = 0
+
         #重新随机选取位置
-        # todo  直接从 position map 中选就行
-        self.position = generate_unique_coordinates(self.qubit_nums)
-        self.default_distance = compute_total_distance(self.position)
+        self.occupy = unique_random_int(self.qubit_nums, 0, 65)
+        self.default_distance = chip_Qubit_distance(nn = self.nn,occupy=self.occupy)
         self.last_distance = self.default_distance
 
         #初始化错误信息
-        error = 0
-        for v in self.occupy:
-            error += QUBITS_ERROR_RATE[v]
-        self.default_error = error
-        self.last_error = error
-
-        self.occupy = []
-        for p in self.position:
-            px = p[0]
-            py = p[1]
-            self.occupy.append(deepcopy(self.grid[px][py]))
-
-        self.default_nn = cnt_meet_nn_constrain(self.nn, self.occupy)
-        self.last_nn = self.default_nn
+        # error = 0
+        # for v in self.occupy:
+        #     error += QUBITS_ERROR_RATE[v]
+        # self.default_error = error
+        # self.last_error = error
 
         info = self._info()
 
@@ -126,23 +118,16 @@ class CircuitEnv_v11(gym.Env):
             terminated = True
             truncated = True
         else:
-            #执行 远距离移动 q<->Q 交换位置
-            x,y = POSITION_MAP[int(Q)][0],POSITION_MAP[int(Q)][1]
-
-            if not np.any(np.all(self.position == np.array([x,y]), axis=1)):
+            # move logic qubit to physics Qubit
+            if not Q in self.occupy:
                 # q2位置为空,直接占据
-                self.position[q][0], self.position[q][1] = x,y
                 self.occupy[q] = Q
             else:
                 # q2位置不为空,交换位置
-                q2 = self.occupy.index(Q)
-
-                self.position[q2][0], self.position[q2][1] = self.position[q][0], self.position[q][1]
-                self.position[q][0], self.position[q][1] = x, y
-
+                qold = self.occupy.index(Q)
                 temp = self.occupy[q]
                 self.occupy[q] = Q
-                self.occupy[q2] = temp
+                self.occupy[qold] = temp
 
             reward,terminated = self.compute_reward(action)
             self.obs = replace_last_n(self.obs, self.occupy)
@@ -150,8 +135,7 @@ class CircuitEnv_v11(gym.Env):
 
 
         if self.total_reward <= self.stop_thresh \
-                or reward <= self.stop_thresh \
-                or self.step_cnt==self.max_step :
+                or reward <= self.stop_thresh :
             terminated = True
             truncated = True
 

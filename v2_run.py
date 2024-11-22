@@ -9,7 +9,7 @@ from ray.tune import ResultGrid
 
 from env.env_helper import  register_custom_env
 from env.env_v11 import CircuitEnv_v11
-
+from env.env_v12 import CircuitEnv_v12
 from config import ConfigSingleton
 
 import ray
@@ -17,7 +17,6 @@ from ray import air, tune
 from ray.air.constants import TRAINING_ITERATION
 from ray.tune.registry import get_trainable_cls
 
-from env.env_v12 import CircuitEnv_v12
 from utils.common_utils import parse_tensorboard, move_folder
 from evaluate import evaluate_policyv2
 from utils.file.file_util import write, get_root_dir
@@ -37,7 +36,7 @@ env_config={
 def train_policy() -> ResultGrid:
     cpus  = psutil.cpu_count(logical=True)
     config = PPOConfig()\
-    .environment(env=CircuitEnv_v12, env_config=env_config)\
+    .environment(env=CircuitEnv_v11, env_config=env_config)\
     .framework('torch')\
     .rollouts(num_rollout_workers=int(cpus * 0.7), num_envs_per_worker=2)\
     .resources(num_gpus=args.num_gpus)\
@@ -45,7 +44,7 @@ def train_policy() -> ResultGrid:
         model={
             # "fcnet_hiddens":args.fcnet_hiddens ,
              "fcnet_hiddens": tune.grid_search(args.fcnet_hiddens_grid),
-            "fcnet_activation":args.fcnet_activation,
+            "fcnet_activation": tune.grid_search(args.fcnet_activation),
             "use_attention": True,
                 "attention_num_transformer_units": args.attention_num_transformer_units,
                 "attention_use_n_prev_actions": args.prev_n_actions,
@@ -115,14 +114,12 @@ def train():
         # Redirect stdout to the StringIO object
         sys.stdout = output
         result = train_policy()
-        analysis_res(result)
         evaluate_policyv2(result)
-
         # Get the output from the StringIO object
         captured_output = output.getvalue()
         #write to file
         wirte2file(captured_output)
-
+        analysis_res(result)
     finally:
         # Revert stdout back to the original
         sys.stdout = original_stdout

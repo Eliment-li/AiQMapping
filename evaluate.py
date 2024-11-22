@@ -7,7 +7,6 @@ from sympy import pprint
 
 from config import ConfigSingleton
 from env.env_helper import register_custom_env
-from utils.file.data import save_array
 from  utils.visualize.trace import show_trace, show_result
 from utils.visualize.train import show_train_metric
 
@@ -65,12 +64,10 @@ def evaluate_policy(results):
     algo.stop()
     trace = np.array(trace)
     pprint(trace.transpose())
-    file  = datetime.today().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
-    #save_array(trace,file)
     # if args.show_trace:
     #     show_trace(trace.transpose())
     show_result(trace[-1])
-    show_train_metric([r_arr,dist_arr],['reward','nn','dist'])
+    show_train_metric([r_arr,dist_arr])
 
     #use attention
 def evaluate_policyv2(results):
@@ -147,17 +144,16 @@ def evaluate_policyv2(results):
                 prev_r = np.roll(prev_r, -1)
                 prev_r[-1] = a
     algo.stop()
-    #trace = np.array(trace)
+    trace = np.array(trace)
     #pprint(trace.transpose())
-    file  = datetime.today().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
     #save_array(trace,file)
     # if args.show_trace:
     #     show_trace(trace.transpose())
-    #show_result(trace[-1])
-    show_train_metric([r_arr, nn_arr, dist_arr], ['reward','nn','dist'])
+    show_result(trace[-1])
+    show_train_metric([r_arr, nn_arr, dist_arr])
 
 if __name__ == '__main__':
     register_custom_env(args.env_version)
     #evaluate_policy('/tmp/checkpoint_tmp_cfb4d4a183d2477c85bb76d4546b4c69')
 
-    evaluate_policy(r'')
+    evaluate_policyv2(r'C:/Users/Administrator/ray_results/AiQMapping/PPO_b30b6_00002/checkpoint_000000')
