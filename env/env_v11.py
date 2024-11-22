@@ -68,7 +68,7 @@ class CircuitEnv_v11(gym.Env):
         self.last_nn = self.default_nn
 
         #stop conditions
-        self.max_step = -1
+        self.max_step = 20
         self.stop_thresh = -100
         self.total_reward = 0
         self.step_cnt = 0
@@ -122,8 +122,9 @@ class CircuitEnv_v11(gym.Env):
         q = action[0] #logical qubit
         Q = action[1] #physics qubit
         #终止条件
-        if q == 5:
+        if q == self.qubit_nums or self.step_cnt >= self.max_step:
             terminated = True
+            truncated = True
         else:
             #执行 远距离移动 q<->Q 交换位置
             x,y = POSITION_MAP[int(Q)][0],POSITION_MAP[int(Q)][1]

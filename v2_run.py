@@ -44,8 +44,8 @@ def train_policy() -> ResultGrid:
     .training(
         model={
             # "fcnet_hiddens":args.fcnet_hiddens ,
-            "fcnet_hiddens": args.fcnet_hiddens,
-            "fcnet_activation":tune.choice(args.fcnet_activation), #args.fcnet_activation,
+             "fcnet_hiddens": tune.grid_search(args.fcnet_hiddens_grid),
+            "fcnet_activation":args.fcnet_activation,
             "use_attention": True,
                 "attention_num_transformer_units": args.attention_num_transformer_units,
                 "attention_use_n_prev_actions": args.prev_n_actions,
@@ -54,8 +54,13 @@ def train_policy() -> ResultGrid:
                 "attention_memory_inference": args.attention_memory_inference,
                 "attention_memory_training": args.attention_memory_training,
         },
-        lr=tune.grid_search(args.lr_grid),
+        # lr=tune.grid_search(args.lr_grid),
         gamma=tune.grid_search(args.gamma_grid),
+        # step = iteration * 4000
+        lr_schedule=tune.grid_search([
+            [[0, 5.0e-5], [4000 * 100, 5.0e-5], [4000 * 200, 1.0e-5]],
+            # [[0, 0.001], [1e9, 0.0005]],
+        ]),
     )
     '''
     #use tune to test different lr_schedule
@@ -89,11 +94,19 @@ def train_policy() -> ResultGrid:
                                ),
                                 #storage_path=str(args.storage_path)
         ),
+        tune_config=tune.TuneConfig(
+            metric="env_runners/episode_reward_mean",
+            mode="max",
+            # num_samples=5,
+            trial_name_creator=trial_str_creator,
+            trial_dirname_creator=trial_str_creator,
+        ),
 
     )
     results = tuner.fit()
     return results
-
+def trial_str_creator(trial):
+    return "{}_{}".format(trial.trainable_name, trial.trial_id)
 def train():
     print('train:')
     output = StringIO()
