@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from pprint import pprint
 
+import pandas as pd
 from ray.tune import ResultGrid, tune
 from ray.tune.registry import get_trainable_cls
 
@@ -12,18 +13,17 @@ from utils.file.file_util import get_root_dir
 args = ConfigSingleton().get_config()
 
 key_metric=[
-'env_runners/episode_reward_min',
-'env_runners/episode_reward_max',
-'env_runners/episode_reward_mean',
-'env_runners/hist_stats/episode_reward',
 'trial_id',
+'iteration',
+'episode_reward_min',
+'episode_reward_max',
+'episode_reward_mean',
+'gamma',
+'lr',
+'fcnet_hiddens',
+'fcnet_activation',
 'date',
-'training_iteration',
-'config/env',
-'config/gamma',
-'config/lr',
-'config/model/fcnet_hiddens',
-'config/model/fcnet_activation',
+'env',
 'config/model/post_fcnet_activation',
 'config/model/use_attention',
 'config/model/attention_num_transformer_units',
@@ -39,6 +39,7 @@ key_metric=[
 'config/model/dim',
 'config/explore',
 'config/count_steps_by',
+'env_runners/hist_stats/episode_reward',
 ]
 perf_metric=[
 'iterations_since_restore',
@@ -50,12 +51,44 @@ perf_metric=[
 'logdir',
 ]
 
+head_map = {'config/lr': 'lr',
+            'training_iteration': 'iteration',
+            'env_runners/episode_reward_min': 'episode_reward_min',
+            'env_runners/episode_reward_max': 'episode_reward_max',
+            'env_runners/episode_reward_mean': 'episode_reward_mean',
+            'config/gamma': 'gamma',
+            'config/model/fcnet_hiddens': 'fcnet_hiddens',
+            'config/model/fcnet_activation': 'fcnet_activation',
+            'config/env': 'env',
+}
+
 def load_res(path):
     experiment_path = os.path.join(path, 'exp_name')
     print(f"Loading results from {experiment_path}...")
 
     restored_tuner = tune.Tuner.restore(experiment_path, trainable=get_trainable_cls(args.run))
     result_grid = restored_tuner.get_results()
+
+# a function to change the head of given dataframe ,input is a map, key = old value, value = new value
+def change_head(df, head_map):
+    '''
+        data = {
+        'a': [1, 2, 3],
+        'b': [4, 5, 6],
+        'c': [7, 8, 9]
+    }
+    df = pd.DataFrame(data)
+    change_head(df, {'a': 'A', 'b': 'B', 'c': 'C'})
+    print(df)
+    :param df:
+    :param head_map:
+    :return:
+    '''
+    df.columns = [head_map.get(col, col) for col in df.columns]
+    return df
+
+
+
 '''
 filter the panda.dataframe
 drop columns not in given list, order the colums using given list and return the new dataframe
@@ -109,13 +142,15 @@ def analysis_res(results:ResultGrid):
     #df = results.get_dataframe(filter_metric="score", filter_mode="max")
 
     df = results.get_dataframe()
+    df = change_head(df,head_map )
     df = filter_df(df, key_metric,perf_metric )
     df.to_csv(output_path,mode='x')
 
     best_result_df = results.get_dataframe(
         filter_metric="env_runners/episode_reward_mean", filter_mode="max"
     )
-    best_result_df = filter_df(best_result_df, perf_metric, key_metric)
+    best_result_df = change_head(best_result_df,head_map )
+    best_result_df = filter_df(best_result_df, key_metric,perf_metric )
     best_result_df.to_csv(output_path,mode='a')
     '''
 
