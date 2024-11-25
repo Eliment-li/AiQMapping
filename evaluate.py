@@ -218,7 +218,21 @@ def plot_evaluate(data, save=True, max_length=20):
 
 
 if __name__ == '__main__':
-    register_custom_env(args.env_version)
-    #evaluate_policy('/tmp/checkpoint_tmp_cfb4d4a183d2477c85bb76d4546b4c69')
+    #python evaluate.py /tmp/checkpoint_tmp_cfb4d4a183d2477c85bb76d4546b4c69
+    import argparse
+    parser = argparse.ArgumentParser(description="evaluate")
+    parser.add_argument('version', default="2", type=int, help='evaluate_policy version i.e. evaluate_policyv2')
+    parser.add_argument('checkpoint', type=str, help='checkpoint path')
+    #parser.add_argument('--verbose', action='store_true', help='enable verbose mode')
 
-    evaluate_policyv2(r'C:/Users/Administrator/ray_results/AiQMapping/PPO_b30b6_00002/checkpoint_000000')
+    command_args = parser.parse_args()
+
+    register_custom_env(args.env_version)
+    if command_args.version == 1:
+        print(command_args.checkpoint)
+        evaluate_policy(args.checkpoint)
+
+    else:
+        print(command_args.checkpoint)
+        evaluate_policyv2(args.checkpoint)
+        # evaluate_policyv2('/tmp/checkpoint_tmp_cfb4d4a183d2477c85bb76d4546b4c69')
