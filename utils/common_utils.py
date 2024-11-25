@@ -169,7 +169,7 @@ def parse_tensorboard(content):
 
     if result:
         matched_string = result[0][:-1]
-        tensorboard =  matched_string[matched_string.find("tmp"):matched_string.find("driver_artifacts")]
+        tensorboard =  "/"+matched_string[matched_string.find("tmp"):matched_string.find("driver_artifacts")]
         #tensorboard = matched_string[matched_string.find("C"):matched_string.find("driver_artifacts")]
         return  tensorboard
     else:
@@ -181,6 +181,7 @@ def parse_tensorboard(content):
 def move_folder(src_folder, dest_folder):
     # Move the folder to the destination folder
     shutil.move(src_folder, dest_folder)
+    shutil.copy(src_folder, dest_folder)
 
     # Print a message to indicate that the folder has been moved
     print(f"Folder '{src_folder}' has been moved to '{dest_folder}'.")
