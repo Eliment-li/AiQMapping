@@ -177,14 +177,13 @@ def parse_tensorboard(content):
         return  ''
 
 
-# move a folder to another folder
-def move_folder(src_folder, dest_folder):
+# copy a folder to another folder
+def copy_folder(src_folder, dest_folder):
     # Move the folder to the destination folder
-    shutil.move(src_folder, dest_folder)
-    shutil.copy(src_folder, dest_folder)
-
+    #shutil.move(src_folder, dest_folder)
+    shutil.copytree(src_folder, dest_folder)
     # Print a message to indicate that the folder has been moved
-    print(f"Folder '{src_folder}' has been moved to '{dest_folder}'.")
+    print(f"Folder '{src_folder}' has been copied to '{dest_folder}'.")
     return True
 if __name__ == '__main__':
     ts= parse_tensorboard('To visualize your results with TensorBoard, run: `tensorboard --logdir C:/Users/Administrator/AppData/Local/Temp/ray/session_2024-11-19_11-11-06_708517_17204/artifacts/2024-11-19_11-11-15/PPO_2024-11-19_11-11-15/driver_artifacts`')

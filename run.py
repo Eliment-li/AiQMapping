@@ -14,7 +14,7 @@ from ray import air, tune
 from ray.air.constants import TRAINING_ITERATION
 
 from env.env_v12 import CircuitEnv_v12
-from utils.common_utils import parse_tensorboard, move_folder
+from utils.common_utils import parse_tensorboard, copy_folder
 from evaluate import evaluate_policy
 from utils.results import analysis_res
 from v2_run import wirte2file
@@ -100,7 +100,7 @@ def train():
 
     tensorboard = parse_tensorboard(captured_output)
     print(f'tensorboard: {tensorboard}')
-    move_folder(tensorboard, args_pri.tensorboard_dir + args.time_id)
+    copy_folder(tensorboard, args_pri.tensorboard_dir + args.time_id)
 
 
 if __name__ == '__main__':

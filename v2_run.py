@@ -17,7 +17,7 @@ from ray import air, tune
 from ray.air.constants import TRAINING_ITERATION
 from ray.tune.registry import get_trainable_cls
 
-from utils.common_utils import parse_tensorboard, move_folder
+from utils.common_utils import parse_tensorboard, copy_folder
 from evaluate import evaluate_policyv2
 from utils.file.file_util import write, get_root_dir
 from utils.results import analysis_res
@@ -126,7 +126,7 @@ def train():
 
     tensorboard = parse_tensorboard(captured_output)
     print(f'tensorboard: {tensorboard}')
-    move_folder(tensorboard, args_pri.tensorboard_dir + args.time_id)
+    copy_folder(tensorboard, args_pri.tensorboard_dir + args.time_id)
 
 
 def wirte2file(content):
