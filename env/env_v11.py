@@ -114,6 +114,7 @@ class CircuitEnv_v11(gym.Env):
         q = action[0] #logical qubit
         Q = action[1] #physics qubit
         #终止条件
+        self.step_cnt += 1
         if q == self.qubit_nums or self.step_cnt >= self.max_step:
             terminated = True
             truncated = True
