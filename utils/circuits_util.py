@@ -10,6 +10,8 @@ from config import ConfigSingleton
 from core import chip
 from utils.code_conversion import QCIS_2_QASM
 from utils.file.file_util import read_all
+from utils.points_util import coordinate2adjacent
+
 args = ConfigSingleton().get_config()
 '''
 从代码中抽取 qubit nn 依赖关系
@@ -63,13 +65,7 @@ def reassign_qxx_labels(code):
     new_code = qxx_pattern.sub(replace_qxx, code)
 
     return new_code
-################################################################3
-path = Path(args.circuit_path) / 'XEB_5_qubits_8_cycles_circuit.txt'
-RE_LABEL_CIRCUIT = reassign_qxx_labels(read_all(path))
-QASM_STR = QCIS_2_QASM(RE_LABEL_CIRCUIT)
-simulator = AerSimulator()
-circuit = QuantumCircuit.from_qasm_str(qasm_str=QASM_STR)
-#circuit.draw('mpl').show()
+
 '''
 * virtual to physical::
 [0, 3, 5]  # virtual qubits are ordered (in addition to named)
@@ -97,10 +93,29 @@ def count_gates(circuit:QuantumCircuit, layout,coupling_map) -> int:
         traceback.print_exc()
         return -1
 
-
 if __name__ == '__main__':
     #print(swap_counts('XEB_5_qubits_8_cycles_circuit.txt',[21,26,14,20,9]))
-    print(qubits_nn_constrain('XEB_5_qubits_8_cycles_circuit.txt'))
+    #print(qubits_nn_constrain('XEB_5_qubits_8_cycles_circuit.txt'))
 
+    ################################################################3
+    path = Path(args.circuit_path) / 'XEB_9_qubits_8_cycles_circuit.txt'
+    RE_LABEL_CIRCUIT = reassign_qxx_labels(read_all(path))
+    QASM_STR = QCIS_2_QASM(RE_LABEL_CIRCUIT)
+    simulator = AerSimulator()
+    circuit = QuantumCircuit.from_qasm_str(qasm_str=QASM_STR)
+    # circuit.draw('mpl').show()
+    layout = [16,24,18,26,32,25,30,31,17]
+    initial_layout = {}
+    for i, v in enumerate(layout):
+        initial_layout[circuit.qubits[i]] = v
+    points = [(x, y) for x in range(7) for y in range(7)]
+    adjacency_list = coordinate2adjacent(points)
+    ct1 = transpile(circuits=circuit, coupling_map=adjacency_list, initial_layout=initial_layout, optimization_level=1,
+                    backend=simulator)
+    ct2 = transpile(circuits=circuit, coupling_map=adjacency_list, optimization_level=1, backend=simulator)
+    d1 = ct1.depth()
+    d2 = ct2.depth()
+
+    print(f'd1={d1},d2={d2}')
 
 
