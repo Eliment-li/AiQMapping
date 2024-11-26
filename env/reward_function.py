@@ -143,16 +143,19 @@ class RewardFunction:
 
         k1 = (env.default_distance - distance) / env.default_distance
         k2 = (env.last_distance - distance) / env.last_distance
-        env.last_distance = distance
+
 
         if k2 > 0:
             r1 = (math.pow((1 + k2), 2) - 1) * (1 + np.tanh(k1))
         elif k2 < 0:
-            #后缀 -0.1 ，防止 agent 利用漏洞, see: 11-21 lr_schedule xeb5-9.md 总结部分
-            r1 = -3.5 * (math.pow((1 - k2), 2) - 1) * (1 - np.tanh(k1)) - 0.1
+            #后缀 -0.1, 防止 agent 利用漏洞, see: 11-21 lr_schedule xeb5-9.md 总结部分
+            r1 = -3.5 * (math.pow((1 - k2), 2) - 1) * (1 - np.tanh(k1))
+            if distance - env.last_distance  <=1:
+                r1 *= 1.25
         else:
             r1 = -0.1
 
+        env.last_distance = distance
         reward = r1
 
         return reward, terminated
