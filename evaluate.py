@@ -13,7 +13,7 @@ from utils.file.file_util import get_root_dir
 from  utils.visualize.trace import show_trace, show_result
 import matplotlib.pyplot as plt
 args = ConfigSingleton().get_config()
-max_step = 100
+max_step = 20
 r_arr = []
 dist_arr = []
 nn_arr = []
@@ -26,7 +26,6 @@ def grap_metric(reward,info):
 
 
 def evaluate_policy(results):
-
     if  not isinstance(results, str):
         checkpoint = results.get_best_result(metric='env_runners/episode_reward_mean', mode='max').checkpoint
         checkpoint = checkpoint.to_directory()
@@ -34,7 +33,6 @@ def evaluate_policy(results):
         algo = Algorithm.from_checkpoint(path=checkpoint)
     else:
         algo = Algorithm.from_checkpoint(path=results)
-
 
     env = gym.make('Env_'+str(args.env_version))
     obs, info = env.reset()
@@ -73,7 +71,6 @@ def evaluate_policy(results):
 
     #use attention
 def evaluate_policyv2(results):
-    args = ConfigSingleton().get_config()
     if  not isinstance(results, str):
         checkpoint = results.get_best_result(metric='env_runners/episode_reward_mean', mode='max').checkpoint
         checkpoint = checkpoint.to_directory()
@@ -82,11 +79,11 @@ def evaluate_policyv2(results):
     else:
         algo = Algorithm.from_checkpoint(path=results)
 
-
     env = gym.make('Env_'+str(args.env_version))
     obs, info = env.reset()
     episode_reward = 0.0
-
+    trace = []
+    trace.append(deepcopy(info['occupy']))
     #attention start
     # In case the model needs previous-reward/action inputs, keep track of
     # these via these variables here (we'll have to pass them into the
@@ -108,9 +105,6 @@ def evaluate_policyv2(results):
         init_prev_r = prev_r = np.array([0.0] * int(args.prev_n_rewards))
     #attention end
 
-    # trace
-    trace = []
-    trace.append(deepcopy(info['occupy']))
     for i in range(max_step):
         a, state_out, _ = algo.compute_single_action(
             observation=obs,
@@ -132,7 +126,6 @@ def evaluate_policyv2(results):
         if done:
             print('env done = %r, action = %r, reward = %r  occupy =  {%r} ' % (done,a, reward, info['occupy']))
             print(f"Episode done: Total reward = {episode_reward}")
-            print(f"CheckPoint = {checkpoint}")
             break
         else:
             # Append the just received state-out (most recent timestep) to the
@@ -154,9 +147,6 @@ def evaluate_policyv2(results):
     #     show_trace(trace.transpose())
     show_result(trace[-1])
     plot_evaluate([r_arr, nn_arr, dist_arr])
-
-    from utils.file.file_util import get_root_dir
-    args = ConfigSingleton().get_config()
 
 # data[0]:  data[1]:
 def plot_evaluate(data, save=True, max_length=20):
