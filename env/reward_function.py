@@ -75,7 +75,7 @@ class RewardFunction:
         terminated =False
         # 计算距离
         #distance = comu.compute_total_distance(env.position)
-        distance = cu.swap_counts(circuit_name=env.circuit,initial_layout=env.occupy)
+        distance = cu.swap_counts(circuit=env.QiskitCircuit,initial_layout=env.occupy)
         if distance == 0:
             return 4,True
 
@@ -153,7 +153,7 @@ class RewardFunction:
             if distance - env.last_distance  <=1:
                 r1 *= 1.25
         else:
-            r1 = -0.1
+            r1 = -0.05
 
         env.last_distance = distance
         reward = r1

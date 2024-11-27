@@ -11,7 +11,7 @@ from core import chip
 from utils.code_conversion import QCIS_2_QASM
 from utils.file.file_util import read_all
 from utils.points_util import coordinate2adjacent
-
+simulator = AerSimulator()
 args = ConfigSingleton().get_config()
 '''
 从代码中抽取 qubit nn 依赖关系
@@ -70,7 +70,7 @@ def reassign_qxx_labels(code):
 * virtual to physical::
 [0, 3, 5]  # virtual qubits are ordered (in addition to named)
 '''
-def swap_counts(circuit_name,initial_layout):
+def swap_counts(circuit,initial_layout):
     return count_gates(circuit,initial_layout,coupling_map=chip.COUPLING_MAP)
 
 def count_gates(circuit:QuantumCircuit, layout,coupling_map) -> int:

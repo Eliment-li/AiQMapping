@@ -2,6 +2,7 @@ import math
 import datetime
 from copy import copy,deepcopy
 from logging import lastResort
+from pathlib import Path
 from pprint import pprint
 
 import gymnasium as gym
@@ -9,6 +10,7 @@ import numpy as np
 from gymnasium import  register
 from gymnasium.spaces import MultiBinary, MultiDiscrete, Discrete, Box
 from gymnasium.spaces.utils import flatten_space
+from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 from loguru import logger
 import warnings
@@ -19,7 +21,9 @@ from config import ConfigSingleton
 from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, POSITION_MAP, \
     cnt_meet_nn_constrain, chip_Qubit_distance
 import utils.circuits_util as cu
+from utils.code_conversion import QCIS_2_QASM
 from utils.common_utils import  data_normalization, unique_random_int
+from utils.file.file_util import read_all
 from utils.visualize.trace import show_trace
 from env.reward_function import RewardFunction
 os.environ["SHARED_MEMORY_USE_LOCK"] = '1'
@@ -39,6 +43,10 @@ class CircuitEnv_v12(gym.Env):
         # circuit 变量
         self.qubit_nums = 5
         self.circuit = 'XEB_'+str(self.qubit_nums)+'_qubits_8_cycles_circuit.txt'
+        path = Path(args.circuit_path) / self.circuit
+        RE_LABEL_CIRCUIT = cu.reassign_qxx_labels(read_all(path))
+        QASM_STR = QCIS_2_QASM(RE_LABEL_CIRCUIT)
+        self.QiskitCircuit = QuantumCircuit.from_qasm_str(qasm_str=QASM_STR)
 
         #chip 变量
         #todo
