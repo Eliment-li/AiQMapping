@@ -14,6 +14,7 @@ from ray import air, tune
 from ray.air.constants import TRAINING_ITERATION
 
 from env.env_v12 import CircuitEnv_v12
+from env.env_v13 import CircuitEnv_v13
 from utils.common_utils import parse_tensorboard, copy_folder
 from evaluate import evaluate_policy
 from utils.results import analysis_res
@@ -35,7 +36,7 @@ def train_policy():
     cpus  = psutil.cpu_count(logical=True)
 
     config = PPOConfig()\
-    .environment(env=CircuitEnv_v12, env_config=env_config)\
+    .environment(env=CircuitEnv_v13, env_config=env_config)\
     .framework('torch')\
     .rollouts(num_rollout_workers=int(cpus * 0.7), num_envs_per_worker=2)\
     .resources(num_gpus=args.num_gpus)\
@@ -64,6 +65,7 @@ def train_policy():
         args.run,
         param_space=config,
         run_config=air.RunConfig(stop=stop,
+                                 verbose=1,
                                 checkpoint_config=air.CheckpointConfig(
                                 checkpoint_frequency=args.checkpoint_frequency,
                                 checkpoint_at_end=args.checkpoint_at_end,
@@ -93,7 +95,8 @@ def train():
         # write to filereassign_qxx_labels
         wirte2file(captured_output)
         analysis_res(results)
-
+    except Exception as e:
+        print(e)
     finally:
         # Revert stdout back to the original
         sys.stdout = original_stdout
