@@ -93,10 +93,8 @@ def count_gates(circuit:QuantumCircuit, layout,coupling_map) -> int:
         traceback.print_exc()
         return -1
 
-if __name__ == '__main__':
-    #print(swap_counts('XEB_5_qubits_8_cycles_circuit.txt',[21,26,14,20,9]))
-    #print(qubits_nn_constrain('XEB_5_qubits_8_cycles_circuit.txt'))
 
+def compare_depth(circuit:QuantumCircuit,layout):
     ################################################################3
     path = Path(args.circuit_path) / 'XEB_9_qubits_8_cycles_circuit.txt'
     RE_LABEL_CIRCUIT = reassign_qxx_labels(read_all(path))
@@ -117,5 +115,14 @@ if __name__ == '__main__':
     d2 = ct2.depth()
 
     print(f'd1={d1},d2={d2}')
+
+if __name__ == '__main__':
+    path = Path(args.circuit_path) / 'XEB_5_qubits_8_cycles_circuit.txt'
+    RE_LABEL_CIRCUIT = reassign_qxx_labels(read_all(path))
+    QASM_STR = QCIS_2_QASM(RE_LABEL_CIRCUIT)
+    circuit = QuantumCircuit.from_qasm_str(qasm_str=QASM_STR)
+    print(swap_counts(circuit,[27,34,33,38,39]))
+    #print(qubits_nn_constrain('XEB_5_qubits_8_cycles_circuit.txt'))
+
 
 
