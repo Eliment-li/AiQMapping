@@ -56,10 +56,7 @@ class CircuitEnv_v12(gym.Env):
 
         # init an array from 0 to self.qubit_nums - 1
 
-
-        #self.occupy = np.arange(self.qubit_nums).tolist()
-        self.occupy = unique_random_int(self.qubit_nums,0,65)
-
+        self.occupy = np.arange(self.qubit_nums).tolist()
         self.qubits = np.float32(QUBITS_ERROR_RATE)
         self.coupling= np.float32(COUPLING_SCORE)
 
