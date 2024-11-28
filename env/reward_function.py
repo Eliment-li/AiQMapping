@@ -71,7 +71,6 @@ class RewardFunction:
 
     #可基于Qiskit达到训练目标
     def rfv3(self,env, action):
-        reward = env.stop_thresh
         terminated =False
         # 计算距离
         #distance = comu.compute_total_distance(env.position)
@@ -84,11 +83,11 @@ class RewardFunction:
         env.last_distance = distance
 
         if k2 > 0:
-            reward = (math.pow((1 + k2), 2) - 1) * (1 + np.tanh(k1))
+            reward = (math.pow((1 + k2), 2) - 1) * (1 + k1 +0.5)
         elif k2 < 0:
-            reward = -1 * (math.pow((1 - k2), 2) - 1) * (1 - np.tanh(k1))
+            reward = -1 * (math.pow((1 - k2), 2) - 1) * (1 - k1 - 0.5)
         else:
-            reward = -0.1
+            reward = -0.05
 
         return reward,terminated
 
