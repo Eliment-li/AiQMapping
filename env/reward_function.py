@@ -75,12 +75,13 @@ class RewardFunction:
         # 计算距离
         #distance = comu.compute_total_distance(env.position)
         distance = cu.swap_counts(circuit=env.QiskitCircuit,initial_layout=env.occupy)
-        if distance == 0:
-            return 4,True
 
         k1 = (env.default_distance - distance) / env.default_distance
         k2 = (env.last_distance - distance) / env.last_distance
         env.last_distance = distance
+
+        if distance == 0:
+            return 4, True
 
         if k2 > 0:
             reward = (math.pow((1 + k2), 2) - 1) * (1 + k1 +0.5)
