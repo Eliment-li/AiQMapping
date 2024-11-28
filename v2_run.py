@@ -9,7 +9,6 @@ from ray.tune import ResultGrid
 
 from env.env_helper import  register_custom_env
 from env.env_v11 import CircuitEnv_v11
-from env.env_v12 import CircuitEnv_v12
 from config import ConfigSingleton
 
 import ray
@@ -57,7 +56,7 @@ def train_policy() -> ResultGrid:
         gamma=tune.grid_search(args.gamma_grid),
         # step = iteration * 4000
         lr_schedule=tune.grid_search([
-            [[0, 5.0e-5], [4000 * 100, 5.0e-5], [4000 * 200, 1.0e-5]],
+            [[0, 5.0e-5], [4000 * 50, 5.0e-5], [4000 * 200, 1.0e-5]],
             # [[0, 0.001], [1e9, 0.0005]],
         ]),
     )
@@ -69,15 +68,13 @@ def train_policy() -> ResultGrid:
     ]),
     '''
     #config["lr_schedule"]=[[0, 5e-5],[400000, 3e-5],[1200000, 1e-5]]
-
-
     #stop = {"training_iteration": 100, "episode_reward_mean": 300}
     # config['model']['fcnet_hiddens'] = [32, 32]
     # automated run with Tune and grid search and TensorBoard
 
     '''
     If  don’t specify a scheduler, Tune will use a first-in-first-out (FIFO) scheduler by default, 
-    which simply passes through the trials selected by your search algorithm in the order they were 
+    which simply passes through the trials selected by the search algorithm in the order they were 
     picked and does not perform any early stopping.
     '''
     tuner = tune.Tuner(
@@ -85,6 +82,7 @@ def train_policy() -> ResultGrid:
         #param_space=config.to_dict(),
         param_space=config,
         run_config=air.RunConfig(
+                                verbose=1,
                                 name='AiQMapping',
                                 stop=stop,
                                 checkpoint_config=air.CheckpointConfig(
@@ -107,7 +105,6 @@ def train_policy() -> ResultGrid:
 def trial_str_creator(trial):
     return "{}_{}".format(trial.trainable_name, trial.trial_id)
 def train():
-    print('train:')
     output = StringIO()
     original_stdout = sys.stdout
     try:
