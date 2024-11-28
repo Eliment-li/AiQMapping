@@ -19,8 +19,8 @@ from config import ConfigSingleton
 from core.chip import QUBITS_ERROR_RATE, move_point, grid, COUPLING_SCORE, POSITION_MAP, CHIPSTATE, \
     cnt_meet_nn_constrain, chip_Qubit_distance
 import utils.circuits_util as cu
-from utils.common_utils import  data_normalization, linear_scale, \
-    replace_last_n, unique_random_int
+from utils.common_utils import data_normalization, linear_scale, \
+    replace_last_n, unique_random_int, append2matrix
 from env.reward_function import RewardFunction
 os.environ["SHARED_MEMORY_USE_LOCK"] = '1'
 args = ConfigSingleton().get_config()
@@ -41,7 +41,7 @@ class CircuitEnv_v11(gym.Env):
         self.circuit = 'XEB_'+str(self.qubit_nums)+'_qubits_8_cycles_circuit.txt'
         #chip 变量
         self.nn = cu.qubits_nn_constrain(self.circuit)
-        self.grid = copy(grid)
+        self.grid = deepcopy(grid)
 
 
 
@@ -54,15 +54,18 @@ class CircuitEnv_v11(gym.Env):
         # 被占据的qubit，用 Q序号为标识
         # 重新随机选取位置
         self.occupy = unique_random_int(self.qubit_nums, 0, 65)
+        self.grid = append2matrix(self.grid, self.occupy)
 
         self.qubits = np.float32(QUBITS_ERROR_RATE)
         self.coupling= np.float32(COUPLING_SCORE)
         self.default_distance = chip_Qubit_distance(nn=self.nn, occupy=self.occupy)
         self.last_distance = self.default_distance
 
-        STATE_H,STATE_W = len(CHIPSTATE), len(CHIPSTATE[0])
+
+
+        STATE_H,STATE_W = len(self.grid), len(self.grid[0])
         self.observation_space = Box( low=0, high=255, shape=(STATE_H, STATE_W), dtype=np.uint8)
-        self.obs = deepcopy(CHIPSTATE)
+        self.obs = self.grid #deepcopy(CHIPSTATE)
 
         self.action_space = MultiDiscrete([(self.qubit_nums+1), 65])
 
@@ -101,8 +104,7 @@ class CircuitEnv_v11(gym.Env):
         # trace = np.array(self.trace)
         # show_trace(trace.transpose())
         self.trace = []
-        self.obs = deepcopy(CHIPSTATE)
-        self.obs = replace_last_n(self.obs,self.occupy)
+        self.obs = replace_last_n(self.obs ,self.occupy)
 
         return self.get_obs() , info
 
