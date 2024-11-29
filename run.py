@@ -65,7 +65,7 @@ def train_policy():
         args.run,
         param_space=config,
         run_config=air.RunConfig(stop=stop,
-                                 verbose=1,
+                                 verbose=0,
                                 checkpoint_config=air.CheckpointConfig(
                                 checkpoint_frequency=args.checkpoint_frequency,
                                 checkpoint_at_end=args.checkpoint_at_end,
