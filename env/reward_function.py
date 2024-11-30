@@ -71,6 +71,7 @@ class RewardFunction:
 
     #可基于Qiskit达到训练目标
     def rfv3(self,env, action):
+        reward = env.stop_thresh
         terminated =False
         # 计算距离
         #distance = comu.compute_total_distance(env.position)
