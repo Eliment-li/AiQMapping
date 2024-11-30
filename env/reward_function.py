@@ -86,7 +86,11 @@ class RewardFunction:
         if k2 > 0:
             reward = (math.pow((1 + k2), 2) - 1) * (1 + k1 +0.5)
         elif k2 < 0:
-            reward = -1 * (math.pow((1 - k2), 2) - 1) * (1 - k1 - 0.5)
+            #reward = -1 * (math.pow((1 - k2), 2) - 1) * (1 - k1 - 0.5)
+            #修改 参考rf5
+            r1 = -3.5 * (math.pow((1 - k2), 2) - 1) * (1 - np.tanh(k1))
+            if distance - env.last_distance  <=1:
+                r1 *= 1.25
         else:
             reward = -0.05
 
