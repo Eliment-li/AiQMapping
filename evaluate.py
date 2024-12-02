@@ -67,6 +67,8 @@ def evaluate_policy(results):
     # if args.show_trace:
     #     show_trace(trace.transpose())
     show_result(trace[-1])
+    pprint(f'reward:\n {np.round(r_arr, decimals=2)} ')
+    pprint(f'distance:\n {np.round(dist_arr, decimals=2)} ')
     plot_evaluate([r_arr,dist_arr])
 
     #use attention
