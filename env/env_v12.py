@@ -41,7 +41,7 @@ class CircuitEnv_v12(gym.Env):
         #save reward
         self.rs = []
         # circuit 变量
-        self.qubit_nums = 5
+        self.qubit_nums = args.qubit_nums
         self.circuit = 'XEB_'+str(self.qubit_nums)+'_qubits_8_cycles_circuit.txt'
         path = Path(args.circuit_path) / self.circuit
         RE_LABEL_CIRCUIT = cu.reassign_qxx_labels(read_all(path))
