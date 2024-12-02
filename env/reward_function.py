@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+import torch
 
 import utils.common_utils as comu
 import  utils.circuits_util as cu
@@ -85,9 +86,9 @@ class RewardFunction:
             return 4, True
 
         if k2 > 0:
-            reward = (math.pow((1 + k2), 2) - 1) * (1 + k1 +0.5)
+            reward = (math.pow((1 + k2), 2) - 1) * (torch.sigmoid(1 + k1))
         elif k2 < 0:
-            reward = -2 * (math.pow((1 - k2), 2) - 1) * math.fabs(1 - k1 - 0.5)
+            reward = -2 * (math.pow((1 - k2), 2) - 1) * (torch.sigmoid(1 + k1))
             if distance - env.last_distance  <= 1:
                 reward *= 1.25
         else:
