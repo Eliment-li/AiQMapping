@@ -66,7 +66,7 @@ class CircuitEnv_v12(gym.Env):
         self.obs = np.array(self.occupy).astype(int)
         self.action_space = MultiDiscrete([(self.qubit_nums), 65])
 
-        self.default_distance = chip_Qubit_distance(nn = self.nn,occupy=self.occupy)
+        self.default_distance = cu.swap_counts(circuit=self.QiskitCircuit, initial_layout=self.occupy) #chip_Qubit_distance(nn = self.nn,occupy=self.occupy)
         self.last_distance = self.default_distance
 
         #stop conditions
@@ -92,7 +92,7 @@ class CircuitEnv_v12(gym.Env):
 
         #重新随机选取位置
         self.occupy =np.arange(self.qubit_nums).tolist() #unique_random_int(self.qubit_nums, 0, 65)
-        self.default_distance = chip_Qubit_distance(nn=self.nn, occupy=self.occupy)
+        self.default_distance = cu.swap_counts(circuit=self.QiskitCircuit, initial_layout=self.occupy) #chip_Qubit_distance(nn=self.nn, occupy=self.occupy)
         self.last_distance = self.default_distance
 
         #初始化错误信息
