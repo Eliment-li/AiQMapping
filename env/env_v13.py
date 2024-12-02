@@ -53,7 +53,7 @@ class CircuitEnv_v13(gym.Env):
         self.nn = cu.qubits_nn_constrain(self.circuit)
         self.grid = deepcopy(grid)
         # 被占据的qubit，用 Q序号为标识
-        self.occupy = unique_random_int(self.qubit_nums, 0, 65)
+        self.occupy = np.arange(self.qubit_nums).tolist() #unique_random_int(self.qubit_nums, 0, 65)
 
         # init an array from 0 to self.qubit_nums - 1
 
@@ -88,7 +88,7 @@ class CircuitEnv_v13(gym.Env):
         self.step_cnt = 0
 
         #重新随机选取位置
-        self.occupy = unique_random_int(self.qubit_nums, 0, 65)
+        self.occupy = np.arange(self.qubit_nums).tolist()
         self.obs = replace_last_n(self.obs ,self.occupy)
         self.default_distance = cu.swap_counts(circuit=self.QiskitCircuit, initial_layout=self.occupy)
         self.last_distance = self.default_distance
