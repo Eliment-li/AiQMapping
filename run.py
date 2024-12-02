@@ -2,6 +2,7 @@ import sys
 import time
 from datetime import datetime
 from io import StringIO
+from pathlib import Path
 
 import psutil
 from ray.rllib.algorithms import PPOConfig
@@ -17,6 +18,7 @@ from env.env_v12 import CircuitEnv_v12
 from env.env_v13 import CircuitEnv_v13
 from utils.common_utils import parse_tensorboard, copy_folder
 from evaluate import evaluate_policy
+from utils.file.file_util import get_root_dir
 from utils.results import analysis_res
 from v2_run import wirte2file
 
@@ -90,11 +92,12 @@ def train():
         sys.stdout = output
         results = train_policy()
         evaluate_policy(results)
+        analysis_res(results)
         # Get the output from the StringIO object
         captured_output = output.getvalue()
         # write to filereassign_qxx_labels
         wirte2file(captured_output)
-        analysis_res(results)
+
     except Exception as e:
         print(e)
     finally:
@@ -103,7 +106,8 @@ def train():
 
     tensorboard = parse_tensorboard(captured_output)
     print(f'tensorboard: {tensorboard}')
-    copy_folder(tensorboard, args_pri.tensorboard_dir + args.time_id)
+    path = Path(get_root_dir()) / 'data' / 'result' / ('tensorboard' + args.time_id )
+    copy_folder(tensorboard, path)
 
 
 if __name__ == '__main__':
